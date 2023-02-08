@@ -2,6 +2,7 @@
 using Models.Database;
 using Models.Enumerations;
 using System;
+using System.Collections.Generic;
 
 namespace Database
 {
@@ -10,9 +11,13 @@ namespace Database
         public DbSet<AccountModel> Accounts { get; set; }
         public DbSet<AccountCharacterModel> AccountCharacters { get; set; }
         public DbSet<AccountCharacterPositionModel> AccountCharactersPosition { get; set; }
-        public DbSet<AccountCharacterFaceShapeModel> AccountCharactersFaceShape { get; set; }
-        public DbSet<AccountCharacterHeritageModel> AccountCharacterHeritage { get; set; }
+        public DbSet<AccountCharacterPedHeadDataModel> AccountCharacterHeritage { get; set; }
+        public DbSet<AccountCharacterPedFaceModel> AccountCharactersFaceShape { get; set; }
         public DbSet<AccountCharacterPedComponentModel> AccountCharacterPedComponent { get; set; }
+        public DbSet<AccountCharacterPedPropModel> AccountCharacterPedProp { get; set; }
+        public DbSet<AccountCharacterPedHeadModel> AccountCharacterAppearance { get; set; }
+        public DbSet<AccountCharacterPedHeadOverlayModel> AccountCharacterPedHeadOverlay { get; set; }
+        public DbSet<AccountCharacterPedHeadOverlayColorModel> AccountCharacterPedHeadOverlayColor { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -50,9 +55,13 @@ namespace Database
                 e.HasIndex(m => new { m.Id, m.AccountId });
 
                 e.HasOne(m => m.Position).WithOne().HasForeignKey<AccountCharacterPositionModel>(m => m.ChatacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasOne(m => m.FaceShape).WithOne().HasForeignKey<AccountCharacterFaceShapeModel>(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasOne(m => m.Heritage).WithOne().HasForeignKey<AccountCharacterHeritageModel>(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.Heritage).WithOne().HasForeignKey<AccountCharacterPedHeadDataModel>(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.PedHead).WithOne().HasForeignKey<AccountCharacterPedHeadModel>(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.PedFace).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
                 e.HasMany(m => m.PedComponent).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.PedProp).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.PedHeadOverlay).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.PedHeadOverlayColor).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
 
                 e.HasData(new AccountCharacterModel
                 {
@@ -81,23 +90,30 @@ namespace Database
                 });
             });
 
-            modelBuilder.Entity<AccountCharacterFaceShapeModel>(e =>
+            modelBuilder.Entity<AccountCharacterPedFaceModel>(e =>
             {
-                e.ToTable("account_character_faceshape");
-                e.HasKey(m => m.CharacterId);
+                e.ToTable("account_character_ped_face");
+                e.HasKey(m => new { m.CharacterId, m.Index });
 
-                e.HasData(new AccountCharacterFaceShapeModel
+                var models = new List<AccountCharacterPedFaceModel>();
+                foreach (FaceShapeEnum item in Enum.GetValues(typeof(FaceShapeEnum)))
                 {
-                    CharacterId = 1,
-                });
+                    models.Add(new AccountCharacterPedFaceModel
+                    {
+                        CharacterId = 1,
+                        Index = item,
+                        Scale = 0
+                    });
+                }
+                e.HasData(models);
             });
 
-            modelBuilder.Entity<AccountCharacterHeritageModel>(e =>
+            modelBuilder.Entity<AccountCharacterPedHeadDataModel>(e =>
             {
-                e.ToTable("account_character_heritage");
+                e.ToTable("account_character_ped_head_data");
                 e.HasKey(m => m.CharacterId);
 
-                e.HasData(new AccountCharacterHeritageModel
+                e.HasData(new AccountCharacterPedHeadDataModel
                 {
                     CharacterId = 1,
                 });
@@ -107,92 +123,72 @@ namespace Database
             {
                 e.ToTable("account_character_ped_component");
                 e.HasKey(m => new { m.CharacterId, m.ComponentId });
-                e.HasData(
-                    new AccountCharacterPedComponentModel
+
+                var models = new List<AccountCharacterPedComponentModel>();
+                foreach (ComponentVariationEnum item in Enum.GetValues(typeof(ComponentVariationEnum)))
+                {
+                    models.Add(new AccountCharacterPedComponentModel
                     {
                         CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.Head,
+                        ComponentId = item,
                         Index = 0,
                         Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
+                    });
+                }
+                e.HasData(models);
+            });
+
+            modelBuilder.Entity<AccountCharacterPedPropModel>(e =>
+            {
+                e.ToTable("account_character_ped_prop");
+                e.HasKey(m => new { m.CharacterId, m.PropId });
+
+                var models = new List<AccountCharacterPedPropModel>();
+                foreach (PropVariationEnum item in Enum.GetValues(typeof(PropVariationEnum)))
+                {
+                    models.Add(new AccountCharacterPedPropModel
                     {
                         CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.Masks,
+                        PropId = item,
                         Index = 0,
                         Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
+                    });
+                }
+                e.HasData(models);
+            });
+
+            modelBuilder.Entity<AccountCharacterPedHeadModel>(e =>
+            {
+                e.ToTable("account_character_ped_head");
+                e.HasKey(m => m.CharacterId);
+
+                e.HasData(new AccountCharacterPedHeadModel
+                {
+                    CharacterId = 1,
+                });
+            });
+
+            modelBuilder.Entity<AccountCharacterPedHeadOverlayModel>(e =>
+            {
+                e.ToTable("account_character_ped_head_overlay");
+                e.HasKey(m => new { m.CharacterId, m.OverlayId });
+
+                var models = new List<AccountCharacterPedHeadOverlayModel>();
+                foreach (OverlayEnum item in Enum.GetValues(typeof(OverlayEnum)))
+                {
+                    models.Add(new AccountCharacterPedHeadOverlayModel
                     {
                         CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.HairStyles,
-                        Index = 0,
-                        Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
-                    {
-                        CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.Torsos,
-                        Index = 0,
-                        Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
-                    {
-                        CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.Legs,
-                        Index = 0,
-                        Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
-                    {
-                        CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.BagsNParachutes,
-                        Index = 0,
-                        Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
-                    {
-                        CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.Shoes,
-                        Index = 0,
-                        Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
-                    {
-                        CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.Accessories,
-                        Index = 0,
-                        Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
-                    {
-                        CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.Undershirts,
-                        Index = 0,
-                        Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
-                    {
-                        CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.BodyArmors,
-                        Index = 0,
-                        Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
-                    {
-                        CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.Decals,
-                        Index = 0,
-                        Texture = 0
-                    },
-                    new AccountCharacterPedComponentModel
-                    {
-                        CharacterId = 1,
-                        ComponentId = ComponentVariationEnum.Tops,
-                        Index = 0,
-                        Texture = 0
-                    }
-                );
+                        OverlayId = item
+                    });
+                }
+                e.HasData(models);
+            });
+
+            modelBuilder.Entity<AccountCharacterPedHeadOverlayColorModel>(e =>
+            {
+                e.ToTable("account_character_ped_head_overlay_color");
+                e.HasKey(m => new { m.CharacterId, m.OverlayId });
             });
         }
     }

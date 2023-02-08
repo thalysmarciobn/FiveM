@@ -8,8 +8,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseConsole.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230208124647_PedComponents")]
-    partial class PedComponents
+    [Migration("20230208162108_InitialCreate")]
+    partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,64 +23,10 @@ namespace DatabaseConsole.Migrations
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
 
-                    b.Property<float>("CheekBoneHeight")
-                        .HasColumnType("float");
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
 
-                    b.Property<float>("CheekBoneWidth")
-                        .HasColumnType("float");
-
-                    b.Property<float>("CheekWidth")
-                        .HasColumnType("float");
-
-                    b.Property<float>("ChinBoneLength")
-                        .HasColumnType("float");
-
-                    b.Property<float>("ChinBoneLowering")
-                        .HasColumnType("float");
-
-                    b.Property<float>("ChinBoneWidth")
-                        .HasColumnType("float");
-
-                    b.Property<float>("ChinDimple")
-                        .HasColumnType("float");
-
-                    b.Property<float>("EyeBrowHeight")
-                        .HasColumnType("float");
-
-                    b.Property<float>("EyeBrowLength")
-                        .HasColumnType("float");
-
-                    b.Property<float>("EyeOpenings")
-                        .HasColumnType("float");
-
-                    b.Property<float>("JawBoneLength")
-                        .HasColumnType("float");
-
-                    b.Property<float>("JawBoneWidth")
-                        .HasColumnType("float");
-
-                    b.Property<float>("LipThickness")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NeckThickness")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NoseBoneHeight")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NoseBoneTwist")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NosePeakHeight")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NosePeakLength")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NosePeakLowering")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NoseWidth")
+                    b.Property<float>("Scale")
                         .HasColumnType("float");
 
                     b.HasKey("CharacterId");
@@ -91,26 +37,8 @@ namespace DatabaseConsole.Migrations
                         new
                         {
                             CharacterId = 1L,
-                            CheekBoneHeight = 0f,
-                            CheekBoneWidth = 0f,
-                            CheekWidth = 0f,
-                            ChinBoneLength = 0f,
-                            ChinBoneLowering = 0f,
-                            ChinBoneWidth = 0f,
-                            ChinDimple = 0f,
-                            EyeBrowHeight = 0f,
-                            EyeBrowLength = 0f,
-                            EyeOpenings = 0f,
-                            JawBoneLength = 0f,
-                            JawBoneWidth = 0f,
-                            LipThickness = 0f,
-                            NeckThickness = 0f,
-                            NoseBoneHeight = 0f,
-                            NoseBoneTwist = 0f,
-                            NosePeakHeight = 0f,
-                            NosePeakLength = 0f,
-                            NosePeakLowering = 0f,
-                            NoseWidth = 0f
+                            Index = 0,
+                            Scale = 0f
                         });
                 });
 
@@ -209,7 +137,7 @@ namespace DatabaseConsole.Migrations
                             Id = 1L,
                             AccountId = 1L,
                             Armor = 0,
-                            DateCreated = new DateTime(2023, 2, 8, 9, 46, 47, 573, DateTimeKind.Local).AddTicks(7506),
+                            DateCreated = new DateTime(2023, 2, 8, 13, 21, 8, 32, DateTimeKind.Local).AddTicks(277),
                             Gender = 0,
                             Model = "mp_m_freemode_01",
                             Name = "Admin",
@@ -317,6 +245,97 @@ namespace DatabaseConsole.Migrations
                         {
                             CharacterId = 1L,
                             ComponentId = 11,
+                            Index = 0,
+                            Texture = 0
+                        });
+                });
+
+            modelBuilder.Entity("Models.Database.AccountCharacterPedPropModel", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("PropId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Texture")
+                        .HasColumnType("int");
+
+                    b.HasKey("CharacterId", "PropId");
+
+                    b.ToTable("account_character_ped_prop");
+
+                    b.HasData(
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 0,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 1,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 2,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 3,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 4,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 5,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 6,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 7,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 8,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            PropId = 9,
                             Index = 0,
                             Texture = 0
                         });

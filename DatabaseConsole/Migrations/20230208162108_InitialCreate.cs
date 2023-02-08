@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DatabaseConsole.Migrations
 {
-    public partial class PedComponents : Migration
+    public partial class InitialCreate : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -28,6 +28,20 @@ namespace DatabaseConsole.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "account_character_ped_prop",
+                columns: table => new
+                {
+                    CharacterId = table.Column<long>(nullable: false),
+                    PropId = table.Column<int>(nullable: false),
+                    Index = table.Column<int>(nullable: false),
+                    Texture = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_account_character_ped_prop", x => new { x.CharacterId, x.PropId });
+                });
+
+            migrationBuilder.CreateTable(
                 name: "accounts",
                 columns: table => new
                 {
@@ -47,26 +61,8 @@ namespace DatabaseConsole.Migrations
                 columns: table => new
                 {
                     CharacterId = table.Column<long>(nullable: false),
-                    NoseWidth = table.Column<float>(nullable: false),
-                    NosePeakHeight = table.Column<float>(nullable: false),
-                    NosePeakLength = table.Column<float>(nullable: false),
-                    NoseBoneHeight = table.Column<float>(nullable: false),
-                    NosePeakLowering = table.Column<float>(nullable: false),
-                    NoseBoneTwist = table.Column<float>(nullable: false),
-                    EyeBrowHeight = table.Column<float>(nullable: false),
-                    EyeBrowLength = table.Column<float>(nullable: false),
-                    CheekBoneHeight = table.Column<float>(nullable: false),
-                    CheekBoneWidth = table.Column<float>(nullable: false),
-                    CheekWidth = table.Column<float>(nullable: false),
-                    EyeOpenings = table.Column<float>(nullable: false),
-                    LipThickness = table.Column<float>(nullable: false),
-                    JawBoneWidth = table.Column<float>(nullable: false),
-                    JawBoneLength = table.Column<float>(nullable: false),
-                    ChinBoneLowering = table.Column<float>(nullable: false),
-                    ChinBoneLength = table.Column<float>(nullable: false),
-                    ChinBoneWidth = table.Column<float>(nullable: false),
-                    ChinDimple = table.Column<float>(nullable: false),
-                    NeckThickness = table.Column<float>(nullable: false)
+                    Index = table.Column<int>(nullable: false),
+                    Scale = table.Column<float>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -149,12 +145,29 @@ namespace DatabaseConsole.Migrations
             migrationBuilder.InsertData(
                 table: "account_character",
                 columns: new[] { "Id", "AccountId", "Armor", "DateCreated", "Gender", "Model", "Name", "Surname" },
-                values: new object[] { 1L, 1L, 0, new DateTime(2023, 2, 8, 9, 46, 47, 573, DateTimeKind.Local).AddTicks(7506), 0, "mp_m_freemode_01", "Admin", "Thalys" });
+                values: new object[] { 1L, 1L, 0, new DateTime(2023, 2, 8, 13, 21, 8, 32, DateTimeKind.Local).AddTicks(277), 0, "mp_m_freemode_01", "Admin", "Thalys" });
+
+            migrationBuilder.InsertData(
+                table: "account_character_ped_prop",
+                columns: new[] { "CharacterId", "PropId", "Index", "Texture" },
+                values: new object[,]
+                {
+                    { 1L, 0, 0, 0 },
+                    { 1L, 1, 0, 0 },
+                    { 1L, 2, 0, 0 },
+                    { 1L, 3, 0, 0 },
+                    { 1L, 4, 0, 0 },
+                    { 1L, 5, 0, 0 },
+                    { 1L, 6, 0, 0 },
+                    { 1L, 7, 0, 0 },
+                    { 1L, 8, 0, 0 },
+                    { 1L, 9, 0, 0 }
+                });
 
             migrationBuilder.InsertData(
                 table: "account_character_faceshape",
-                columns: new[] { "CharacterId", "CheekBoneHeight", "CheekBoneWidth", "CheekWidth", "ChinBoneLength", "ChinBoneLowering", "ChinBoneWidth", "ChinDimple", "EyeBrowHeight", "EyeBrowLength", "EyeOpenings", "JawBoneLength", "JawBoneWidth", "LipThickness", "NeckThickness", "NoseBoneHeight", "NoseBoneTwist", "NosePeakHeight", "NosePeakLength", "NosePeakLowering", "NoseWidth" },
-                values: new object[] { 1L, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f, 0f });
+                columns: new[] { "CharacterId", "Index", "Scale" },
+                values: new object[] { 1L, 0, 0f });
 
             migrationBuilder.InsertData(
                 table: "account_character_heritage",
@@ -212,6 +225,9 @@ namespace DatabaseConsole.Migrations
 
             migrationBuilder.DropTable(
                 name: "account_character_ped_component");
+
+            migrationBuilder.DropTable(
+                name: "account_character_ped_prop");
 
             migrationBuilder.DropTable(
                 name: "account_character_position");

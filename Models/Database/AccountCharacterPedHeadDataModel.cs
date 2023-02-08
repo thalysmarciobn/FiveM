@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Models.Database
 {
-    public class AccountCharacterHeritageModel
+    public class AccountCharacterPedHeadDataModel
     {
         public long CharacterId { get; set; }
         public int ShapeFirstID { get; set; }

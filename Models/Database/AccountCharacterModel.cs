@@ -15,8 +15,12 @@ namespace Models.Database
         public int Armor { get; set; }
         public string Model { get; set; }
         public AccountCharacterPositionModel Position { get; set; }
-        public AccountCharacterFaceShapeModel FaceShape { get; set; }
-        public AccountCharacterHeritageModel Heritage { get; set; }
+        public AccountCharacterPedHeadDataModel Heritage { get; set; }
+        public AccountCharacterPedHeadModel PedHead { get; set; }
+        public ICollection<AccountCharacterPedFaceModel> PedFace { get; set; }
         public ICollection<AccountCharacterPedComponentModel> PedComponent { get; set; }
+        public ICollection<AccountCharacterPedPropModel> PedProp { get; set; }
+        public ICollection<AccountCharacterPedHeadOverlayModel> PedHeadOverlay { get; set; }
+        public ICollection<AccountCharacterPedHeadOverlayColorModel> PedHeadOverlayColor { get; set; }
     }
 }
