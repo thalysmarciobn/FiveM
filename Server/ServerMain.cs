@@ -15,8 +15,7 @@ namespace FiveM.Server
     {
         public ServerMain()
         {
-            EventHandlers[EventName.ProjectPlayerSpawned] += new Action(ProjectPlayerSpawned);
-            Debug.WriteLine("Hi from FiveM.Server!");
+            Debug.WriteLine("FiveM Project!");
         }
 
         [EventHandler("playerConnecting")]
@@ -63,8 +62,10 @@ namespace FiveM.Server
             }
         }
 
+        [EventHandler("ProjectPlayerSpawned")]
         public void ProjectPlayerSpawned([FromSource] Player player)
         {
+            Debug.WriteLine("aaaaaaaaaaa");
             var license = player.Identifiers["license"];
 
             using (var context = new FiveMContext())
@@ -73,20 +74,22 @@ namespace FiveM.Server
 
                 if (account == null) return;
 
-                var character = context.AccountCharacter.Include(m => new {
-                    m.Position,
-                    m.PeadHeadData,
-                    m.PedHead,
-                    m.PedFace,
-                    m.PedComponent,
-                    m.PedProp,
-                    m.PedHeadOverlay,
-                    m.PedHeadOverlayColor
-                }).FirstOrDefault(x => x.AccountId == account.Id);
+                var character = context.AccountCharacter
+                    .Include(m => m.Position)
+                    .Include(m => m.PedHeadData)
+                    .Include(m => m.PedHead)
+                    .Include(m => m.PedFace)
+                    .Include(m => m.PedComponent)
+                    .Include(m => m.PedProp)
+                    .Include(m => m.PedHeadOverlay)
+                    .Include(m => m.PedHeadOverlayColor)
+                    .FirstOrDefault(x => x.AccountId == account.Id);
 
                 if (account == null) return;
 
                 var json = JsonConvert.SerializeObject(character);
+
+                Debug.WriteLine(json);
             }
         }
 

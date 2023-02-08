@@ -3,6 +3,6 @@
         <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
     <ItemGroup>
-      <ProjectReference Include="..\Models\Models.csproj" />
+      <ProjectReference Include="..\Core\Core.csproj" />
     </ItemGroup>
 </Project>

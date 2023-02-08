@@ -8,11 +8,13 @@
   
     <ItemGroup>
       <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   
       <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
   
     <ItemGroup>
+      <ProjectReference Include="..\Core\Core.csproj" />
       <ProjectReference Include="..\Database\Database.csproj" />
     </ItemGroup>
 </Project>
