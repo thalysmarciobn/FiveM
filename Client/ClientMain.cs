@@ -1,6 +1,7 @@
 using System;
 using System.Threading.Tasks;
 using CitizenFX.Core;
+using Core;
 using static CitizenFX.Core.Native.API;
 
 namespace FiveM.Client
@@ -9,8 +10,7 @@ namespace FiveM.Client
     {
         public ClientMain()
         {
-            Debug.WriteLine("Hi from FiveM.Client!");
-
+            EventHandlers["playerSpawned"] += new Action(() => TriggerServerEvent(EventName.ProjectPlayerSpawned));
         }
 
         [Tick]

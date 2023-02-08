@@ -9,7 +9,7 @@ namespace Database
     public class FiveMContext : DbContext
     {
         public DbSet<AccountModel> Accounts { get; set; }
-        public DbSet<AccountCharacterModel> AccountCharacters { get; set; }
+        public DbSet<AccountCharacterModel> AccountCharacter { get; set; }
         public DbSet<AccountCharacterPositionModel> AccountCharactersPosition { get; set; }
         public DbSet<AccountCharacterPedHeadDataModel> AccountCharacterHeritage { get; set; }
         public DbSet<AccountCharacterPedFaceModel> AccountCharactersFaceShape { get; set; }
@@ -55,7 +55,7 @@ namespace Database
                 e.HasIndex(m => new { m.Id, m.AccountId });
 
                 e.HasOne(m => m.Position).WithOne().HasForeignKey<AccountCharacterPositionModel>(m => m.ChatacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasOne(m => m.Heritage).WithOne().HasForeignKey<AccountCharacterPedHeadDataModel>(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.PedHeadData).WithOne().HasForeignKey<AccountCharacterPedHeadDataModel>(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
                 e.HasOne(m => m.PedHead).WithOne().HasForeignKey<AccountCharacterPedHeadModel>(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
                 e.HasMany(m => m.PedFace).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
                 e.HasMany(m => m.PedComponent).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);

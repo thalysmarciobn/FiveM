@@ -15,7 +15,7 @@ namespace Models.Database
         public int Armor { get; set; }
         public string Model { get; set; }
         public AccountCharacterPositionModel Position { get; set; }
-        public AccountCharacterPedHeadDataModel Heritage { get; set; }
+        public AccountCharacterPedHeadDataModel PeadHeadData { get; set; }
         public AccountCharacterPedHeadModel PedHead { get; set; }
         public ICollection<AccountCharacterPedFaceModel> PedFace { get; set; }
         public ICollection<AccountCharacterPedComponentModel> PedComponent { get; set; }
