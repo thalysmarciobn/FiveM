@@ -112,6 +112,62 @@ namespace DatabaseConsole.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Models.Database.AccountCharacterHeritageModel", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsParent")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("ShapeFirstID")
+                        .HasColumnType("int");
+
+                    b.Property<float>("ShapeMix")
+                        .HasColumnType("float");
+
+                    b.Property<int>("ShapeSecondID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShapeThirdID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SkinFirstID")
+                        .HasColumnType("int");
+
+                    b.Property<float>("SkinMix")
+                        .HasColumnType("float");
+
+                    b.Property<int>("SkinSecondID")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SkinThirdID")
+                        .HasColumnType("int");
+
+                    b.Property<float>("ThirdMix")
+                        .HasColumnType("float");
+
+                    b.HasKey("CharacterId");
+
+                    b.ToTable("account_character_heritage");
+
+                    b.HasData(
+                        new
+                        {
+                            CharacterId = 1L,
+                            IsParent = false,
+                            ShapeFirstID = 0,
+                            ShapeMix = 0f,
+                            ShapeSecondID = 0,
+                            ShapeThirdID = 0,
+                            SkinFirstID = 0,
+                            SkinMix = 0f,
+                            SkinSecondID = 0,
+                            SkinThirdID = 0,
+                            ThirdMix = 0f
+                        });
+                });
+
             modelBuilder.Entity("Models.Database.AccountCharacterModel", b =>
                 {
                     b.Property<long>("Id")
@@ -151,11 +207,116 @@ namespace DatabaseConsole.Migrations
                             Id = 1L,
                             AccountId = 1L,
                             Armor = 0,
-                            DateCreated = new DateTime(2023, 2, 8, 9, 8, 8, 355, DateTimeKind.Local).AddTicks(6776),
+                            DateCreated = new DateTime(2023, 2, 8, 9, 46, 47, 573, DateTimeKind.Local).AddTicks(7506),
                             Gender = 0,
                             Model = "mp_m_freemode_01",
                             Name = "Admin",
                             Surname = "Thalys"
+                        });
+                });
+
+            modelBuilder.Entity("Models.Database.AccountCharacterPedComponentModel", b =>
+                {
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("ComponentId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Index")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Texture")
+                        .HasColumnType("int");
+
+                    b.HasKey("CharacterId", "ComponentId");
+
+                    b.ToTable("account_character_ped_component");
+
+                    b.HasData(
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 0,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 1,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 2,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 3,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 4,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 5,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 6,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 7,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 8,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 9,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 10,
+                            Index = 0,
+                            Texture = 0
+                        },
+                        new
+                        {
+                            CharacterId = 1L,
+                            ComponentId = 11,
+                            Index = 0,
+                            Texture = 0
                         });
                 });
 
@@ -220,6 +381,24 @@ namespace DatabaseConsole.Migrations
                     b.HasOne("Models.Database.AccountCharacterModel", null)
                         .WithOne("FaceShape")
                         .HasForeignKey("Models.Database.AccountCharacterFaceShapeModel", "CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Models.Database.AccountCharacterHeritageModel", b =>
+                {
+                    b.HasOne("Models.Database.AccountCharacterModel", null)
+                        .WithOne("Heritage")
+                        .HasForeignKey("Models.Database.AccountCharacterHeritageModel", "CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Models.Database.AccountCharacterPedComponentModel", b =>
+                {
+                    b.HasOne("Models.Database.AccountCharacterModel", null)
+                        .WithMany("PedComponent")
+                        .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

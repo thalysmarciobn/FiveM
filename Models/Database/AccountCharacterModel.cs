@@ -16,5 +16,7 @@ namespace Models.Database
         public string Model { get; set; }
         public AccountCharacterPositionModel Position { get; set; }
         public AccountCharacterFaceShapeModel FaceShape { get; set; }
+        public AccountCharacterHeritageModel Heritage { get; set; }
+        public ICollection<AccountCharacterPedComponentModel> PedComponent { get; set; }
     }
 }
