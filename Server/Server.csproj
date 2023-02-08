@@ -11,5 +11,9 @@
   
       <Compile Include="../Shared/**/*.cs" />
     </ItemGroup>
+  
+    <ItemGroup>
+      <ProjectReference Include="..\Database\Database.csproj" />
+    </ItemGroup>
 </Project>
   

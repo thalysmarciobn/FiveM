@@ -2,115 +2,21 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DatabaseConsole.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20230208120641_InitialCreate")]
+    partial class InitialCreate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "3.1.32")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
-
-            modelBuilder.Entity("Models.Database.AccountCharacterFaceShapeModel", b =>
-                {
-                    b.Property<long>("CharacterId")
-                        .HasColumnType("bigint");
-
-                    b.Property<float>("CheekBoneHeight")
-                        .HasColumnType("float");
-
-                    b.Property<float>("CheekBoneWidth")
-                        .HasColumnType("float");
-
-                    b.Property<float>("CheekWidth")
-                        .HasColumnType("float");
-
-                    b.Property<float>("ChinBoneLength")
-                        .HasColumnType("float");
-
-                    b.Property<float>("ChinBoneLowering")
-                        .HasColumnType("float");
-
-                    b.Property<float>("ChinBoneWidth")
-                        .HasColumnType("float");
-
-                    b.Property<float>("ChinDimple")
-                        .HasColumnType("float");
-
-                    b.Property<float>("EyeBrowHeight")
-                        .HasColumnType("float");
-
-                    b.Property<float>("EyeBrowLength")
-                        .HasColumnType("float");
-
-                    b.Property<float>("EyeOpenings")
-                        .HasColumnType("float");
-
-                    b.Property<float>("JawBoneLength")
-                        .HasColumnType("float");
-
-                    b.Property<float>("JawBoneWidth")
-                        .HasColumnType("float");
-
-                    b.Property<float>("LipThickness")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NeckThickness")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NoseBoneHeight")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NoseBoneTwist")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NosePeakHeight")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NosePeakLength")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NosePeakLowering")
-                        .HasColumnType("float");
-
-                    b.Property<float>("NoseWidth")
-                        .HasColumnType("float");
-
-                    b.HasKey("CharacterId");
-
-                    b.ToTable("account_character_faceshape");
-
-                    b.HasData(
-                        new
-                        {
-                            CharacterId = 1L,
-                            CheekBoneHeight = 0f,
-                            CheekBoneWidth = 0f,
-                            CheekWidth = 0f,
-                            ChinBoneLength = 0f,
-                            ChinBoneLowering = 0f,
-                            ChinBoneWidth = 0f,
-                            ChinDimple = 0f,
-                            EyeBrowHeight = 0f,
-                            EyeBrowLength = 0f,
-                            EyeOpenings = 0f,
-                            JawBoneLength = 0f,
-                            JawBoneWidth = 0f,
-                            LipThickness = 0f,
-                            NeckThickness = 0f,
-                            NoseBoneHeight = 0f,
-                            NoseBoneTwist = 0f,
-                            NosePeakHeight = 0f,
-                            NosePeakLength = 0f,
-                            NosePeakLowering = 0f,
-                            NoseWidth = 0f
-                        });
-                });
 
             modelBuilder.Entity("Models.Database.AccountCharacterModel", b =>
                 {
@@ -151,7 +57,7 @@ namespace DatabaseConsole.Migrations
                             Id = 1L,
                             AccountId = 1L,
                             Armor = 0,
-                            DateCreated = new DateTime(2023, 2, 8, 9, 8, 8, 355, DateTimeKind.Local).AddTicks(6776),
+                            DateCreated = new DateTime(2023, 2, 8, 9, 6, 40, 774, DateTimeKind.Local).AddTicks(9250),
                             Gender = 0,
                             Model = "mp_m_freemode_01",
                             Name = "Admin",
@@ -213,15 +119,6 @@ namespace DatabaseConsole.Migrations
                     b.HasIndex("Id", "License");
 
                     b.ToTable("accounts");
-                });
-
-            modelBuilder.Entity("Models.Database.AccountCharacterFaceShapeModel", b =>
-                {
-                    b.HasOne("Models.Database.AccountCharacterModel", null)
-                        .WithOne("FaceShape")
-                        .HasForeignKey("Models.Database.AccountCharacterFaceShapeModel", "CharacterId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Models.Database.AccountCharacterPositionModel", b =>

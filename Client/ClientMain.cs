@@ -9,7 +9,9 @@ namespace FiveM.Client
     {
         public ClientMain()
         {
+            PedHash.FreemodeMale01;
             Debug.WriteLine("Hi from FiveM.Client!");
+
         }
 
         [Tick]
