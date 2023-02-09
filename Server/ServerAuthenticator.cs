@@ -29,8 +29,10 @@ namespace FiveM.Server
 
             deferrals.defer();
 
-            var logged = new Action<AccountModel>((AccountModel account) =>
+            var logged = new Action<AccountModel, long>((AccountModel account, long slot) =>
             {
+                var character = account.Character.SingleOrDefault(m => m.Slot == slot);
+                CharacterInstance.Instance.AddCharacter(license, character);
                 Debug.WriteLine($"[{account.Id}] Account connected: {account.License}");
                 deferrals.done();
             });
@@ -81,12 +83,12 @@ namespace FiveM.Server
                             context.Account.Add(account);
 
                             if (context.SaveChanges() > 0)
+                            {
                                 Debug.WriteLine($"[{account.Id}] Account created: {account.License}");
 
+                                logged.Invoke(account, 0);
+                            }
                             transaction.Commit();
-
-                            CharacterInstance.Instance.AddCharacter(license, character);
-                            logged.Invoke(account);
                         }
                         catch
                         {
@@ -98,24 +100,18 @@ namespace FiveM.Server
                     {
                         deferrals.update($"Carregando dados...");
 
-                        var account = context.Account.Include(m => m.Character)
-                            .ThenInclude(x => new
-                            {
-                                x.Position,
-                                x.PedHeadData,
-                                x.PedHead,
-                                x.PedFace,
-                                x.PedComponent,
-                                x.PedProp,
-                                x.PedHeadOverlay,
-                                x.PedHeadOverlayColor
-                            })
+                        var account = context.Account
+                            .Include(m => m.Character).ThenInclude(m => m.Position)
+                            .Include(m => m.Character).ThenInclude(m => m.PedHeadData)
+                            .Include(m => m.Character).ThenInclude(m => m.PedHead)
+                            .Include(m => m.Character).ThenInclude(m => m.PedFace)
+                            .Include(m => m.Character).ThenInclude(m => m.PedComponent)
+                            .Include(m => m.Character).ThenInclude(m => m.PedProp)
+                            .Include(m => m.Character).ThenInclude(m => m.PedHeadOverlay)
+                            .Include(m => m.Character).ThenInclude(m => m.PedHeadOverlayColor)
                             .Single(x => x.License == license);
 
-                        var character = account.Character.First();
-
-                        CharacterInstance.Instance.AddCharacter(license, character);
-                        logged.Invoke(account);
+                        logged.Invoke(account, 0);
                     }
                 }
             }
