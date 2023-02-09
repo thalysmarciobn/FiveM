@@ -42,10 +42,11 @@ namespace FiveM.Client
                 Y = character.Position.Y,
                 Z = character.Position.Z
             };
-            player.Spawn(vector3);
 
             if (s_Debug)
                 Debug.WriteLine($"Spawn: {vector3.X} {vector3.Y} {vector3.Z}");
+
+            player.Spawn(vector3);
 
             Game.PlayerPed.Heading = 226.2f;
 

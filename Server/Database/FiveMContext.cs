@@ -8,7 +8,7 @@ namespace FiveM.Server.Database
 {
     public class FiveMContext : DbContext
     {
-        public DbSet<AccountModel> Accounts { get; set; }
+        public DbSet<AccountModel> Account { get; set; }
         public DbSet<AccountCharacterModel> AccountCharacter { get; set; }
         public DbSet<AccountCharacterPositionModel> AccountCharactersPosition { get; set; }
         public DbSet<AccountCharacterPedHeadDataModel> AccountCharacterHeritage { get; set; }
@@ -30,20 +30,25 @@ namespace FiveM.Server.Database
             base.OnModelCreating(modelBuilder);
             modelBuilder.Entity<AccountModel>(e =>
             {
-                e.ToTable("accounts");
+                e.ToTable("account");
 
                 e.HasKey(m => m.Id);
 
-                e.HasIndex(m => m.License).IsUnique();
                 e.HasIndex(m => new { m.Id, m.License });
 
                 e.Property(m => m.WhiteListed)
                     .IsRequired()
                     .HasMaxLength(1);
 
-                e.Property(m => m.Created)
-                    .HasColumnType("datetime")
-                    .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                e.HasMany(m => m.Character).WithOne().HasForeignKey(m => m.AccountId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+
+                e.HasData(new AccountModel
+                {
+                    Id = 1,
+                    License = "07041d870811cccd5a93a5a012970b341d168b9a",
+                    Created = DateTime.Now,
+                    WhiteListed = true
+                });
             });
 
             modelBuilder.Entity<AccountCharacterModel>(e =>

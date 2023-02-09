@@ -10,5 +10,6 @@ namespace Shared.Models.Database
         public string License { get; set; }
         public DateTime Created { get; set; }
         public bool WhiteListed { get; set; }
+        public ICollection<AccountCharacterModel> Character { get; set; }
     }
 }

@@ -8,6 +8,7 @@ namespace Shared.Models.Database
     {
         public long Id { get; set; }
         public long AccountId { get; set; }
+        public int Slot { get; set; }
         public string Name { get; set; }
         public string Surname { get; set; }
         public DateTime DateCreated { get; set; }

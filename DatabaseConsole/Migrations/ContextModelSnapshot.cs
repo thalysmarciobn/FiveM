@@ -16,7 +16,7 @@ namespace DatabaseConsole.Migrations
                 .HasAnnotation("ProductVersion", "3.1.32")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("Models.Database.AccountCharacterModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterModel", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
@@ -40,10 +40,15 @@ namespace DatabaseConsole.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
+                    b.Property<int>("Slot")
+                        .HasColumnType("int");
+
                     b.Property<string>("Surname")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AccountId");
 
                     b.HasIndex("Id", "AccountId");
 
@@ -55,15 +60,16 @@ namespace DatabaseConsole.Migrations
                             Id = 1L,
                             AccountId = 1L,
                             Armor = 0,
-                            DateCreated = new DateTime(2023, 2, 8, 14, 7, 32, 427, DateTimeKind.Local).AddTicks(9852),
+                            DateCreated = new DateTime(2023, 2, 9, 14, 58, 22, 109, DateTimeKind.Local).AddTicks(9757),
                             Gender = 0,
                             Model = "mp_m_freemode_01",
                             Name = "Admin",
+                            Slot = 0,
                             Surname = "Thalys"
                         });
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedComponentModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedComponentModel", b =>
                 {
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
@@ -168,7 +174,7 @@ namespace DatabaseConsole.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedFaceModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedFaceModel", b =>
                 {
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
@@ -306,7 +312,7 @@ namespace DatabaseConsole.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedHeadDataModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedHeadDataModel", b =>
                 {
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
@@ -362,7 +368,7 @@ namespace DatabaseConsole.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedHeadModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedHeadModel", b =>
                 {
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
@@ -390,7 +396,7 @@ namespace DatabaseConsole.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedHeadOverlayColorModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedHeadOverlayColorModel", b =>
                 {
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
@@ -412,7 +418,7 @@ namespace DatabaseConsole.Migrations
                     b.ToTable("account_character_ped_head_overlay_color");
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedHeadOverlayModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedHeadOverlayModel", b =>
                 {
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
@@ -524,7 +530,7 @@ namespace DatabaseConsole.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedPropModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedPropModel", b =>
                 {
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
@@ -615,7 +621,7 @@ namespace DatabaseConsole.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPositionModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPositionModel", b =>
                 {
                     b.Property<long>("ChatacterId")
                         .HasColumnType("bigint");
@@ -643,16 +649,14 @@ namespace DatabaseConsole.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Models.Database.AccountModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountModel", b =>
                 {
                     b.Property<long>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
                     b.Property<DateTime>("Created")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime")
-                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+                        .HasColumnType("datetime(6)");
 
                     b.Property<string>("License")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");
@@ -663,82 +667,97 @@ namespace DatabaseConsole.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("License")
-                        .IsUnique();
-
                     b.HasIndex("Id", "License");
 
-                    b.ToTable("accounts");
+                    b.ToTable("account");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Created = new DateTime(2023, 2, 9, 14, 58, 22, 91, DateTimeKind.Local).AddTicks(9039),
+                            License = "07041d870811cccd5a93a5a012970b341d168b9a",
+                            WhiteListed = true
+                        });
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedComponentModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterModel", b =>
                 {
-                    b.HasOne("Models.Database.AccountCharacterModel", null)
+                    b.HasOne("Shared.Models.Database.AccountModel", null)
+                        .WithMany("Character")
+                        .HasForeignKey("AccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedComponentModel", b =>
+                {
+                    b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
                         .WithMany("PedComponent")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedFaceModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedFaceModel", b =>
                 {
-                    b.HasOne("Models.Database.AccountCharacterModel", null)
+                    b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
                         .WithMany("PedFace")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedHeadDataModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedHeadDataModel", b =>
                 {
-                    b.HasOne("Models.Database.AccountCharacterModel", null)
-                        .WithOne("Heritage")
-                        .HasForeignKey("Models.Database.AccountCharacterPedHeadDataModel", "CharacterId")
+                    b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
+                        .WithOne("PedHeadData")
+                        .HasForeignKey("Shared.Models.Database.AccountCharacterPedHeadDataModel", "CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedHeadModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedHeadModel", b =>
                 {
-                    b.HasOne("Models.Database.AccountCharacterModel", null)
+                    b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
                         .WithOne("PedHead")
-                        .HasForeignKey("Models.Database.AccountCharacterPedHeadModel", "CharacterId")
+                        .HasForeignKey("Shared.Models.Database.AccountCharacterPedHeadModel", "CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedHeadOverlayColorModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedHeadOverlayColorModel", b =>
                 {
-                    b.HasOne("Models.Database.AccountCharacterModel", null)
+                    b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
                         .WithMany("PedHeadOverlayColor")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedHeadOverlayModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedHeadOverlayModel", b =>
                 {
-                    b.HasOne("Models.Database.AccountCharacterModel", null)
+                    b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
                         .WithMany("PedHeadOverlay")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPedPropModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPedPropModel", b =>
                 {
-                    b.HasOne("Models.Database.AccountCharacterModel", null)
+                    b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
                         .WithMany("PedProp")
                         .HasForeignKey("CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Models.Database.AccountCharacterPositionModel", b =>
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterPositionModel", b =>
                 {
-                    b.HasOne("Models.Database.AccountCharacterModel", null)
+                    b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
                         .WithOne("Position")
-                        .HasForeignKey("Models.Database.AccountCharacterPositionModel", "ChatacterId")
+                        .HasForeignKey("Shared.Models.Database.AccountCharacterPositionModel", "ChatacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
