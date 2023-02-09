@@ -73,8 +73,6 @@ namespace Client.Extensions
             LoadScene(position.X, position.Y, position.Z);
             RequestCollisionAtCoord(position.X, position.Y, position.Z);
 
-            player.Character.Style.SetDefaultClothes();
-
             player.Character.Position = position;
             player.Character.ClearBloodDamage();
             player.Character.Weapons.Drop();

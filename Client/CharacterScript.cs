@@ -46,8 +46,6 @@ namespace FiveM.Client
             if (s_Debug)
                 Debug.WriteLine($"Spawn: {vector3.X} {vector3.Y} {vector3.Z}");
 
-            player.Spawn(vector3);
-
             Game.PlayerPed.Heading = 226.2f;
 
             while (!await Game.Player.ChangeModel(new Model(character.Model))) await Delay(10);
@@ -63,9 +61,9 @@ namespace FiveM.Client
             player.StyleComponents(character.PedComponent);
             player.StyleProps(character.PedProp);
 
-            Game.Player.Unfreeze();
-
             SwitchInPlayer(PlayerPedId());
+
+            player.Spawn(vector3);
 
             // API.RequestClipSet(character.WalkingStyle);
             // await BaseScript.Delay(100);
