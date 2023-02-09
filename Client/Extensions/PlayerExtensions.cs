@@ -1,12 +1,6 @@
 ﻿using CitizenFX.Core;
-using CitizenFX.Core.Native;
-using Models.Database;
-using System;
+using Shared.Models.Database;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static CitizenFX.Core.Native.API;
 
 namespace Client.Extensions

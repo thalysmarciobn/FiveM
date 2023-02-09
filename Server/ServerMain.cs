@@ -3,16 +3,16 @@ using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
-using Core;
-using Database;
+using FiveM.Server.Database;
 using Microsoft.EntityFrameworkCore;
-using Models.Database;
+using Shared.Models.Database;
 using Newtonsoft.Json;
 
 namespace FiveM.Server
 {
     public class ServerMain : BaseScript
     {
+        public static bool s_Debug = true;
         public ServerMain()
         {
             Debug.WriteLine("FiveM Project!");
@@ -31,7 +31,7 @@ namespace FiveM.Server
 
                 if (account == null)
                 {
-                    account = new AccountModel
+                    account = new AccountModel()
                     {
                         License = license,
                         Created = DateTime.Now,
@@ -89,7 +89,10 @@ namespace FiveM.Server
 
                 var json = JsonConvert.SerializeObject(character);
 
-                Debug.WriteLine(json);
+                if (s_Debug)
+                    Debug.WriteLine(json);
+
+                TriggerClientEvent(player, "ProjectCharacterData", json);
             }
         }
 

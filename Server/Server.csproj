@@ -10,12 +10,17 @@
       <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
       <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
   
-      <Compile Include="../Shared/**/*.cs" />
+      <Compile Include="../Shared/**/*.cs" Version="1.0.0" />
     </ItemGroup>
   
-    <ItemGroup>
-      <ProjectReference Include="..\Core\Core.csproj" />
-      <ProjectReference Include="..\Database\Database.csproj" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
+    <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.2" />
+  </ItemGroup>
 </Project>
   

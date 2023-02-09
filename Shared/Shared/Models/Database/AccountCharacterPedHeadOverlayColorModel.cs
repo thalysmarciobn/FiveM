@@ -1,9 +1,9 @@
-﻿using Models.Enumerations;
+﻿using Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models.Database
+namespace Shared.Models.Database
 {
     public class AccountCharacterPedHeadOverlayColorModel
     {

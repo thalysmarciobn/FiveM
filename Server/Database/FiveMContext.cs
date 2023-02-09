@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Models.Database;
-using Models.Enumerations;
+using Shared.Models.Database;
+using Shared.Enumerations;
 using System;
 using System.Collections.Generic;
 
-namespace Database
+namespace FiveM.Server.Database
 {
     public class FiveMContext : DbContext
     {

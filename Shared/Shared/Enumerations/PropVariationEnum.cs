@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models.Enumerations
+namespace Shared.Enumerations
 {
     public enum PropVariationEnum
     {

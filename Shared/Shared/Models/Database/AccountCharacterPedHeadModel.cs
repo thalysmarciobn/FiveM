@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Models.Database
+namespace Shared.Models.Database
 {
     public class AccountCharacterPedHeadModel
     {

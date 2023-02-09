@@ -1,10 +1,17 @@
 fx_version 'bodacious'
 game 'gta5'
 
-file 'Client/bin/Release/**/publish/*.dll'
+files {
+	'Client/Core.dll',
+	'Client/Newtonsoft.Json.dll',
+	'Client/System.ComponentModel.DataAnnotations.dll'
+}
 
-client_script 'Client/bin/Release/**/publish/*.net.dll'
-server_script 'Server/bin/Release/**/publish/*.net.dll'
+client_scripts {
+	'Client/Client.net.dll',
+}
+
+server_script 'Server/*.net.dll'
 
 author 'You'
 version '1.0.0'
