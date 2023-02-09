@@ -11,8 +11,10 @@ using static CitizenFX.Core.Native.API;
 
 namespace FiveM.Client
 {
-    public class ClientMain : BaseScript
+    public class CharacterScript : BaseScript
     {
+        public static bool s_Debug = true;
+
         public JsonSerializer Serializer = new JsonSerializer
         {
             Culture = CultureInfo.CurrentCulture,
@@ -20,26 +22,30 @@ namespace FiveM.Client
             NullValueHandling = NullValueHandling.Ignore
         };
 
-        public ClientMain()
+        public CharacterScript()
         {
-            EventHandlers["playerSpawned"] += new Action(() => {
-                TriggerServerEvent("ProjectPlayerSpawned"); 
+            EventHandlers[EventName.Native.Client.PlayerSpawned] += new Action(() => {
+                TriggerServerEvent(EventName.Server.ProjectPlayerSpawned); 
             });
-            EventHandlers["ProjectCharacterData"] += new Action<string>(ProjectCharacterData);
+            EventHandlers[EventName.Client.ProjectInitCharacter] += new Action<string>(ProjectInitCharacter);
         }
 
-        private async void ProjectCharacterData(string json)
+        private async void ProjectInitCharacter(string json)
         {
             var player = Game.Player;
 
             var character = Serializer.Deserialize<AccountCharacterModel>(new JsonTextReader(new StringReader(json)));
 
-            player.Spawn(new Vector3
+            var vector3 = new Vector3
             {
                 X = character.Position.X,
                 Y = character.Position.Y,
                 Z = character.Position.Z
-            });
+            };
+            player.Spawn(vector3);
+
+            if (s_Debug)
+                Debug.WriteLine($"Spawn: {vector3.X} {vector3.Y} {vector3.Z}");
 
             Game.PlayerPed.Heading = 226.2f;
 
@@ -64,17 +70,17 @@ namespace FiveM.Client
             // await BaseScript.Delay(100);
             // Game.Player.Character.MovementAnimationSet = this.WalkingStyle;
 
-
-
-            Debug.WriteLine(character.Name);
-
         }
 
         [Tick]
         public Task OnTick()
         {
-            //DrawRect(0.5f, 0.5f, 0.5f, 0.5f, 255, 255, 255, 150);
+            var player = Game.Player;
 
+            var position = player.Character.Position;
+
+            //TriggerServerEvent(EventName.Server.ProjectPlayerPositionUpdate, position.X, position.Y, position.Z);
+            //Wait(5000);
             return Task.FromResult(0);
         }
     }
