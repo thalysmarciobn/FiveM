@@ -8,6 +8,7 @@ namespace FiveM.Server.Database
 {
     public class FiveMContext : DbContext
     {
+        private readonly string _connectionString;
         public DbSet<AccountModel> Account { get; set; }
         public DbSet<AccountCharacterModel> AccountCharacter { get; set; }
         public DbSet<AccountCharacterPositionModel> AccountCharactersPosition { get; set; }
@@ -19,11 +20,11 @@ namespace FiveM.Server.Database
         public DbSet<AccountCharacterPedHeadOverlayModel> AccountCharacterPedHeadOverlay { get; set; }
         public DbSet<AccountCharacterPedHeadOverlayColorModel> AccountCharacterPedHeadOverlayColor { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            var connectionString = @"server=localhost;database=fivem;uid=root;password=3251thaX@;";
-            optionsBuilder.UseMySql(connectionString);
-        }
+        public FiveMContext(string connectionString) =>
+            _connectionString = connectionString;
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
+            optionsBuilder.UseMySql(_connectionString);
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

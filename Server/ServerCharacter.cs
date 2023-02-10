@@ -11,6 +11,7 @@ using Server.Instances;
 using Server.Core.Game;
 using Server.Extensions;
 using Shared.Helper;
+using Server.Database;
 
 namespace FiveM.Server
 {
@@ -20,7 +21,7 @@ namespace FiveM.Server
 
         public ServerCharacter()
         {
-            Debug.WriteLine("FiveM Project!");
+            Debug.WriteLine("[PROJECT] ServerCharacter Started.");
         }
 
         [EventHandler(EventName.Server.SpawnRequest)]
@@ -30,7 +31,7 @@ namespace FiveM.Server
 
             if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
             {
-                using (var context = new FiveMContext())
+                using (var context = DatabaseContextManager.Context)
                 {
                     var account = context.GetAccount(license);
 

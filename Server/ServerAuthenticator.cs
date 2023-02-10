@@ -14,6 +14,7 @@ using System.Threading;
 using Server.Core.Game;
 using Shared.Helper;
 using Server.Extensions;
+using Server.Database;
 
 namespace FiveM.Server
 {
@@ -22,7 +23,7 @@ namespace FiveM.Server
         public static bool s_Debug = true;
         public ServerAuthenticator()
         {
-            Debug.WriteLine("FiveM Project!");
+            Debug.WriteLine("[PROJECT] ServerAuthenticator Started.");
         }
 
         [EventHandler(EventName.External.Server.PlayerConnecting)]
@@ -43,10 +44,13 @@ namespace FiveM.Server
                 deferrals.done();
             });
 
-            using (var context = new FiveMContext())
+            using (var context = DatabaseContextManager.Context)
             {
                 using (var transaction = context.Database.BeginTransaction())
                 {
+                    // Ban System
+                    // kickCallback("reason")
+                    // CancelEvent();
                     if (context.Account.Any(m => m.License == license))
                     {
                         deferrals.update($"Carregando dados...");

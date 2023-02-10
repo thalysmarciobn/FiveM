@@ -1,12 +1,19 @@
 ﻿using CitizenFX.Core;
 using FiveM.Server.Database;
 using FluentScheduler;
+using Server.Configurations;
 using Server.Core.Game;
 using Server.Instances;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using YamlDotNet.Serialization.NamingConventions;
+using YamlDotNet.Serialization;
+using YamlDotNet.Core;
+using Microsoft.EntityFrameworkCore.Storage;
+using Server.Database;
 
 namespace Server
 {
@@ -14,7 +21,29 @@ namespace Server
     {
         public ServerMain()
         {
-            using (var context = new FiveMContext())
+            Debug.WriteLine("[PROJECT] ServerMain Started.");
+            var directory = Directory.GetCurrentDirectory();
+            var location = $"{directory}/server.yml";
+            if (!File.Exists(location))
+            {
+                var yaml = YamlInstance.Instance.SerializerBuilder.Serialize(new ServerSettings
+                {
+                    Database = new Configurations.Database
+                    {
+                        Server = "127.0.0.1",
+                        Schema = "fivem",
+                        Login = "root",
+                        Password = "123",
+                        Port = 3306
+                    }
+                });
+                File.WriteAllText(location, yaml);
+            }
+            var configuration = File.ReadAllText(location);
+            var settings = YamlInstance.Instance.DeserializerBuilder.Deserialize<ServerSettings>(configuration);
+            DatabaseContextManager.Build(settings.Database);
+
+            using (var context = DatabaseContextManager.Context)
             {
                 foreach (var player in Players.ToList())
                 {
