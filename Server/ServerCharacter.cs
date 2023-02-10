@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Shared.Models.Database;
 using Newtonsoft.Json;
 using Server.Instances;
+using Server.Core.Game;
 
 namespace FiveM.Server
 {
@@ -24,9 +25,9 @@ namespace FiveM.Server
         {
             var license = player.Identifiers["license"];
 
-            if (CharacterInstance.Instance.GetCharacter(license, out AccountCharacterModel accountCharacter))
+            if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
             {
-                var json = JsonConvert.SerializeObject(accountCharacter);
+                var json = JsonConvert.SerializeObject(gamePlayer.CurrentCharacter);
 
                 TriggerClientEvent(player, EventName.Client.ProjectInitCharacter, json);
             }
@@ -37,14 +38,14 @@ namespace FiveM.Server
         {
             var license = player.Identifiers["license"];
 
-            if (CharacterInstance.Instance.GetCharacter(license, out AccountCharacterModel accountCharacter))
+            if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
             {
-                accountCharacter.Position.X = x;
-                accountCharacter.Position.Y = y;
-                accountCharacter.Position.Z = z;
+                gamePlayer.CurrentCharacter.Position.X = x;
+                gamePlayer.CurrentCharacter.Position.Y = y;
+                gamePlayer.CurrentCharacter.Position.Z = z;
 
                 if (s_Debug)
-                    Debug.WriteLine($"[{accountCharacter.Id}] Character Updated Position: {x} {y} {z}");
+                    Debug.WriteLine($"[{gamePlayer.DatabaseId}] Character Updated Position: {x} {y} {z}");
             }
         }
     }
