@@ -1,4 +1,5 @@
 ﻿using CitizenFX.Core;
+using FiveM.Server.Database;
 using FluentScheduler;
 using Server.Core.Game;
 using Server.Instances;
@@ -13,9 +14,20 @@ namespace Server
     {
         public ServerMain()
         {
-            Players.ToList().ForEach(player =>
+            using (var context = new FiveMContext())
             {
-            });
+                foreach (var player in Players.ToList())
+                {
+                    var license = player.Identifiers["license"];
+
+                    var account = context.Account.SingleOrDefault(m => m.License == license);
+                    if (account == null)
+                        continue;
+
+                    GameInstance.Instance.AddPlayer(new GamePlayer(account.Id, player));
+                }
+                Debug.WriteLine($"Players added: {GameInstance.Instance.PlayerCount}");
+            }
         }
 
         [Command("project_players")]

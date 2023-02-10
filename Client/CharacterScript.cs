@@ -4,6 +4,7 @@ using System.IO;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
+using CitizenFX.Core.UI;
 using Client.Extensions;
 using Newtonsoft.Json;
 using Shared.Models.Database;
@@ -45,13 +46,6 @@ namespace FiveM.Client
 
             var heading = 226.2f;
 
-            var vector3 = new Vector3
-            {
-                X = character.Position.X,
-                Y = character.Position.Y,
-                Z = character.Position.Z
-            };
-
             var model = new Model(character.Model);
 
             while (!await Game.Player.ChangeModel(model)) await Delay(10);
@@ -68,15 +62,38 @@ namespace FiveM.Client
             player.StyleComponents(character.PedComponent);
             player.StyleProps(character.PedProp);
 
-            RequestCollisionAtCoord(vector3.X, vector3.Y, vector3.Z);
+            var groundZ = 0f;
+            var position = character.Position;
 
-            SetEntityCoordsNoOffset(GetPlayerPed(-1), vector3.X, vector3.Y, vector3.Z, false, false, false); ;
-            NetworkResurrectLocalPlayer(vector3.X, vector3.Y, vector3.Z, heading, true, true);
-            ClearPedTasksImmediately(GetPlayerPed(-1));
-            RemoveAllPedWeapons(GetPlayerPed(-1), false);
-            ClearPlayerWantedLevel(PlayerId());
+            LoadScene(position.X, position.Y, position.Z);
+            RequestCollisionAtCoord(position.X, position.Y, position.Z);
 
-            while (!HasCollisionLoadedAroundEntity(GetPlayerPed(-1)))
+            //SetEntityCoordsNoOffset(GetPlayerPed(-1), vector3.X, vector3.Y, vector3.Z, false, false, false); ;
+            //NetworkResurrectLocalPlayer(vector3.X, vector3.Y, vector3.Z, heading, true, true);
+
+            if (GetGroundZFor_3dCoord(position.X, position.Y, position.Z, ref groundZ, false))
+                player.Character.Position = new Vector3
+                {
+                    X = position.X,
+                    Y = position.Y,
+                    Z = groundZ
+                };
+            else
+                player.Character.Position = new Vector3
+                {
+                    X = position.X,
+                    Y = position.Y,
+                    Z = position.Z
+                };
+            //ClearPedTasksImmediately(GetPlayerPed(-1));
+
+            //RemoveAllPedWeapons(GetPlayerPed(-1), false);
+            player.Character.Weapons.Drop();
+
+            //ClearPlayerWantedLevel(PlayerId());
+            player.WantedLevel = 0;
+
+            while (!HasCollisionLoadedAroundEntity(Game.PlayerPed.Handle))
                 await Delay(1);
 
             ShutdownLoadingScreen();
@@ -88,7 +105,7 @@ namespace FiveM.Client
             player.Unfreeze();
 
             if (s_Debug)
-                Debug.WriteLine($"Spawn: {vector3.X} {vector3.Y} {vector3.Z}");
+                Debug.WriteLine($"Spawn: {position.X} {position.Y} {position.Z}");
 
             SwitchInPlayer(PlayerPedId());
 
