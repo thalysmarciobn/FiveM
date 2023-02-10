@@ -14,6 +14,10 @@
       <Compile Include="../Shared/**/*.cs" Version="1.0.0" />
     </ItemGroup>
   
+    <ItemGroup>
+      <Compile Remove="..\Shared\Shared\Helper\CharacterHelper.cs" />
+    </ItemGroup>
+  
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">

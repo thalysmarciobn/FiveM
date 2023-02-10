@@ -9,7 +9,6 @@ namespace Server.Core.Game
 {
     public class GamePlayer
     {
-
         public long DatabaseId { get; set; }
 
         public string Name { get; set; }
@@ -18,26 +17,11 @@ namespace Server.Core.Game
 
         public string EndPoint { get; set; }
 
-        public bool Spawned { get; private set; }
+        public bool Spawned { get; set; }
 
         public Vector3 Position => _player.Character.Position;
 
         private readonly Player _player;
-
-        private AccountCharacterModel _characterModel;
-
-        public AccountCharacterModel CurrentCharacter
-        {
-            get
-            {
-                return _characterModel;
-            } 
-            set
-            {
-                _characterModel = value;
-                Spawned = true;
-            }
-        }
 
         public GamePlayer(long databaseId, Player player)
         {

@@ -13,6 +13,7 @@ using CitizenFX.Core.Native;
 using System.Threading;
 using Server.Core.Game;
 using Shared.Helper;
+using Server.Extensions;
 
 namespace FiveM.Server
 {
@@ -24,7 +25,7 @@ namespace FiveM.Server
             Debug.WriteLine("FiveM Project!");
         }
 
-        [EventHandler(EventName.Native.Server.PlayerConnecting)]
+        [EventHandler(EventName.External.Server.PlayerConnecting)]
         private void PlayerConnecting([FromSource] Player player, string playerName, dynamic kickCallback, dynamic deferrals)
         {
             deferrals.defer();
@@ -38,10 +39,6 @@ namespace FiveM.Server
                 if (!GameInstance.Instance.AddPlayer(gamePlayer))
                     return;
 
-                var character = account.Character.SingleOrDefault(m => m.Slot == slot);
-
-                gamePlayer.CurrentCharacter = character;
-
                 Debug.WriteLine($"[{gamePlayer.DatabaseId}] Account connected: {gamePlayer.License}");
                 deferrals.done();
             });
@@ -54,16 +51,7 @@ namespace FiveM.Server
                     {
                         deferrals.update($"Carregando dados...");
 
-                        var account = context.Account
-                            .Include(m => m.Character).ThenInclude(m => m.Position)
-                            .Include(m => m.Character).ThenInclude(m => m.PedHeadData)
-                            .Include(m => m.Character).ThenInclude(m => m.PedHead)
-                            .Include(m => m.Character).ThenInclude(m => m.PedFace)
-                            .Include(m => m.Character).ThenInclude(m => m.PedComponent)
-                            .Include(m => m.Character).ThenInclude(m => m.PedProp)
-                            .Include(m => m.Character).ThenInclude(m => m.PedHeadOverlay)
-                            .Include(m => m.Character).ThenInclude(m => m.PedHeadOverlayColor)
-                            .Single(x => x.License == license);
+                        var account = context.GetAccount(license);
 
                         logged.Invoke(account, 0);
                         return;
@@ -76,35 +64,7 @@ namespace FiveM.Server
                         {
                             License = license,
                             Created = DateTime.Now,
-                            WhiteListed = true,
-                            Character = new List<AccountCharacterModel>
-                            {
-                                new AccountCharacterModel
-                                {
-                                    Slot = 0,
-                                    DateCreated = DateTime.Now,
-                                    Model = "mp_m_freemode_01",
-                                    Position = new AccountCharacterPositionModel
-                                    {
-                                        X = -1062.02f,
-                                        Y = -2711.85f,
-                                        Z = 0.83f
-                                    },
-                                    PedHeadData = new AccountCharacterPedHeadDataModel
-                                    {
-
-                                    },
-                                    PedHead = new AccountCharacterPedHeadModel
-                                    {
-
-                                    },
-                                    PedFace = CharacterModelHelper.DefaultList<AccountCharacterPedFaceModel>(),
-                                    PedComponent = CharacterModelHelper.DefaultList<AccountCharacterPedComponentModel>(),
-                                    PedProp = CharacterModelHelper.DefaultList<AccountCharacterPedPropModel>(),
-                                    PedHeadOverlay = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayModel>(),
-                                    PedHeadOverlayColor = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayColorModel>()
-                                }
-                            }
+                            WhiteListed = true
                         };
 
                         context.Account.Add(account);
@@ -126,7 +86,7 @@ namespace FiveM.Server
             }
         }
 
-        [EventHandler(EventName.Native.Server.PlayerDropped)]
+        [EventHandler(EventName.External.Server.PlayerDropped)]
         private void OnPlayerDropped([FromSource] Player player, string reason)
         {
             var license = player.Identifiers["license"];

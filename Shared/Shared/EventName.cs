@@ -1,11 +1,11 @@
 
 public static class EventName
 {
-    public static class Native
+    public static class External
     {
         public static class Client
         {
-            public const string PlayerSpawned = "playerSpawned";
+            public const string SpawnRequest = "spawnRequest";
         }
         public static class Server
         {
@@ -15,10 +15,11 @@ public static class EventName
     }
     public static class Client
     {
-        public const string ProjectInitCharacter = "ProjectInitCharacter";
+        public const string InitCharacter = "InitCharacter";
     }
     public static class Server
     {
+        public const string SpawnRequest = "spawnRequest";
         public const string ProjectPlayerRequestData = "ProjectPlayerRequestData";
         public const string ProjectPlayerReceivedData = "ProjectPlayerReceivedData";
         public const string ProjectPlayerSpawned = "ProjectPlayerSpawned";
