@@ -3,11 +3,26 @@ using CitizenFX.Core.Native;
 using Shared.Models.Database;
 using System.Collections.Generic;
 using static CitizenFX.Core.Native.API;
+using static Client.Extensions.PlayerExtensions;
 
 namespace Client.Extensions
 {
     public static class PlayerExtensions
     {
+        public struct HeadBlendData
+        {
+            public int ShapeFirst;
+            public int ShapeSecond;
+            public int ShapeThird;
+
+            public int SkinFirst;
+            public int SkinSecond;
+            public int SkinThird;
+
+            public float ShapeMix;
+            public float SkinMix;
+            public float ThirdMix;
+        };
         public static void SetPedHeadBlendDatas(this Player player, AccountCharacterPedHeadDataModel model)
         {
             var ped = player.Character.Handle;

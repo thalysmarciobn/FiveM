@@ -6,6 +6,7 @@ public static class EventName
         public static class Client
         {
             public const string SpawnRequest = "spawnRequest";
+            public const string OnResourceStart = "onResourceStart";
         }
         public static class Server
         {

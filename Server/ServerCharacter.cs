@@ -17,6 +17,7 @@ namespace FiveM.Server
     public class ServerCharacter : BaseScript
     {
         public static bool s_Debug = true;
+
         public ServerCharacter()
         {
             Debug.WriteLine("FiveM Project!");

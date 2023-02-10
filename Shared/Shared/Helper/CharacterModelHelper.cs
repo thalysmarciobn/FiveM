@@ -44,7 +44,8 @@ namespace Shared.Helper
                         input.Add(new AccountCharacterPedPropModel
                         {
                             PropId = enumId,
-                            Index = 0
+                            Index = -1,
+                            Texture = -1
                         });
                     }
                     break;
@@ -54,7 +55,7 @@ namespace Shared.Helper
                         var input = models as List<AccountCharacterPedHeadOverlayModel>;
                         input.Add(new AccountCharacterPedHeadOverlayModel
                         {
-                            OverlayId = enumId
+                            OverlayId = enumId,
                         });
                     }
                     break;

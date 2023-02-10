@@ -25,9 +25,7 @@ namespace FiveM.Client
 
         public CharacterScript()
         {
-            EventHandlers[EventName.External.Client.SpawnRequest] += new Action(() => {
-                TriggerServerEvent(EventName.Server.SpawnRequest); 
-            });
+            Debug.WriteLine("[PROJECT] Script: CharacterScript");
             EventHandlers[EventName.Client.InitCharacter] += new Action<string>(InitCharacter);
         }
 
@@ -62,29 +60,23 @@ namespace FiveM.Client
             player.StyleComponents(character.PedComponent);
             player.StyleProps(character.PedProp);
 
-            var groundZ = 0f;
             var position = character.Position;
+
+            //SetEntityCoordsNoOffset(GetPlayerPed(-1), vector3.X, vector3.Y, vector3.Z, false, false, false); ;
+            //NetworkResurrectLocalPlayer(vector3.X, vector3.Y, vector3.Z, heading, true, true);
+            var groundZ = 0f;
+            var ground = GetGroundZFor_3dCoord(position.X, position.Y, position.Z, ref groundZ, false);
+            position.Z = ground ? groundZ : position.Z;
+            player.Character.Position = new Vector3
+            {
+                X = position.X,
+                Y = position.Y,
+                Z = position.Z
+            };
 
             LoadScene(position.X, position.Y, position.Z);
             RequestCollisionAtCoord(position.X, position.Y, position.Z);
 
-            //SetEntityCoordsNoOffset(GetPlayerPed(-1), vector3.X, vector3.Y, vector3.Z, false, false, false); ;
-            //NetworkResurrectLocalPlayer(vector3.X, vector3.Y, vector3.Z, heading, true, true);
-
-            if (GetGroundZFor_3dCoord(position.X, position.Y, position.Z, ref groundZ, false))
-                player.Character.Position = new Vector3
-                {
-                    X = position.X,
-                    Y = position.Y,
-                    Z = groundZ
-                };
-            else
-                player.Character.Position = new Vector3
-                {
-                    X = position.X,
-                    Y = position.Y,
-                    Z = position.Z
-                };
             //ClearPedTasksImmediately(GetPlayerPed(-1));
 
             //RemoveAllPedWeapons(GetPlayerPed(-1), false);
