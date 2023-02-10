@@ -5,7 +5,6 @@ public static class EventName
     {
         public static class Client
         {
-            public const string SpawnRequest = "spawnRequest";
             public const string OnResourceStart = "onResourceStart";
         }
         public static class Server
@@ -21,9 +20,6 @@ public static class EventName
     public static class Server
     {
         public const string SpawnRequest = "spawnRequest";
-        public const string ProjectPlayerRequestData = "ProjectPlayerRequestData";
-        public const string ProjectPlayerReceivedData = "ProjectPlayerReceivedData";
-        public const string ProjectPlayerSpawned = "ProjectPlayerSpawned";
         public const string ProjectPlayerPositionUpdate = "ProjectPlayerPositionUpdate";
     }
 }

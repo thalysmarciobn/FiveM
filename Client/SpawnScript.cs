@@ -17,9 +17,6 @@ namespace Client
         public SpawnScript()
         {
             Debug.WriteLine("[PROJECT] Script: SpawnScript");
-            EventHandlers[EventName.External.Client.SpawnRequest] += new Action(() => {
-                TriggerServerEvent(EventName.Server.SpawnRequest);
-            });
             EventHandlers[EventName.External.Client.OnResourceStart] += new Action<string>(OnResourceStart);
         }
 
@@ -29,6 +26,5 @@ namespace Client
             Debug.WriteLine("OnResourceStart");
             TriggerServerEvent(EventName.Server.SpawnRequest);
         }
-
     }
 }
