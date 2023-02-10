@@ -72,37 +72,39 @@ namespace FiveM.Server
                     {
                         deferrals.update($"Criando dados...");
 
-                        var character = new AccountCharacterModel
-                        {
-                            Slot = 0,
-                            DateCreated = DateTime.Now,
-                            Model = "mp_m_freemode_01",
-                            Position = new AccountCharacterPositionModel
-                            {
-                                X = -1062.02f,
-                                Y = -2711.85f,
-                                Z = 0.83f
-                            },
-                            PedHeadData = new AccountCharacterPedHeadDataModel
-                            {
-
-                            },
-                            PedHead = new AccountCharacterPedHeadModel
-                            {
-
-                            },
-                            PedFace = CharacterModelHelper.DefaultList<AccountCharacterPedFaceModel>(),
-                            PedComponent = CharacterModelHelper.DefaultList<AccountCharacterPedComponentModel>(),
-                            PedProp = CharacterModelHelper.DefaultList<AccountCharacterPedPropModel>(),
-                            PedHeadOverlay = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayModel>(),
-                            PedHeadOverlayColor = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayColorModel>()
-                        };
                         var account = new AccountModel()
                         {
                             License = license,
                             Created = DateTime.Now,
                             WhiteListed = true,
-                            Character = new List<AccountCharacterModel> { character }
+                            Character = new List<AccountCharacterModel>
+                            {
+                                new AccountCharacterModel
+                                {
+                                    Slot = 0,
+                                    DateCreated = DateTime.Now,
+                                    Model = "mp_m_freemode_01",
+                                    Position = new AccountCharacterPositionModel
+                                    {
+                                        X = -1062.02f,
+                                        Y = -2711.85f,
+                                        Z = 0.83f
+                                    },
+                                    PedHeadData = new AccountCharacterPedHeadDataModel
+                                    {
+
+                                    },
+                                    PedHead = new AccountCharacterPedHeadModel
+                                    {
+
+                                    },
+                                    PedFace = CharacterModelHelper.DefaultList<AccountCharacterPedFaceModel>(),
+                                    PedComponent = CharacterModelHelper.DefaultList<AccountCharacterPedComponentModel>(),
+                                    PedProp = CharacterModelHelper.DefaultList<AccountCharacterPedPropModel>(),
+                                    PedHeadOverlay = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayModel>(),
+                                    PedHeadOverlayColor = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayColorModel>()
+                                }
+                            }
                         };
 
                         context.Account.Add(account);
