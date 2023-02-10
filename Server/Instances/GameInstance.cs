@@ -13,6 +13,8 @@ namespace Server.Instances
     {
         private ConcurrentDictionary<string, GamePlayer> Players = new ConcurrentDictionary<string, GamePlayer>();
 
+        public int PlayerCount => Players.Count;
+
         public bool ContainsPlayer(string license) => Players.ContainsKey(license);
 
         public bool AddPlayer(GamePlayer model) => Players.TryAdd(model.License, model);
