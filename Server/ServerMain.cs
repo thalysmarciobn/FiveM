@@ -14,6 +14,7 @@ using YamlDotNet.Serialization;
 using YamlDotNet.Core;
 using Microsoft.EntityFrameworkCore.Storage;
 using Server.Database;
+using System.Collections.Immutable;
 
 namespace Server
 {
@@ -42,10 +43,17 @@ namespace Server
             var configuration = File.ReadAllText(location);
             var settings = YamlInstance.Instance.DeserializerBuilder.Deserialize<ServerSettings>(configuration);
             DatabaseContextManager.Build(settings.Database);
+        }
+
+        [EventHandler(EventName.External.OnResourceStart)]
+        public void OnResourceStart(string resourceName)
+        {
+            if (resourceName != "project")
+                return;
 
             using (var context = DatabaseContextManager.Context)
             {
-                foreach (var player in Players.ToList())
+                foreach (var player in Players.ToImmutableList())
                 {
                     var license = player.Identifiers["license"];
 

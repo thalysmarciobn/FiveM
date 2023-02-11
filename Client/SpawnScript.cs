@@ -15,10 +15,10 @@ namespace Client
         public SpawnScript()
         {
             Debug.WriteLine("[PROJECT] Script: SpawnScript");
-            EventHandlers[EventName.External.Client.OnResourceStart] += new Action<string>(OnResourceStart);
+            EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
         }
 
-        public void OnResourceStart(string resourceName)
+        public void OnClientResourceStart(string resourceName)
         {
             if (GetCurrentResourceName() != resourceName) return;
             TriggerServerEvent(EventName.Server.SpawnRequest);
