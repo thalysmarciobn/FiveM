@@ -19,13 +19,11 @@ namespace Server.Core.Game
 
         public bool Spawned { get; set; }
 
-        public Vector3 Position => _player.Character.Position;
-
-        private readonly Player _player;
+        public Player Player { get; }
 
         public GamePlayer(long databaseId, Player player)
         {
-            _player = player;
+            Player = player;
             DatabaseId = databaseId;
             Name = player.Name;
             License = player.Identifiers["license"];

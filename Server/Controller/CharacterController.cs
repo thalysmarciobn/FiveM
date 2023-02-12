@@ -1,34 +1,29 @@
-﻿using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Threading.Tasks;
-using CitizenFX.Core;
-using FiveM.Server.Database;
-using Microsoft.EntityFrameworkCore;
-using Shared.Models.Database;
+﻿using CitizenFX.Core;
 using Newtonsoft.Json;
-using Server.Instances;
+using Server.Core;
 using Server.Core.Game;
-using Server.Extensions;
-using Shared.Helper;
 using Server.Database;
+using Server.Extensions;
+using Server.Instances;
+using Shared.Helper;
+using Shared.Models.Database;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Text;
+using static CitizenFX.Core.Native.API;
 
-namespace FiveM.Server
+namespace Server.Controller
 {
-    public class ServerCharacter : BaseScript
+    public class CharacterController : AbstractController
     {
-        public static bool s_Debug = true;
-
-        public ServerCharacter()
+        public CharacterController(BaseScript baseScript) : base(baseScript)
         {
-            Debug.WriteLine("[PROJECT] ServerCharacter Started.");
         }
 
-        [EventHandler(EventName.Server.SpawnRequest)]
-        public void SpawnRequest([FromSource] Player player)
+        public void SpawnRequest(string license)
         {
-            var license = player.Identifiers["license"];
-
             if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
             {
                 using (var context = DatabaseContextManager.Context)
@@ -48,6 +43,12 @@ namespace FiveM.Server
                                 Y = -2711.85f,
                                 Z = 0.83f
                             },
+                            Rotation = new AccountCharacterRotationModel
+                            {
+                                X = 0,
+                                Y = 0,
+                                Z = 0
+                            },
                             PedHeadData = new AccountCharacterPedHeadDataModel
                             {
 
@@ -66,24 +67,19 @@ namespace FiveM.Server
                     }
                     var character = account.Character.First();
                     var json = JsonConvert.SerializeObject(character);
-                    TriggerClientEvent(player, EventName.Client.InitCharacter, json);
+                    TriggerClientEvent(gamePlayer.Player, EventName.Client.InitCharacter, json);
                 }
             }
         }
 
-        [EventHandler(EventName.Server.ProjectPlayerPositionUpdate)]
-        public void ProjectPlayerPositionUpdate([FromSource] Player player, float x, float y, float z)
+        public void ProjectPlayerPositionUpdate(string license, float x, float y, float z)
         {
-            var license = player.Identifiers["license"];
 
             if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
             {
                 //gamePlayer.CurrentCharacter.Position.X = x;
                 //gamePlayer.CurrentCharacter.Position.Y = y;
                 //gamePlayer.CurrentCharacter.Position.Z = z;
-
-                if (s_Debug)
-                    Debug.WriteLine($"[{gamePlayer.DatabaseId}] Character Updated Position: {x} {y} {z}");
             }
         }
     }

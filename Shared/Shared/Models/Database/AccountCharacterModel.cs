@@ -14,8 +14,11 @@ namespace Shared.Models.Database
         public DateTime DateCreated { get; set; }
         public int Gender { get; set; }
         public int Armor { get; set; }
+        public int Money { get; set; }
         public string Model { get; set; }
+        public float Heading { get; set; }
         public AccountCharacterPositionModel Position { get; set; }
+        public AccountCharacterRotationModel Rotation { get; set; }
         public AccountCharacterPedHeadDataModel PedHeadData { get; set; }
         public AccountCharacterPedHeadModel PedHead { get; set; }
         public ICollection<AccountCharacterPedFaceModel> PedFace { get; set; }

@@ -1,37 +1,28 @@
+﻿using CitizenFX.Core;
+using Server.Core;
+using Server.Core.Game;
+using Server.Core.Server;
+using Server.Database;
+using Server.Extensions;
+using Server.Instances;
+using Shared.Models.Database;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
+using System.Text;
 using System.Threading.Tasks;
-using CitizenFX.Core;
-using FiveM.Server.Database;
-using Microsoft.EntityFrameworkCore;
-using Shared.Models.Database;
-using Newtonsoft.Json;
-using Server.Instances;
-using System.Collections.Generic;
-using CitizenFX.Core.Native;
-using System.Threading;
-using Server.Core.Game;
-using Shared.Helper;
-using Server.Extensions;
-using Server.Database;
 
-namespace FiveM.Server
+namespace Server.Controller
 {
-    public class ServerAuthenticator : BaseScript
+    public class AuthenticatorController : AbstractController
     {
-        public static bool s_Debug = true;
-        public ServerAuthenticator()
-        {
-            Debug.WriteLine("[PROJECT] ServerAuthenticator Started.");
-        }
+        public AuthenticatorController(BaseScript baseScript) : base(baseScript) { }
 
-        [EventHandler(EventName.External.Server.PlayerConnecting)]
-        private void PlayerConnecting([FromSource] Player player, string playerName, dynamic kickCallback, dynamic deferrals)
+        public void PlayerConnecting(Player player, string license, string playerName, dynamic kickCallback, dynamic deferrals)
         {
             deferrals.defer();
-
-            var license = player.Identifiers["license"];
 
             var logged = new Action<AccountModel, long>((AccountModel account, long slot) =>
             {
@@ -90,13 +81,45 @@ namespace FiveM.Server
             }
         }
 
-        [EventHandler(EventName.External.Server.PlayerDropped)]
-        private void OnPlayerDropped([FromSource] Player player, string reason)
+        public async Task OnPlayerDropped(Player player, string license, string reason)
         {
-            var license = player.Identifiers["license"];
-
             if (GameInstance.Instance.RemovePlayer(license, out var gamePlayer))
                 Debug.WriteLine($"[{gamePlayer.DatabaseId}] Player {gamePlayer.Name} dropped for reason: {reason}");
+
+            using (var context = DatabaseContextManager.Context)
+            {
+                using (var transaction = context.Database.BeginTransaction())
+                {
+                    if (context.Account.Any(m => m.License == license))
+                    {
+                        var account = context.GetAccount(license);
+
+                        var gameCharacter = player.Character;
+                        var gameCharacterPosition = gameCharacter.Position;
+                        var gameCharacterRotation = gameCharacter.Rotation;
+
+                        var dbCharacter = account.Character.FirstOrDefault(m => m.Slot == 0);
+                        var dbCharacterPosition = dbCharacter.Position;
+                        var dbCharacterRotation = dbCharacter.Rotation;
+
+                        dbCharacter.Heading = gameCharacter.Heading;
+
+                        dbCharacterPosition.X = gameCharacterPosition.X;
+                        dbCharacterPosition.Y = gameCharacterPosition.Y;
+                        dbCharacterPosition.Z = gameCharacterPosition.Z;
+
+                        dbCharacterRotation.X = gameCharacterRotation.X;
+                        dbCharacterRotation.Y = gameCharacterRotation.Y;
+                        dbCharacterRotation.Z = gameCharacterRotation.Z;
+
+                        context.Update(account);
+                        await context.SaveChangesAsync();
+
+                        Debug.WriteLine("updated");
+                    }
+                    await transaction.CommitAsync();
+                }
+            }
         }
     }
 }

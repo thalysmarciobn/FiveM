@@ -32,6 +32,7 @@ namespace FiveM.Client
         private async void InitCharacter(string json)
         {
             var player = Game.Player;
+            var playerPed = Game.PlayerPed;
 
             DoScreenFadeOut(500);
 
@@ -40,42 +41,51 @@ namespace FiveM.Client
 
             player.Freeze();
 
-            var character = Serializer.Deserialize<AccountCharacterModel>(new JsonTextReader(new StringReader(json)));
+            var resCharacter = Serializer.Deserialize<AccountCharacterModel>(new JsonTextReader(new StringReader(json)));
 
-            var heading = 226.2f;
-
-            var model = new Model(character.Model);
+            var model = new Model(resCharacter.Model);
 
             while (!await Game.Player.ChangeModel(model)) await Delay(10);
 
-            Game.PlayerPed.Heading = heading;
+            player.Character.Armor = resCharacter.Armor;
+            player.SetPedHeadBlendDatas(resCharacter.PedHeadData);
+            player.SetPedHead(resCharacter.PedHead);
+            player.SetPedHeadOverlays(resCharacter.PedHeadOverlay);
+            player.SetPedHeadOverlayColors(resCharacter.PedHeadOverlayColor);
+            player.SetPedFaceFeatures(resCharacter.PedFace);
 
-            player.Character.Armor = character.Armor;
-            player.SetPedHeadBlendDatas(character.PedHeadData);
-            player.SetPedHead(character.PedHead);
-            player.SetPedHeadOverlays(character.PedHeadOverlay);
-            player.SetPedHeadOverlayColors(character.PedHeadOverlayColor);
-            player.SetPedFaceFeatures(character.PedFace);
+            player.StyleComponents(resCharacter.PedComponent);
+            player.StyleProps(resCharacter.PedProp);
 
-            player.StyleComponents(character.PedComponent);
-            player.StyleProps(character.PedProp);
-
-            var position = character.Position;
+            var resCharacterPosition = resCharacter.Position;
+            var resCharacterRotation = resCharacter.Rotation;
 
             //SetEntityCoordsNoOffset(GetPlayerPed(-1), vector3.X, vector3.Y, vector3.Z, false, false, false); ;
             //NetworkResurrectLocalPlayer(vector3.X, vector3.Y, vector3.Z, heading, true, true);
             var groundZ = 0f;
-            var ground = GetGroundZFor_3dCoord(position.X, position.Y, position.Z, ref groundZ, false);
-            position.Z = ground ? groundZ : position.Z;
+            var ground = GetGroundZFor_3dCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z, ref groundZ, false);
+            resCharacterPosition.Z = ground ? groundZ : resCharacterPosition.Z;
+
             player.Character.Position = new Vector3
             {
-                X = position.X,
-                Y = position.Y,
-                Z = position.Z
+                X = resCharacterPosition.X,
+                Y = resCharacterPosition.Y,
+                Z = resCharacterPosition.Z
             };
 
-            LoadScene(position.X, position.Y, position.Z);
-            RequestCollisionAtCoord(position.X, position.Y, position.Z);
+            player.Character.Rotation = new Vector3
+            {
+                X = resCharacterRotation.X,
+                Y = resCharacterRotation.Y,
+                Z = resCharacterRotation.Z
+            };
+
+            playerPed.Heading = resCharacter.Heading;
+            playerPed.Money = resCharacter.Money;
+            player.Money = resCharacter.Money;
+
+            LoadScene(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
+            RequestCollisionAtCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
 
             //ClearPedTasksImmediately(GetPlayerPed(-1));
 
@@ -97,9 +107,9 @@ namespace FiveM.Client
             player.Unfreeze();
 
             if (s_Debug)
-                Debug.WriteLine($"Spawn: {position.X} {position.Y} {position.Z}");
+                Debug.WriteLine($"Spawn: {resCharacterPosition.X} {resCharacterPosition.Y} {resCharacterPosition.Z}");
 
-            SwitchInPlayer(PlayerPedId());
+            //SwitchInPlayer(PlayerPedId());
 
             //player.Spawn(vector3);
 

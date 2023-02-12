@@ -15,6 +15,7 @@ namespace Server.Extensions
         {
             return context.Account
                 .Include(m => m.Character).ThenInclude(m => m.Position)
+                .Include(m => m.Character).ThenInclude(m => m.Rotation)
                 .Include(m => m.Character).ThenInclude(m => m.PedHeadData)
                 .Include(m => m.Character).ThenInclude(m => m.PedHead)
                 .Include(m => m.Character).ThenInclude(m => m.PedFace)

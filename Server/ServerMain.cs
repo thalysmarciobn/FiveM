@@ -15,13 +15,22 @@ using YamlDotNet.Core;
 using Microsoft.EntityFrameworkCore.Storage;
 using Server.Database;
 using System.Collections.Immutable;
+using Server.Controller;
+using Server.Core.Server;
+using System.ComponentModel;
+using static CitizenFX.Core.Native.API;
+using System.Threading.Tasks;
 
 namespace Server
 {
     public class ServerMain : BaseScript
     {
+        private AuthenticatorController AuthenticatorController { get; }
+        private CharacterController CharacterController { get; }
         public ServerMain()
         {
+            AuthenticatorController = new AuthenticatorController(this);
+            CharacterController = new CharacterController(this);
             Debug.WriteLine("[PROJECT] ServerMain Started.");
             var directory = Directory.GetCurrentDirectory();
             var location = $"{directory}/server.yml";
@@ -43,6 +52,27 @@ namespace Server
             var configuration = File.ReadAllText(location);
             var settings = YamlInstance.Instance.DeserializerBuilder.Deserialize<ServerSettings>(configuration);
             DatabaseContextManager.Build(settings.Database);
+        }
+
+        [EventHandler(EventName.External.Server.PlayerConnecting)]
+        private void PlayerConnecting([FromSource] Player player, string playerName, dynamic kickCallback, dynamic deferrals)
+        {
+            var license = player.Identifiers["license"];
+            AuthenticatorController.PlayerConnecting(player, license, playerName, kickCallback, deferrals);
+        }
+
+        [EventHandler(EventName.External.Server.PlayerDropped)]
+        private async void OnPlayerDropped([FromSource] Player player, string reason)
+        {
+            var license = player.Identifiers["license"];
+            await AuthenticatorController.OnPlayerDropped(player, license, reason);
+        }
+
+        [EventHandler(EventName.Server.SpawnRequest)]
+        public void SpawnRequest([FromSource] Player player)
+        {
+            var license = player.Identifiers["license"];
+            CharacterController.SpawnRequest(license);
         }
 
         [EventHandler(EventName.External.OnResourceStart)]

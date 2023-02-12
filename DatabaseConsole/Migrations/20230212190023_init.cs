@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DatabaseConsole.Migrations
 {
-    public partial class Init : Migration
+    public partial class init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -24,6 +24,23 @@ namespace DatabaseConsole.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "server_vehicle_service",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    Model = table.Column<uint>(nullable: false),
+                    Driver = table.Column<uint>(nullable: false),
+                    X = table.Column<float>(nullable: false),
+                    Y = table.Column<float>(nullable: false),
+                    Z = table.Column<float>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_server_vehicle_service", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "account_character",
                 columns: table => new
                 {
@@ -36,7 +53,9 @@ namespace DatabaseConsole.Migrations
                     DateCreated = table.Column<DateTime>(nullable: false),
                     Gender = table.Column<int>(nullable: false),
                     Armor = table.Column<int>(nullable: false),
-                    Model = table.Column<string>(nullable: true)
+                    Money = table.Column<int>(nullable: false),
+                    Model = table.Column<string>(nullable: true),
+                    Heading = table.Column<float>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -216,113 +235,36 @@ namespace DatabaseConsole.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "account",
-                columns: new[] { "Id", "Created", "License", "WhiteListed" },
-                values: new object[] { 1L, new DateTime(2023, 2, 9, 14, 58, 22, 91, DateTimeKind.Local).AddTicks(9039), "07041d870811cccd5a93a5a012970b341d168b9a", true });
-
-            migrationBuilder.InsertData(
-                table: "account_character",
-                columns: new[] { "Id", "AccountId", "Armor", "DateCreated", "Gender", "Model", "Name", "Slot", "Surname" },
-                values: new object[] { 1L, 1L, 0, new DateTime(2023, 2, 9, 14, 58, 22, 109, DateTimeKind.Local).AddTicks(9757), 0, "mp_m_freemode_01", "Admin", 0, "Thalys" });
-
-            migrationBuilder.InsertData(
-                table: "account_character_ped_component",
-                columns: new[] { "CharacterId", "ComponentId", "Index", "Texture" },
-                values: new object[,]
+            migrationBuilder.CreateTable(
+                name: "account_character_rotation",
+                columns: table => new
                 {
-                    { 1L, 0, 0, 0 },
-                    { 1L, 11, 0, 0 },
-                    { 1L, 9, 0, 0 },
-                    { 1L, 8, 0, 0 },
-                    { 1L, 7, 0, 0 },
-                    { 1L, 6, 0, 0 },
-                    { 1L, 10, 0, 0 },
-                    { 1L, 4, 0, 0 },
-                    { 1L, 3, 0, 0 },
-                    { 1L, 2, 0, 0 },
-                    { 1L, 1, 0, 0 },
-                    { 1L, 5, 0, 0 }
+                    ChatacterId = table.Column<long>(nullable: false),
+                    X = table.Column<float>(nullable: false),
+                    Y = table.Column<float>(nullable: false),
+                    Z = table.Column<float>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_account_character_rotation", x => x.ChatacterId);
+                    table.ForeignKey(
+                        name: "FK_account_character_rotation_account_character_ChatacterId",
+                        column: x => x.ChatacterId,
+                        principalTable: "account_character",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.InsertData(
-                table: "account_character_ped_face",
-                columns: new[] { "CharacterId", "Index", "Scale" },
+                table: "server_vehicle_service",
+                columns: new[] { "Id", "Driver", "Model", "X", "Y", "Z" },
                 values: new object[,]
                 {
-                    { 1L, 11, 0f },
-                    { 1L, 19, 0f },
-                    { 1L, 18, 0f },
-                    { 1L, 17, 0f },
-                    { 1L, 15, 0f },
-                    { 1L, 14, 0f },
-                    { 1L, 13, 0f },
-                    { 1L, 12, 0f },
-                    { 1L, 10, 0f },
-                    { 1L, 16, 0f },
-                    { 1L, 8, 0f },
-                    { 1L, 0, 0f },
-                    { 1L, 2, 0f },
-                    { 1L, 3, 0f },
-                    { 1L, 1, 0f },
-                    { 1L, 5, 0f },
-                    { 1L, 6, 0f },
-                    { 1L, 7, 0f },
-                    { 1L, 4, 0f },
-                    { 1L, 9, 0f }
+                    { 1L, 1302784073u, 3338918751u, -1049.649f, -2719.027f, 13.7566f },
+                    { 2L, 1302784073u, 3338918751u, -1041.9746f, -2721.6182f, 13.7566f },
+                    { 3L, 1302784073u, 3338918751u, -1026.4174f, -2730.4631f, 13.7566f },
+                    { 4L, 1302784073u, 3338918751u, -1014.7446f, -2737.0579f, 13.7566f }
                 });
-
-            migrationBuilder.InsertData(
-                table: "account_character_ped_head",
-                columns: new[] { "CharacterId", "EyeColorId", "HairColorId", "HairHighlightColor" },
-                values: new object[] { 1L, 0, 0, 0 });
-
-            migrationBuilder.InsertData(
-                table: "account_character_ped_head_data",
-                columns: new[] { "CharacterId", "IsParent", "ShapeFirstID", "ShapeMix", "ShapeSecondID", "ShapeThirdID", "SkinFirstID", "SkinMix", "SkinSecondID", "SkinThirdID", "ThirdMix" },
-                values: new object[] { 1L, false, 0, 0f, 0, 0, 0, 0f, 0, 0, 0f });
-
-            migrationBuilder.InsertData(
-                table: "account_character_ped_head_overlay",
-                columns: new[] { "CharacterId", "OverlayId", "Index", "Opacity" },
-                values: new object[,]
-                {
-                    { 1L, 12, 0, 0f },
-                    { 1L, 7, 0, 0f },
-                    { 1L, 11, 0, 0f },
-                    { 1L, 10, 0, 0f },
-                    { 1L, 9, 0, 0f },
-                    { 1L, 8, 0, 0f },
-                    { 1L, 5, 0, 0f },
-                    { 1L, 4, 0, 0f },
-                    { 1L, 3, 0, 0f },
-                    { 1L, 2, 0, 0f },
-                    { 1L, 1, 0, 0f },
-                    { 1L, 0, 0, 0f },
-                    { 1L, 6, 0, 0f }
-                });
-
-            migrationBuilder.InsertData(
-                table: "account_character_ped_prop",
-                columns: new[] { "CharacterId", "PropId", "Index", "Texture" },
-                values: new object[,]
-                {
-                    { 1L, 8, 0, 0 },
-                    { 1L, 7, 0, 0 },
-                    { 1L, 6, 0, 0 },
-                    { 1L, 5, 0, 0 },
-                    { 1L, 2, 0, 0 },
-                    { 1L, 3, 0, 0 },
-                    { 1L, 1, 0, 0 },
-                    { 1L, 0, 0, 0 },
-                    { 1L, 9, 0, 0 },
-                    { 1L, 4, 0, 0 }
-                });
-
-            migrationBuilder.InsertData(
-                table: "account_character_position",
-                columns: new[] { "ChatacterId", "X", "Y", "Z" },
-                values: new object[] { 1L, 0f, 0f, 0f });
 
             migrationBuilder.CreateIndex(
                 name: "IX_account_Id_License",
@@ -365,6 +307,12 @@ namespace DatabaseConsole.Migrations
 
             migrationBuilder.DropTable(
                 name: "account_character_position");
+
+            migrationBuilder.DropTable(
+                name: "account_character_rotation");
+
+            migrationBuilder.DropTable(
+                name: "server_vehicle_service");
 
             migrationBuilder.DropTable(
                 name: "account_character");
