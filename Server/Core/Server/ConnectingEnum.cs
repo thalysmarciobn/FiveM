@@ -7,7 +7,9 @@ namespace Server.Core.Server
     public enum ConnectingEnum
     {
         Defering,
-        CantRegisterPlayer,
-        Accepted
+        Accepted,
+        NotAccepted,
+        IsBanned,
+        Problem
     }
 }

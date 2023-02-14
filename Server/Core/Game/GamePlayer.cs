@@ -9,25 +9,13 @@ namespace Server.Core.Game
 {
     public class GamePlayer
     {
-        public long DatabaseId { get; set; }
-
-        public string Name { get; set; }
-
-        public string License { get; set; }
-
-        public string EndPoint { get; set; }
-
-        public bool Spawned { get; set; }
-
         public Player Player { get; }
+        public AccountModel Account { get; }
 
-        public GamePlayer(long databaseId, Player player)
+        public GamePlayer(Player player, AccountModel account)
         {
             Player = player;
-            DatabaseId = databaseId;
-            Name = player.Name;
-            License = player.Identifiers["license"];
-            EndPoint = player.EndPoint;
+            Account = account;
         }
     }
 }

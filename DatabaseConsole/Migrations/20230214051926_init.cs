@@ -15,6 +15,8 @@ namespace DatabaseConsole.Migrations
                     Id = table.Column<long>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     License = table.Column<string>(nullable: true),
+                    CurrentCharacter = table.Column<long>(nullable: false),
+                    LastAddress = table.Column<string>(nullable: true),
                     Created = table.Column<DateTime>(nullable: false),
                     WhiteListed = table.Column<bool>(maxLength: 1, nullable: false)
                 },
@@ -51,9 +53,6 @@ namespace DatabaseConsole.Migrations
                     Name = table.Column<string>(nullable: true),
                     Surname = table.Column<string>(nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: false),
-                    Gender = table.Column<int>(nullable: false),
-                    Armor = table.Column<int>(nullable: false),
-                    Money = table.Column<int>(nullable: false),
                     Model = table.Column<string>(nullable: true),
                     Heading = table.Column<float>(nullable: false)
                 },

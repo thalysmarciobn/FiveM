@@ -1,4 +1,5 @@
 ﻿using CitizenFX.Core;
+using Microsoft.EntityFrameworkCore;
 using Server.Core;
 using Server.Core.Game;
 using Server.Core.Server;
@@ -20,104 +21,101 @@ namespace Server.Controller
     {
         public AuthenticatorController(BaseScript baseScript) : base(baseScript) { }
 
-        public void PlayerConnecting(Player player, string license, string playerName, dynamic kickCallback, dynamic deferrals)
+        public void PlayerConnecting(Player player, string playerName, dynamic kickCallback, dynamic deferrals)
         {
             deferrals.defer();
 
-            var logged = new Action<AccountModel, long>((AccountModel account, long slot) =>
-            {
-                var gamePlayer = new GamePlayer(account.Id, player);
-
-                if (!GameInstance.Instance.AddPlayer(gamePlayer))
-                    return;
-
-                Debug.WriteLine($"[{gamePlayer.DatabaseId}] Account connected: {gamePlayer.License}");
-                deferrals.done();
-            });
+            var license = player.Identifiers["license"];
 
             using (var context = DatabaseContextManager.Context)
             {
-                using (var transaction = context.Database.BeginTransaction())
+                try
                 {
-                    // Ban System
-                    // kickCallback("reason")
-                    // CancelEvent();
+                    deferrals.update($"Carregando dados...");
+            
                     if (context.Account.Any(m => m.License == license))
                     {
-                        deferrals.update($"Carregando dados...");
+                        var account = context.GetAccountAsync(license);
+            
+                        var gamePlayer = new GamePlayer(player, account);
+            
+                        if (GameInstance.Instance.AddPlayer(license, gamePlayer))
+                            deferrals.done();
 
-                        var account = context.GetAccount(license);
-
-                        logged.Invoke(account, 0);
-                        return;
+                        Debug.WriteLine($"Logging account: {playerName}");
                     }
-                    try
+                    else
                     {
-                        deferrals.update($"Criando dados...");
-
                         var account = new AccountModel()
                         {
                             License = license,
                             Created = DateTime.Now,
                             WhiteListed = true
                         };
-
                         context.Account.Add(account);
+            
+                        context.SaveChanges();
+            
+                        var gamePlayer = new GamePlayer(player, account);
+            
+                        if (GameInstance.Instance.AddPlayer(license, gamePlayer))
+                            deferrals.done();
 
-                        if (context.SaveChanges() > 0)
-                        {
-                            Debug.WriteLine($"[{account.Id}] Account created: {account.License}");
-
-                            logged.Invoke(account, 0);
-                        }
-                        transaction.Commit();
+                        Debug.WriteLine($"Creating account for: {playerName}");
                     }
-                    catch
-                    {
-                        deferrals.update($"Houve um problema no registro \"{license}\", tente novamente ou entre em contato com a equipe.");
-                        transaction.Rollback();
-                    }
+                }
+                catch
+                {
+                    deferrals.done($"Houve um problema no registro \"{license}\", tente novamente ou entre em contato com a equipe.");
                 }
             }
         }
 
-        public async Task OnPlayerDropped(Player player, string license, string reason)
+        public void OnPlayerDropped(Player player, string reason)
         {
+            var license = player.Identifiers["license"];
+
             if (GameInstance.Instance.RemovePlayer(license, out var gamePlayer))
-                Debug.WriteLine($"[{gamePlayer.DatabaseId}] Player {gamePlayer.Name} dropped for reason: {reason}");
-
-            using (var context = DatabaseContextManager.Context)
             {
-                using (var transaction = context.Database.BeginTransaction())
+                Debug.WriteLine($"[{gamePlayer.Account.Id}] Player {gamePlayer.Player.Name} dropped for reason: {reason}");
+            
+                using (var context = DatabaseContextManager.Context)
                 {
-                    if (context.Account.Any(m => m.License == license))
+                    using (var transaction = context.Database.BeginTransaction())
                     {
-                        var account = context.GetAccount(license);
+                        try {
+                            var account = gamePlayer.Account;
+            
+                            var gameCharacter = player.Character;
+            
+                            var gameCharacterPosition = gameCharacter.Position;
+                            var gameCharacterRotation = gameCharacter.Rotation;
+            
+                            var dbCharacter = account.Character.FirstOrDefault(m => m.Slot == account.CurrentCharacter);
 
-                        var gameCharacter = player.Character;
-                        var gameCharacterPosition = gameCharacter.Position;
-                        var gameCharacterRotation = gameCharacter.Rotation;
-
-                        var dbCharacter = account.Character.FirstOrDefault(m => m.Slot == 0);
-                        var dbCharacterPosition = dbCharacter.Position;
-                        var dbCharacterRotation = dbCharacter.Rotation;
-
-                        dbCharacter.Heading = gameCharacter.Heading;
-
-                        dbCharacterPosition.X = gameCharacterPosition.X;
-                        dbCharacterPosition.Y = gameCharacterPosition.Y;
-                        dbCharacterPosition.Z = gameCharacterPosition.Z;
-
-                        dbCharacterRotation.X = gameCharacterRotation.X;
-                        dbCharacterRotation.Y = gameCharacterRotation.Y;
-                        dbCharacterRotation.Z = gameCharacterRotation.Z;
-
-                        context.Update(account);
-                        await context.SaveChangesAsync();
-
-                        Debug.WriteLine("updated");
+                            var dbCharacterPosition = dbCharacter.Position;
+                            var dbCharacterRotation = dbCharacter.Rotation;
+            
+                            dbCharacter.Heading = gameCharacter.Heading;
+            
+                            dbCharacterPosition.X = gameCharacterPosition.X;
+                            dbCharacterPosition.Y = gameCharacterPosition.Y;
+                            dbCharacterPosition.Z = gameCharacterPosition.Z;
+            
+                            dbCharacterRotation.X = gameCharacterRotation.X;
+                            dbCharacterRotation.Y = gameCharacterRotation.Y;
+                            dbCharacterRotation.Z = gameCharacterRotation.Z;
+            
+                            context.Update(account);
+                            context.SaveChanges();
+            
+                            transaction.Commit();
+                        }
+                        catch
+                        {
+                            transaction.Rollback();
+                        }
                     }
-                    await transaction.CommitAsync();
                 }
             }
         }

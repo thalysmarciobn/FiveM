@@ -25,23 +25,14 @@ namespace DatabaseConsole.Migrations
                     b.Property<long>("AccountId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("Armor")
-                        .HasColumnType("int");
-
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime(6)");
-
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
 
                     b.Property<float>("Heading")
                         .HasColumnType("float");
 
                     b.Property<string>("Model")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
-
-                    b.Property<int>("Money")
-                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -261,6 +252,12 @@ namespace DatabaseConsole.Migrations
 
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<long>("CurrentCharacter")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("LastAddress")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.Property<string>("License")
                         .HasColumnType("varchar(255) CHARACTER SET utf8mb4");

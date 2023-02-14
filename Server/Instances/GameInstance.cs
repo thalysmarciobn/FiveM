@@ -17,7 +17,7 @@ namespace Server.Instances
 
         public bool ContainsPlayer(string license) => Players.ContainsKey(license);
 
-        public bool AddPlayer(GamePlayer model) => Players.TryAdd(model.License, model);
+        public bool AddPlayer(string license, GamePlayer model) => Players.TryAdd(license, model);
 
         public bool RemovePlayer(string license, out GamePlayer model) => Players.TryRemove(license, out model);
 

@@ -47,7 +47,6 @@ namespace FiveM.Client
 
             while (!await Game.Player.ChangeModel(model)) await Delay(10);
 
-            player.Character.Armor = resCharacter.Armor;
             player.SetPedHeadBlendDatas(resCharacter.PedHeadData);
             player.SetPedHead(resCharacter.PedHead);
             player.SetPedHeadOverlays(resCharacter.PedHeadOverlay);
@@ -81,8 +80,6 @@ namespace FiveM.Client
             };
 
             playerPed.Heading = resCharacter.Heading;
-            playerPed.Money = resCharacter.Money;
-            player.Money = resCharacter.Money;
 
             LoadScene(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
             RequestCollisionAtCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);

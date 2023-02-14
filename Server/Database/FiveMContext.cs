@@ -63,15 +63,15 @@ namespace FiveM.Server.Database
 
                 e.HasIndex(m => new { m.Id, m.AccountId });
 
-                e.HasOne(m => m.Position).WithOne().HasForeignKey<AccountCharacterPositionModel>(m => m.ChatacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasOne(m => m.Rotation).WithOne().HasForeignKey<AccountCharacterRotationModel>(m => m.ChatacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasOne(m => m.PedHeadData).WithOne().HasForeignKey<AccountCharacterPedHeadDataModel>(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasOne(m => m.PedHead).WithOne().HasForeignKey<AccountCharacterPedHeadModel>(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasMany(m => m.PedFace).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasMany(m => m.PedComponent).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasMany(m => m.PedProp).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasMany(m => m.PedHeadOverlay).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
-                e.HasMany(m => m.PedHeadOverlayColor).WithOne().HasForeignKey(m => m.CharacterId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.Position).WithOne().HasForeignKey<AccountCharacterPositionModel>(m => m.ChatacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.Rotation).WithOne().HasForeignKey<AccountCharacterRotationModel>(m => m.ChatacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.PedHeadData).WithOne().HasForeignKey<AccountCharacterPedHeadDataModel>(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.PedHead).WithOne().HasForeignKey<AccountCharacterPedHeadModel>(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.PedFace).WithOne().HasForeignKey(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.PedComponent).WithOne().HasForeignKey(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.PedProp).WithOne().HasForeignKey(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.PedHeadOverlay).WithOne().HasForeignKey(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.PedHeadOverlayColor).WithOne().HasForeignKey(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
 
                 // e.HasData(new AccountCharacterModel
                 // {

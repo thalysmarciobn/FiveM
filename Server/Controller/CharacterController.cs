@@ -1,7 +1,9 @@
 ﻿using CitizenFX.Core;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using Server.Core;
 using Server.Core.Game;
+using Server.Core.Server;
 using Server.Database;
 using Server.Extensions;
 using Server.Instances;
@@ -9,10 +11,11 @@ using Shared.Helper;
 using Shared.Models.Database;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.ComponentModel;
 using System.Linq;
+using System.Numerics;
 using System.Text;
-using static CitizenFX.Core.Native.API;
+using System.Threading.Tasks;
 
 namespace Server.Controller
 {
@@ -28,7 +31,7 @@ namespace Server.Controller
             {
                 using (var context = DatabaseContextManager.Context)
                 {
-                    var account = context.GetAccount(license);
+                    var account = gamePlayer.Account;
 
                     if (account.Character.Count <= 0)
                     {
@@ -63,23 +66,15 @@ namespace Server.Controller
                             PedHeadOverlay = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayModel>(),
                             PedHeadOverlayColor = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayColorModel>()
                         });
-                        context.SaveChanges();
+                        context.Update(account);
+                        var save = context.SaveChanges();
+
+                        Debug.WriteLine($"{license} characters: {save}");
                     }
                     var character = account.Character.First();
                     var json = JsonConvert.SerializeObject(character);
                     TriggerClientEvent(gamePlayer.Player, EventName.Client.InitCharacter, json);
                 }
-            }
-        }
-
-        public void ProjectPlayerPositionUpdate(string license, float x, float y, float z)
-        {
-
-            if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
-            {
-                //gamePlayer.CurrentCharacter.Position.X = x;
-                //gamePlayer.CurrentCharacter.Position.Y = y;
-                //gamePlayer.CurrentCharacter.Position.Z = z;
             }
         }
     }

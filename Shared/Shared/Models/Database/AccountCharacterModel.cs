@@ -12,9 +12,6 @@ namespace Shared.Models.Database
         public string Name { get; set; }
         public string Surname { get; set; }
         public DateTime DateCreated { get; set; }
-        public int Gender { get; set; }
-        public int Armor { get; set; }
-        public int Money { get; set; }
         public string Model { get; set; }
         public float Heading { get; set; }
         public AccountCharacterPositionModel Position { get; set; }

@@ -20,6 +20,9 @@ using Server.Core.Server;
 using System.ComponentModel;
 using static CitizenFX.Core.Native.API;
 using System.Threading.Tasks;
+using System.Runtime.CompilerServices;
+using Microsoft.EntityFrameworkCore;
+using Server.Extensions;
 
 namespace Server
 {
@@ -55,18 +58,12 @@ namespace Server
         }
 
         [EventHandler(EventName.External.Server.PlayerConnecting)]
-        private void PlayerConnecting([FromSource] Player player, string playerName, dynamic kickCallback, dynamic deferrals)
-        {
-            var license = player.Identifiers["license"];
-            AuthenticatorController.PlayerConnecting(player, license, playerName, kickCallback, deferrals);
-        }
+        private void PlayerConnecting([FromSource] Player player, string playerName, dynamic kickCallback, dynamic deferrals) =>
+            AuthenticatorController.PlayerConnecting(player, playerName, kickCallback, deferrals);
 
         [EventHandler(EventName.External.Server.PlayerDropped)]
-        private async void OnPlayerDropped([FromSource] Player player, string reason)
-        {
-            var license = player.Identifiers["license"];
-            await AuthenticatorController.OnPlayerDropped(player, license, reason);
-        }
+        private void OnPlayerDropped([FromSource] Player player, string reason) =>
+            AuthenticatorController.OnPlayerDropped(player, reason);
 
         [EventHandler(EventName.Server.SpawnRequest)]
         public void SpawnRequest([FromSource] Player player)
@@ -75,8 +72,8 @@ namespace Server
             CharacterController.SpawnRequest(license);
         }
 
-        [EventHandler(EventName.External.OnResourceStart)]
-        public void OnResourceStart(string resourceName)
+        [EventHandler(EventName.External.OnResourceStarting)]
+        public void OnResourceStarting(string resourceName)
         {
             if (resourceName != "project")
                 return;
@@ -91,9 +88,8 @@ namespace Server
                     if (account == null)
                         continue;
 
-                    GameInstance.Instance.AddPlayer(new GamePlayer(account.Id, player));
+                    GameInstance.Instance.AddPlayer(license, new GamePlayer(player, account));
                 }
-                Debug.WriteLine($"Players added: {GameInstance.Instance.PlayerCount}");
             }
         }
 
