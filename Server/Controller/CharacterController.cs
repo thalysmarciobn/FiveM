@@ -71,13 +71,14 @@ namespace Server.Controller
                             PedHeadOverlay = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayModel>(),
                             PedHeadOverlayColor = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayColorModel>()
                         };
-                        context.AccountCharacter.Add(createCharacter);
-                        if (context.SaveChanges() > 0)
-                        {
-                            account.Character.Add(createCharacter);
-                            var json = JsonConvert.SerializeObject(createCharacter);
-                            TriggerClientEvent(gamePlayer.Player, EventName.Client.InitCharacter, json);
-                        }
+                        account.Character.Add(createCharacter);
+
+                        context.Update(account);
+
+                        context.SaveChanges();
+
+                        var json = JsonConvert.SerializeObject(createCharacter);
+                        TriggerClientEvent(gamePlayer.Player, EventName.Client.InitCharacter, json);
                     }
                     else
                     {

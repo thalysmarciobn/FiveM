@@ -23,6 +23,8 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Server.Extensions;
+using Shared.Models.Game;
+using Newtonsoft.Json;
 
 namespace Server
 {
@@ -76,6 +78,19 @@ namespace Server
         {
             if (resourceName == GetCurrentResourceName())
                 ServerController.RegisterPlayers(Players.ToImmutableList());
+        }
+
+        [EventHandler(EventName.Server.SpawnVehicleService)]
+        public void SpawnVehicleService([FromSource] Player player, int serviceId, NetworkCallbackDelegate networkCallback)
+        {
+            //CreateVehicleServerSetter
+            Debug.WriteLine("aaaaaaaaaaaaaaaaaa");
+            var json = JsonConvert.SerializeObject(new VehicleService
+            {
+                Id = 2,
+                Name = "aaaaaaaaaa"
+            });
+            networkCallback.Invoke(json);
         }
 
         [Command("project_players")]

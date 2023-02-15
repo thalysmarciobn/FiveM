@@ -1,6 +1,8 @@
 ﻿using CitizenFX.Core;
 using Client.Core;
 using Mono.CSharp;
+using Newtonsoft.Json;
+using Shared.Models.Game;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +17,8 @@ namespace Client
         public IList<Prompt> Prompts { get; set; } = new List<Prompt>();
         public MarkScript()
         {
+            Debug.WriteLine("[PROJECT] Script: MarkScript");
+            EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
             Prompts.Add(new Prompt(new PromptConfig
             {
                 Key = Control.Pickup,
@@ -43,6 +47,11 @@ namespace Client
             Tick += OnTick;
         }
 
+        public void OnClientResourceStart(string resourceName)
+        {
+            if (GetCurrentResourceName() != resourceName) return;
+        }
+
         public async Task OnTick()
         {
             var pcoords = Game.Player.Character.Position;
@@ -56,13 +65,11 @@ namespace Client
                 var mathX = coords.X - pcoords.X;
                 var mathY = coords.Y - pcoords.Y;
 
-                Debug.WriteLine($"{mathX}   {mathY}");
                 if (mathX < drawDistance && mathY < drawDistance)
                 {
                     if (mathX < interactDistance && mathY < interactDistance)
                     {
-                        if (IsControlJustPressed(0, (int)prompt.Config.Key))
-                            prompt.IsPressed = true;
+                        prompt.IsPressed = IsControlJustPressed(0, (int)prompt.Config.Key);
                         prompt.CanInteract = true;
                     }
                     else
@@ -73,8 +80,16 @@ namespace Client
                 }
                 else
                 {
+                    prompt.IsPressed = false;
                     prompt.CanInteract = false;
                 }
+
+                if (prompt.IsPressed)
+                    TriggerServerEvent(EventName.Server.SpawnVehicleService, 1, new Action<string>((arg) =>
+                    {
+                        var vehicle = JsonConvert.DeserializeObject<VehicleService>(arg);
+                        Debug.WriteLine($"aaaaaa: {vehicle.Id}  {vehicle.Name}");
+                    }));
 
                 Wait(0);
             }

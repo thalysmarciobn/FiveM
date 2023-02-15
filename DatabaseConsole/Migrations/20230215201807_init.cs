@@ -33,6 +33,7 @@ namespace DatabaseConsole.Migrations
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
                     Model = table.Column<uint>(nullable: false),
                     Driver = table.Column<uint>(nullable: false),
+                    IsSpawned = table.Column<bool>(nullable: false),
                     X = table.Column<float>(nullable: false),
                     Y = table.Column<float>(nullable: false),
                     Z = table.Column<float>(nullable: false)
@@ -218,17 +219,17 @@ namespace DatabaseConsole.Migrations
                 name: "account_character_position",
                 columns: table => new
                 {
-                    ChatacterId = table.Column<long>(nullable: false),
+                    CharacterId = table.Column<long>(nullable: false),
                     X = table.Column<float>(nullable: false),
                     Y = table.Column<float>(nullable: false),
                     Z = table.Column<float>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_account_character_position", x => x.ChatacterId);
+                    table.PrimaryKey("PK_account_character_position", x => x.CharacterId);
                     table.ForeignKey(
-                        name: "FK_account_character_position_account_character_ChatacterId",
-                        column: x => x.ChatacterId,
+                        name: "FK_account_character_position_account_character_CharacterId",
+                        column: x => x.CharacterId,
                         principalTable: "account_character",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -238,17 +239,17 @@ namespace DatabaseConsole.Migrations
                 name: "account_character_rotation",
                 columns: table => new
                 {
-                    ChatacterId = table.Column<long>(nullable: false),
+                    CharacterId = table.Column<long>(nullable: false),
                     X = table.Column<float>(nullable: false),
                     Y = table.Column<float>(nullable: false),
                     Z = table.Column<float>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_account_character_rotation", x => x.ChatacterId);
+                    table.PrimaryKey("PK_account_character_rotation", x => x.CharacterId);
                     table.ForeignKey(
-                        name: "FK_account_character_rotation_account_character_ChatacterId",
-                        column: x => x.ChatacterId,
+                        name: "FK_account_character_rotation_account_character_CharacterId",
+                        column: x => x.CharacterId,
                         principalTable: "account_character",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -256,19 +257,20 @@ namespace DatabaseConsole.Migrations
 
             migrationBuilder.InsertData(
                 table: "server_vehicle_service",
-                columns: new[] { "Id", "Driver", "Model", "X", "Y", "Z" },
+                columns: new[] { "Id", "Driver", "IsSpawned", "Model", "X", "Y", "Z" },
                 values: new object[,]
                 {
-                    { 1L, 1302784073u, 3338918751u, -1049.649f, -2719.027f, 13.7566f },
-                    { 2L, 1302784073u, 3338918751u, -1041.9746f, -2721.6182f, 13.7566f },
-                    { 3L, 1302784073u, 3338918751u, -1026.4174f, -2730.4631f, 13.7566f },
-                    { 4L, 1302784073u, 3338918751u, -1014.7446f, -2737.0579f, 13.7566f }
+                    { 1L, 1302784073u, false, 3338918751u, -1049.649f, -2719.027f, 13.7566f },
+                    { 2L, 1302784073u, false, 3338918751u, -1041.9746f, -2721.6182f, 13.7566f },
+                    { 3L, 1302784073u, false, 3338918751u, -1026.4174f, -2730.4631f, 13.7566f },
+                    { 4L, 1302784073u, false, 3338918751u, -1014.7446f, -2737.0579f, 13.7566f }
                 });
 
             migrationBuilder.CreateIndex(
                 name: "IX_account_Id_License",
                 table: "account",
-                columns: new[] { "Id", "License" });
+                columns: new[] { "Id", "License" },
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_account_character_AccountId",
@@ -276,9 +278,10 @@ namespace DatabaseConsole.Migrations
                 column: "AccountId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_account_character_Id_AccountId",
+                name: "IX_account_character_Id_AccountId_Slot",
                 table: "account_character",
-                columns: new[] { "Id", "AccountId" });
+                columns: new[] { "Id", "AccountId", "Slot" },
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)

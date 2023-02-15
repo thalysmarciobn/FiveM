@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseConsole.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230214051926_init")]
+    [Migration("20230215201807_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -49,7 +49,8 @@ namespace DatabaseConsole.Migrations
 
                     b.HasIndex("AccountId");
 
-                    b.HasIndex("Id", "AccountId");
+                    b.HasIndex("Id", "AccountId", "Slot")
+                        .IsUnique();
 
                     b.ToTable("account_character");
                 });
@@ -210,7 +211,7 @@ namespace DatabaseConsole.Migrations
 
             modelBuilder.Entity("Shared.Models.Database.AccountCharacterPositionModel", b =>
                 {
-                    b.Property<long>("ChatacterId")
+                    b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
 
                     b.Property<float>("X")
@@ -222,14 +223,14 @@ namespace DatabaseConsole.Migrations
                     b.Property<float>("Z")
                         .HasColumnType("float");
 
-                    b.HasKey("ChatacterId");
+                    b.HasKey("CharacterId");
 
                     b.ToTable("account_character_position");
                 });
 
             modelBuilder.Entity("Shared.Models.Database.AccountCharacterRotationModel", b =>
                 {
-                    b.Property<long>("ChatacterId")
+                    b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
 
                     b.Property<float>("X")
@@ -241,7 +242,7 @@ namespace DatabaseConsole.Migrations
                     b.Property<float>("Z")
                         .HasColumnType("float");
 
-                    b.HasKey("ChatacterId");
+                    b.HasKey("CharacterId");
 
                     b.ToTable("account_character_rotation");
                 });
@@ -270,7 +271,8 @@ namespace DatabaseConsole.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Id", "License");
+                    b.HasIndex("Id", "License")
+                        .IsUnique();
 
                     b.ToTable("account");
                 });
@@ -283,6 +285,9 @@ namespace DatabaseConsole.Migrations
 
                     b.Property<uint>("Driver")
                         .HasColumnType("int unsigned");
+
+                    b.Property<bool>("IsSpawned")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<uint>("Model")
                         .HasColumnType("int unsigned");
@@ -305,6 +310,7 @@ namespace DatabaseConsole.Migrations
                         {
                             Id = 1L,
                             Driver = 1302784073u,
+                            IsSpawned = false,
                             Model = 3338918751u,
                             X = -1049.649f,
                             Y = -2719.027f,
@@ -314,6 +320,7 @@ namespace DatabaseConsole.Migrations
                         {
                             Id = 2L,
                             Driver = 1302784073u,
+                            IsSpawned = false,
                             Model = 3338918751u,
                             X = -1041.9746f,
                             Y = -2721.6182f,
@@ -323,6 +330,7 @@ namespace DatabaseConsole.Migrations
                         {
                             Id = 3L,
                             Driver = 1302784073u,
+                            IsSpawned = false,
                             Model = 3338918751u,
                             X = -1026.4174f,
                             Y = -2730.4631f,
@@ -332,6 +340,7 @@ namespace DatabaseConsole.Migrations
                         {
                             Id = 4L,
                             Driver = 1302784073u,
+                            IsSpawned = false,
                             Model = 3338918751u,
                             X = -1014.7446f,
                             Y = -2737.0579f,
@@ -415,7 +424,7 @@ namespace DatabaseConsole.Migrations
                 {
                     b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
                         .WithOne("Position")
-                        .HasForeignKey("Shared.Models.Database.AccountCharacterPositionModel", "ChatacterId")
+                        .HasForeignKey("Shared.Models.Database.AccountCharacterPositionModel", "CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -424,7 +433,7 @@ namespace DatabaseConsole.Migrations
                 {
                     b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
                         .WithOne("Rotation")
-                        .HasForeignKey("Shared.Models.Database.AccountCharacterRotationModel", "ChatacterId")
+                        .HasForeignKey("Shared.Models.Database.AccountCharacterRotationModel", "CharacterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

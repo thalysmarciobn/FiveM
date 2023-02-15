@@ -38,13 +38,13 @@ namespace FiveM.Server.Database
 
                 e.HasKey(m => m.Id);
 
-                e.HasIndex(m => new { m.Id, m.License });
+                e.HasIndex(m => new { m.Id, m.License }).IsUnique();
 
                 e.Property(m => m.WhiteListed)
                     .IsRequired()
                     .HasMaxLength(1);
 
-                e.HasMany(m => m.Character).WithOne().HasForeignKey(m => m.AccountId).IsRequired().OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.Character).WithOne().HasPrincipalKey(m => m.Id).HasForeignKey(m => m.AccountId).IsRequired().OnDelete(DeleteBehavior.Cascade);
 
                 // e.HasData(new AccountModel
                 // {
@@ -59,12 +59,12 @@ namespace FiveM.Server.Database
             {
                 e.ToTable("account_character");
 
-                e.HasKey(m => new { m.Id, m.Slot });
+                e.HasKey(m => m.Id);
 
-                e.HasIndex(m => new { m.Id, m.AccountId });
+                e.HasIndex(m => new { m.Id, m.AccountId, m.Slot }).IsUnique();
 
-                e.HasOne(m => m.Position).WithOne().HasForeignKey<AccountCharacterPositionModel>(m => m.ChatacterId).OnDelete(DeleteBehavior.Cascade);
-                e.HasOne(m => m.Rotation).WithOne().HasForeignKey<AccountCharacterRotationModel>(m => m.ChatacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.Position).WithOne().HasForeignKey<AccountCharacterPositionModel>(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
+                e.HasOne(m => m.Rotation).WithOne().HasForeignKey<AccountCharacterRotationModel>(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
                 e.HasOne(m => m.PedHeadData).WithOne().HasForeignKey<AccountCharacterPedHeadDataModel>(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
                 e.HasOne(m => m.PedHead).WithOne().HasForeignKey<AccountCharacterPedHeadModel>(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
                 e.HasMany(m => m.PedFace).WithOne().HasForeignKey(m => m.CharacterId).OnDelete(DeleteBehavior.Cascade);
@@ -89,7 +89,7 @@ namespace FiveM.Server.Database
             modelBuilder.Entity<AccountCharacterPositionModel>(e =>
             {
                 e.ToTable("account_character_position");
-                e.HasKey(m => m.ChatacterId);
+                e.HasKey(m => m.CharacterId);
 
                 // e.HasData(new AccountCharacterPositionModel
                 // {
@@ -103,7 +103,7 @@ namespace FiveM.Server.Database
             modelBuilder.Entity<AccountCharacterRotationModel>(e =>
             {
                 e.ToTable("account_character_rotation");
-                e.HasKey(m => m.ChatacterId);
+                e.HasKey(m => m.CharacterId);
 
                 // e.HasData(new AccountCharacterRotationModel
                 // {
@@ -218,7 +218,7 @@ namespace FiveM.Server.Database
             modelBuilder.Entity<ServerVehicleService>(e =>
             {
                 e.ToTable("server_vehicle_service");
-                e.HasKey(m => new { m.Id });
+                e.HasKey(m => m.Id);
                 e.HasData(new []
                 {
                     new ServerVehicleService
@@ -228,6 +228,7 @@ namespace FiveM.Server.Database
                         Model = 3338918751u,
                         // PedHash.LesterCrest
                         Driver = 1302784073u,
+                        IsSpawned = false,
                         X = -1049.6491f,
                         Y = -2719.0270f,
                         Z = 13.7566f,
@@ -239,6 +240,7 @@ namespace FiveM.Server.Database
                         Model = 3338918751u,
                         // PedHash.LesterCrest
                         Driver = 1302784073u,
+                        IsSpawned = false,
                         X = -1041.9746f,
                         Y = -2721.6181f,
                         Z = 13.7566f,
@@ -250,6 +252,7 @@ namespace FiveM.Server.Database
                         Model = 3338918751u,
                         // PedHash.LesterCrest
                         Driver = 1302784073u,
+                        IsSpawned = false,
                         X = -1026.4173f,
                         Y = -2730.4631f,
                         Z = 13.7566f,
@@ -261,6 +264,7 @@ namespace FiveM.Server.Database
                         Model = 3338918751u,
                         // PedHash.LesterCrest
                         Driver = 1302784073u,
+                        IsSpawned = false,
                         X = -1014.7446f,
                         Y = -2737.0578f,
                         Z = 13.7566f,

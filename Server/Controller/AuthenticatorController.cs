@@ -35,17 +35,19 @@ namespace Server.Controller
             
                     if (context.Account.Any(m => m.License == license))
                     {
+                        Debug.WriteLine($"Logging account: {playerName}");
+
                         var account = context.GetAccount(license);
             
                         var gamePlayer = new GamePlayer(player, account);
             
                         if (GameInstance.Instance.AddPlayer(license, gamePlayer))
                             deferrals.done();
-
-                        Debug.WriteLine($"Logging account: {playerName}");
                     }
                     else
                     {
+                        Debug.WriteLine($"Creating account for: {playerName}");
+
                         var account = new AccountModel()
                         {
                             License = license,
@@ -60,8 +62,6 @@ namespace Server.Controller
             
                         if (GameInstance.Instance.AddPlayer(license, gamePlayer))
                             deferrals.done();
-
-                        Debug.WriteLine($"Creating account for: {playerName}");
                     }
                 }
                 catch
