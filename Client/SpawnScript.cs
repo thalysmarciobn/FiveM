@@ -1,5 +1,7 @@
 ﻿using CitizenFX.Core;
 using CitizenFX.Core.Native;
+using CitizenFX.Core.UI;
+using Client.Core;
 using Mono.CSharp;
 using MsgPack;
 using System;

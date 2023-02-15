@@ -12,6 +12,7 @@ public static class EventName
             public const string PlayerConnecting = "playerConnecting";
             public const string PlayerDropped = "playerDropped";
         }
+        public const string OnResourceStart = "onResourceStart";
         public const string OnResourceStarting = "onResourceStarting";
     }
     public static class Client

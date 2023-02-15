@@ -35,7 +35,7 @@ namespace Server.Controller
             
                     if (context.Account.Any(m => m.License == license))
                     {
-                        var account = context.GetAccountAsync(license);
+                        var account = context.GetAccount(license);
             
                         var gamePlayer = new GamePlayer(player, account);
             

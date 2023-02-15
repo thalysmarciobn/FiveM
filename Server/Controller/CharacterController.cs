@@ -25,18 +25,23 @@ namespace Server.Controller
         {
         }
 
-        public void SpawnRequest(string license)
+        public void SpawnRequest(Player player)
         {
+            var license = player.Identifiers["license"];
+
             if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
             {
                 using (var context = DatabaseContextManager.Context)
                 {
                     var account = gamePlayer.Account;
 
+                    Debug.WriteLine($"chars: {account.Character.Count}");
+
                     if (account.Character.Count <= 0)
                     {
-                        account.Character.Add(new AccountCharacterModel
+                        var createCharacter = new AccountCharacterModel
                         {
+                            AccountId = account.Id,
                             Slot = 0,
                             DateCreated = DateTime.Now,
                             Model = "mp_m_freemode_01",
@@ -65,15 +70,21 @@ namespace Server.Controller
                             PedProp = CharacterModelHelper.DefaultList<AccountCharacterPedPropModel>(),
                             PedHeadOverlay = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayModel>(),
                             PedHeadOverlayColor = CharacterModelHelper.DefaultList<AccountCharacterPedHeadOverlayColorModel>()
-                        });
-                        context.Update(account);
-                        var save = context.SaveChanges();
-
-                        Debug.WriteLine($"{license} characters: {save}");
+                        };
+                        context.AccountCharacter.Add(createCharacter);
+                        if (context.SaveChanges() > 0)
+                        {
+                            account.Character.Add(createCharacter);
+                            var json = JsonConvert.SerializeObject(createCharacter);
+                            TriggerClientEvent(gamePlayer.Player, EventName.Client.InitCharacter, json);
+                        }
                     }
-                    var character = account.Character.First();
-                    var json = JsonConvert.SerializeObject(character);
-                    TriggerClientEvent(gamePlayer.Player, EventName.Client.InitCharacter, json);
+                    else
+                    {
+                        var character = account.Character.FirstOrDefault(x => x.Slot == account.CurrentCharacter);
+                        var json = JsonConvert.SerializeObject(character);
+                        TriggerClientEvent(gamePlayer.Player, EventName.Client.InitCharacter, json);
+                    }
                 }
             }
         }

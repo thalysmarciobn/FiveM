@@ -12,7 +12,7 @@ namespace Server.Extensions
 {
     public static class DatabaseExtension
     {
-        public static AccountModel GetAccountAsync(this FiveMContext context, string license)
+        public static AccountModel GetAccount(this FiveMContext context, string license)
         {
             return context.Account
                 .Include(m => m.Character).ThenInclude(m => m.Position)

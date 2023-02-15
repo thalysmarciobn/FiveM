@@ -28,10 +28,12 @@ namespace Server
 {
     public class ServerMain : BaseScript
     {
+        private ServerController ServerController { get; }
         private AuthenticatorController AuthenticatorController { get; }
         private CharacterController CharacterController { get; }
         public ServerMain()
         {
+            ServerController = new ServerController(this);
             AuthenticatorController = new AuthenticatorController(this);
             CharacterController = new CharacterController(this);
             Debug.WriteLine("[PROJECT] ServerMain Started.");
@@ -66,31 +68,14 @@ namespace Server
             AuthenticatorController.OnPlayerDropped(player, reason);
 
         [EventHandler(EventName.Server.SpawnRequest)]
-        public void SpawnRequest([FromSource] Player player)
+        public void SpawnRequest([FromSource] Player player) =>
+            CharacterController.SpawnRequest(player);
+
+        [EventHandler(EventName.External.OnResourceStart)]
+        public void OnResourceStart(string resourceName)
         {
-            var license = player.Identifiers["license"];
-            CharacterController.SpawnRequest(license);
-        }
-
-        [EventHandler(EventName.External.OnResourceStarting)]
-        public void OnResourceStarting(string resourceName)
-        {
-            if (resourceName != "project")
-                return;
-
-            using (var context = DatabaseContextManager.Context)
-            {
-                foreach (var player in Players.ToImmutableList())
-                {
-                    var license = player.Identifiers["license"];
-
-                    var account = context.Account.SingleOrDefault(m => m.License == license);
-                    if (account == null)
-                        continue;
-
-                    GameInstance.Instance.AddPlayer(license, new GamePlayer(player, account));
-                }
-            }
+            if (resourceName == GetCurrentResourceName())
+                ServerController.RegisterPlayers(Players.ToImmutableList());
         }
 
         [Command("project_players")]
