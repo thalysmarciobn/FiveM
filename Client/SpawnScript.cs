@@ -43,7 +43,7 @@ namespace Client
             SetCreateRandomCopsNotOnScenarios(false);
             SetCreateRandomCopsOnScenarios(false);
 
-            var coords = GetEntityCoords(PlayerPedId(), true);
+            //var coords = GetEntityCoords(PlayerPedId(), true);
 
             //ClearAreaOfVehicles(coords.X, coords.Y, coords.Z, 1000, false, false, false, false, false);
 

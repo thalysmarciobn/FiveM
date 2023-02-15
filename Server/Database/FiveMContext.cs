@@ -59,7 +59,7 @@ namespace FiveM.Server.Database
             {
                 e.ToTable("account_character");
 
-                e.HasKey(m => m.Id);
+                e.HasKey(m => new { m.Id, m.Slot });
 
                 e.HasIndex(m => new { m.Id, m.AccountId });
 

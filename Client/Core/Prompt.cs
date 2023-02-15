@@ -17,15 +17,24 @@ namespace Client.Core
         public float KeyTextWidth { get; private set; }
         public float LabelTextWidth { get; private set; }
         public float TextHeight { get; private set; }
-        public PromptConfig Config { get; set; }
-        public Vector2 BoxPadding { get; set; }
-        public float MinWidth { get; private set; }
-        public float MaxWidth{ get; private set; }
+        public PromptConfig Config { get; private set; }
+        private Vector2 BoxPadding { get; set; }
+        private float MinWidth { get; set; }
+        private float MaxWidth{ get; set; }
         public bool CanInteract { get; set; }
+        public bool IsPressed { get; set; }
+
+        public int SW { get; private set; }
+        public int SH { get; private set; }
 
         public PromptButton Button = new PromptButton();
         public PromptBackground Background = new PromptBackground();
         public PromptFX FX = new PromptFX();
+
+        public Prompt (PromptConfig config)
+        {
+            Config = config;
+        }
 
         public void Update()
         {
@@ -81,7 +90,8 @@ namespace Client.Core
             Background.TextX = Button.X + (Button.W / 2) + Config.Margin + BoxPadding.X;
             Background.TextY = Button.Y - TextHeight + Config.TextOffset;
 
-
+            SW = sw;
+            SH = sh;
             //
         }
 
@@ -112,6 +122,26 @@ namespace Client.Core
 
             RenderElement(Config.TextLabel, background, false);
             RenderElement(Config.KeyLabel, button);
+
+            if (IsPressed)
+            {
+                FX.W = FX.W + (0.0005f * SW) / SW;
+                FX.H = FX.H + (0.0005f * SW) / SH;
+
+                FX.A = FX.A - 18;
+
+                SetDrawOrigin(Config.Coords.X, Config.Coords.Y, Config.Coords.Z, 0);
+                DrawRect(Button.X, Button.Y, FX.W, FX.H, Button.BC.R, Button.BC.G, Button.BC.B, FX.A);
+                ClearDrawOrigin();
+
+                if (FX.A <= 0)
+                {
+                    IsPressed = false;
+                    FX.W = Button.W;
+                    FX.H = Button.H;
+                    FX.A = 255;
+                }
+            }
         }
 
         private void RenderElement(string text, IBox box, bool centered = true)
@@ -140,6 +170,7 @@ namespace Client.Core
     }
     public class PromptConfig
     {
+        public Control Key { get; set; }
         public string TextLabel { get; set; }
         public string KeyLabel { get; set; }
         public int Font { get; set; }
