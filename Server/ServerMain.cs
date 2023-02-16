@@ -25,6 +25,7 @@ using Microsoft.EntityFrameworkCore;
 using Server.Extensions;
 using Shared.Models.Game;
 using Newtonsoft.Json;
+using Shared.Models.Database;
 
 namespace Server
 {
@@ -76,21 +77,47 @@ namespace Server
         [EventHandler(EventName.External.OnResourceStart)]
         public void OnResourceStart(string resourceName)
         {
-            if (resourceName == GetCurrentResourceName())
-                ServerController.RegisterPlayers(Players.ToImmutableList());
+            if (resourceName != GetCurrentResourceName()) return;
+            
+            ServerController.RegisterPlayers(Players.ToImmutableList());
+
+            ServerController.RegisterVehicles();
+        }
+
+        [EventHandler(EventName.Server.GetServiceVehicles)]
+        public void GetServiceVehicles(NetworkCallbackDelegate networkCallback)
+        {
+            var json = JsonConvert.SerializeObject(GameInstance.Instance.GetVehicles);
+            networkCallback.Invoke(json);
         }
 
         [EventHandler(EventName.Server.SpawnVehicleService)]
         public void SpawnVehicleService([FromSource] Player player, int serviceId, NetworkCallbackDelegate networkCallback)
         {
-            //CreateVehicleServerSetter
             Debug.WriteLine("aaaaaaaaaaaaaaaaaa");
-            var json = JsonConvert.SerializeObject(new VehicleService
+            if (GameInstance.Instance.GetVehicle(serviceId, out var model))
             {
-                Id = 2,
-                Name = "aaaaaaaaaa"
-            });
-            networkCallback.Invoke(json);
+                if (model.IsSpawned) return;
+
+                var vehicleId = CreateVehicleServerSetter(model.Model, "automobile", model.SpawnX, model.SpawnY, model.SpawnZ, 1.0f);
+
+                // 2 - trancado mas o npc abre a porta
+                SetVehicleDoorsLocked(vehicleId, 3);  
+
+                var ped = CreatePed(0, model.Driver, model.SpawnX, model.SpawnY, model.SpawnZ, 1.0f, true, true);
+
+                SetPedIntoVehicle(ped, vehicleId, -1);
+
+                var json = JsonConvert.SerializeObject(new VehicleService
+                {
+                    VehicleId = vehicleId,
+                    Ped = ped,
+                    Model = model
+                });
+                networkCallback.Invoke(json);
+
+                model.IsSpawned = true;
+            }
         }
 
         [Command("project_players")]

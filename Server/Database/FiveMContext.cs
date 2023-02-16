@@ -229,9 +229,12 @@ namespace FiveM.Server.Database
                         // PedHash.LesterCrest
                         Driver = 1302784073u,
                         IsSpawned = false,
-                        X = -1049.6491f,
-                        Y = -2719.0270f,
-                        Z = 13.7566f,
+                        // Control.Pickup
+                        Key = 38,
+                        Title = "Chamar Taxi",
+                        MarkX = -1049.6491f,
+                        MarkY = -2719.0270f,
+                        MarkZ = 13.7566f,
                     },
                     new ServerVehicleService
                     {
@@ -241,9 +244,12 @@ namespace FiveM.Server.Database
                         // PedHash.LesterCrest
                         Driver = 1302784073u,
                         IsSpawned = false,
-                        X = -1041.9746f,
-                        Y = -2721.6181f,
-                        Z = 13.7566f,
+                        // Control.Pickup
+                        Key = 38,
+                        Title = "Chamar Taxi",
+                        MarkX = -1041.9746f,
+                        MarkY = -2721.6181f,
+                        MarkZ = 13.7566f,
                     },
                     new ServerVehicleService
                     {
@@ -253,9 +259,12 @@ namespace FiveM.Server.Database
                         // PedHash.LesterCrest
                         Driver = 1302784073u,
                         IsSpawned = false,
-                        X = -1026.4173f,
-                        Y = -2730.4631f,
-                        Z = 13.7566f,
+                        // Control.Pickup
+                        Key = 38,
+                        Title = "Chamar Taxi",
+                        MarkX = -1026.4173f,
+                        MarkY = -2730.4631f,
+                        MarkZ = 13.7566f,
                     },
                     new ServerVehicleService
                     {
@@ -265,9 +274,12 @@ namespace FiveM.Server.Database
                         // PedHash.LesterCrest
                         Driver = 1302784073u,
                         IsSpawned = false,
-                        X = -1014.7446f,
-                        Y = -2737.0578f,
-                        Z = 13.7566f,
+                        // Control.Pickup
+                        Key = 38,
+                        Title = "Chamar Taxi",
+                        MarkX = -1014.7446f,
+                        MarkY = -2737.0578f,
+                        MarkZ = 13.7566f,
                     }
                 });
             });

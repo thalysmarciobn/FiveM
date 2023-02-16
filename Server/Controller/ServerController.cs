@@ -35,8 +35,18 @@ namespace Server.Controller
 
                     GameInstance.Instance.AddPlayer(license, new GamePlayer(player, account));
                 }
-                Debug.WriteLine($"Players registered: {GameInstance.Instance.PlayerCount}");
             }
+            Debug.WriteLine($"Players registered: {GameInstance.Instance.PlayerCount}");
+        }
+
+        public void RegisterVehicles()
+        {
+            using (var context = DatabaseContextManager.Context)
+            {
+                foreach (var vehicle in context.ServerVehicleService.ToList())
+                    GameInstance.Instance.AddVehicle(vehicle.Id, vehicle);
+            }
+            Debug.WriteLine($"Vehicles registered: {GameInstance.Instance.VehicleCount}");
         }
     }
 }

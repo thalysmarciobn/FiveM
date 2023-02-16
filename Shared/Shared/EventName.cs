@@ -24,6 +24,7 @@ public static class EventName
     {
         public const string SpawnRequest = "spawnRequest";
         public const string ProjectPlayerPositionUpdate = "ProjectPlayerPositionUpdate";
+        public const string GetServiceVehicles = "getServiceVehicles";
         public const string SpawnVehicleService = "spawnVehicleService";
     }
 }

@@ -14,6 +14,7 @@ namespace Client.Core
 {
     public class Prompt
     {
+        public long Id { get; private set; }
         public float KeyTextWidth { get; private set; }
         public float LabelTextWidth { get; private set; }
         public float TextHeight { get; private set; }
@@ -31,8 +32,9 @@ namespace Client.Core
         public PromptBackground Background = new PromptBackground();
         public PromptFX FX = new PromptFX();
 
-        public Prompt (PromptConfig config)
+        public Prompt (long id, PromptConfig config)
         {
+            Id = id;
             Config = config;
         }
 
@@ -47,12 +49,16 @@ namespace Client.Core
             LabelTextWidth = GetTextWidth(Config.TextLabel);
 
             TextHeight = GetRenderedCharacterHeight(Config.Scale, Config.Font);
-            
+
             if (Config.Font == 0)
-            {
                 Config.TextOffset = 0.0065f;
-            }
-            
+            else if (Config.Font == 1)
+                Config.TextOffset = 0.01f;
+            else if (Config.Font == 2)
+                Config.TextOffset = 0.009f;
+            else if (Config.Font == 4)
+                Config.TextOffset = 0.008f;
+
             //
 
             // Buttons
@@ -89,6 +95,8 @@ namespace Client.Core
 
             Background.TextX = Button.X + (Button.W / 2) + Config.Margin + BoxPadding.X;
             Background.TextY = Button.Y - TextHeight + Config.TextOffset;
+
+            Background.W = MinWidth;
 
             SW = sw;
             SH = sh;
