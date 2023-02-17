@@ -173,26 +173,23 @@ namespace Client
                     SetEntityCompletelyDisableCollision(vehicleEntity, true, true);
 
                     //TaskEnterVehicle(playerPed.Handle, vehicleEntity, -1, 0, 1.5f, 1, 0); // not working
-                    //SetPedIntoVehicle(playerPed.Handle, vehicleEntity, 1);
+                    SetPedIntoVehicle(playerPed.Handle, vehicleEntity, 1);
+
+                    player.CanControlCharacter = false;
 
                     while (!IsPedInVehicle(playerPed.Handle, vehicleEntity, false))
-                        Wait(0);
+                        await Delay(0);
 
                     DoScreenFadeIn(500);
                     while (IsScreenFadingIn())
                         await Delay(0);
 
-                    //player.LastVehicle.IsCollisionEnabled = false;
-                    //player.LastVehicle.IsInvincible = true;
-                    //
-                    player.CanControlCharacter = false;
-
-                    var speed = 20f;
+                    var speed = 40f;
                     var drivingStyle = 0;
                     var stopRange = 8.0f;
-
+                    
                     TaskVehicleDriveToCoordLongrange(pilotEntity, vehicleEntity, vehicle.DriveToX, vehicle.DriveToY, vehicle.DriveToZ, speed, drivingStyle, stopRange);
-
+                    
                     CurrentPromptServiceVehicle = new PromptServiceVehicle
                     {
                         VehicleId = vehicle.ServerVehicleId,

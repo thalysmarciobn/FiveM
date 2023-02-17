@@ -113,7 +113,7 @@ namespace Server
                 model.ServerVehicleId = CreateVehicle(model.Model, model.SpawnX, model.SpawnY, model.SpawnZ, model.SpawnHeading, true, true);
                 // 2 - trancado mas o npc abre a porta
                 // 3 - não da pra entrar
-                //SetVehicleDoorsLocked(model.ServerVehicleId, 3);
+                SetVehicleDoorsLocked(model.ServerVehicleId, 3);
 
                 while (!DoesEntityExist(model.ServerVehicleId))
                     Task.Delay(0);
@@ -128,7 +128,7 @@ namespace Server
                 SetPedRandomProps(model.ServerDriverId);
                 SetPedRandomComponentVariation(model.ServerDriverId, true);
 
-                TaskEnterVehicle(player.Character.Handle, model.ServerVehicleId, -1, 0, 1.5f, 1, 0);
+                // TaskEnterVehicle(player.Character.Handle, model.ServerVehicleId, -1, 0, 1f, 1, 0);
 
                 model.ServerVehicleNetworkId = NetworkGetNetworkIdFromEntity(model.ServerVehicleId);
                 model.ServerDriverNetworkId = NetworkGetNetworkIdFromEntity(model.ServerDriverId);
