@@ -184,9 +184,10 @@ namespace Client
                     while (IsScreenFadingIn())
                         await Delay(0);
 
-                    var speed = 40f;
-                    var drivingStyle = 0;
-                    var stopRange = 8.0f;
+                    var speed = 30f;
+                    // https://vespura.com/fivem/drivingstyle/
+                    var drivingStyle = 191;
+                    var stopRange = 20.0f;
                     
                     TaskVehicleDriveToCoordLongrange(pilotEntity, vehicleEntity, vehicle.DriveToX, vehicle.DriveToY, vehicle.DriveToZ, speed, drivingStyle, stopRange);
                     
