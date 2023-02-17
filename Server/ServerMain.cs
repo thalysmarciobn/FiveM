@@ -26,6 +26,7 @@ using Server.Extensions;
 using Shared.Models.Game;
 using Newtonsoft.Json;
 using Shared.Models.Database;
+using CitizenFX.Core.Native;
 
 namespace Server
 {
@@ -78,10 +79,18 @@ namespace Server
         public void OnResourceStart(string resourceName)
         {
             if (resourceName != GetCurrentResourceName()) return;
-            
+
             ServerController.RegisterPlayers(Players.ToImmutableList());
 
             ServerController.RegisterVehicles();
+        }
+
+        [EventHandler(EventName.External.OnResourceStop)]
+        public void OnResourceStop(string resourceName)
+        {
+            if (resourceName != GetCurrentResourceName()) return;
+
+            ServerController.RemoveVehiclesAndDrivers();
         }
 
         [EventHandler(EventName.Server.GetServiceVehicles)]
@@ -94,26 +103,38 @@ namespace Server
         [EventHandler(EventName.Server.SpawnVehicleService)]
         public void SpawnVehicleService([FromSource] Player player, int serviceId, NetworkCallbackDelegate networkCallback)
         {
-            Debug.WriteLine("aaaaaaaaaaaaaaaaaa");
             if (GameInstance.Instance.GetVehicle(serviceId, out var model))
             {
-                if (model.IsSpawned) return;
-
-                var vehicleId = CreateVehicleServerSetter(model.Model, "automobile", model.SpawnX, model.SpawnY, model.SpawnZ, 1.0f);
-
-                // 2 - trancado mas o npc abre a porta
-                SetVehicleDoorsLocked(vehicleId, 3);  
-
-                var ped = CreatePed(0, model.Driver, model.SpawnX, model.SpawnY, model.SpawnZ, 1.0f, true, true);
-
-                SetPedIntoVehicle(ped, vehicleId, -1);
-
-                var json = JsonConvert.SerializeObject(new VehicleService
+                if (model.IsSpawned)
                 {
-                    VehicleId = vehicleId,
-                    Ped = ped,
-                    Model = model
-                });
+                    return;
+                }
+
+                model.ServerVehicleId = CreateVehicle(model.Model, model.SpawnX, model.SpawnY, model.SpawnZ, model.SpawnHeading, true, true);
+                // 2 - trancado mas o npc abre a porta
+                // 3 - não da pra entrar
+                //SetVehicleDoorsLocked(model.ServerVehicleId, 3);
+
+                while (!DoesEntityExist(model.ServerVehicleId))
+                    Task.Delay(0);
+
+                SetVehicleNumberPlateText(model.ServerVehicleId, model.Id.ToString("D4"));
+
+                model.ServerDriverId = CreatePedInsideVehicle(model.ServerVehicleId, 1, model.Driver, -1, true, true);
+
+                while (!DoesEntityExist(model.ServerDriverId))
+                    Task.Delay(0);
+
+                SetPedRandomProps(model.ServerDriverId);
+                SetPedRandomComponentVariation(model.ServerDriverId, true);
+
+                TaskEnterVehicle(player.Character.Handle, model.ServerVehicleId, -1, 0, 1.5f, 1, 0);
+
+                model.ServerVehicleNetworkId = NetworkGetNetworkIdFromEntity(model.ServerVehicleId);
+                model.ServerDriverNetworkId = NetworkGetNetworkIdFromEntity(model.ServerDriverId);
+
+                var json = JsonConvert.SerializeObject(model);
+
                 networkCallback.Invoke(json);
 
                 model.IsSpawned = true;

@@ -293,9 +293,6 @@ namespace DatabaseConsole.Migrations
                     b.Property<uint>("Driver")
                         .HasColumnType("int unsigned");
 
-                    b.Property<bool>("IsSpawned")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<int>("Key")
                         .HasColumnType("int");
 
@@ -310,6 +307,9 @@ namespace DatabaseConsole.Migrations
 
                     b.Property<uint>("Model")
                         .HasColumnType("int unsigned");
+
+                    b.Property<float>("SpawnHeading")
+                        .HasColumnType("float");
 
                     b.Property<float>("SpawnX")
                         .HasColumnType("float");
@@ -331,38 +331,38 @@ namespace DatabaseConsole.Migrations
                         new
                         {
                             Id = 1L,
-                            DriveToX = 0f,
-                            DriveToY = 0f,
-                            DriveToZ = 0f,
-                            Driver = 1302784073u,
-                            IsSpawned = false,
+                            DriveToX = 134.954f,
+                            DriveToY = -1023.76f,
+                            DriveToZ = 28.8165f,
+                            Driver = 1885233650u,
                             Key = 38,
                             MarkX = -1049.649f,
                             MarkY = -2719.027f,
                             MarkZ = 13.7566f,
                             Model = 3338918751u,
-                            SpawnX = 0f,
-                            SpawnY = 0f,
-                            SpawnZ = 0f,
-                            Title = "Chamar Taxi"
+                            SpawnHeading = 240.2623f,
+                            SpawnX = -1051.63f,
+                            SpawnY = -2712.7f,
+                            SpawnZ = 14f,
+                            Title = "Taxi Praça"
                         },
                         new
                         {
                             Id = 2L,
-                            DriveToX = 0f,
-                            DriveToY = 0f,
-                            DriveToZ = 0f,
-                            Driver = 1302784073u,
-                            IsSpawned = false,
+                            DriveToX = 923.754f,
+                            DriveToY = 47.421f,
+                            DriveToZ = 80.37f,
+                            Driver = 1885233650u,
                             Key = 38,
                             MarkX = -1041.9746f,
                             MarkY = -2721.6182f,
                             MarkZ = 13.7566f,
                             Model = 3338918751u,
+                            SpawnHeading = 0f,
                             SpawnX = 0f,
                             SpawnY = 0f,
                             SpawnZ = 0f,
-                            Title = "Chamar Taxi"
+                            Title = "Taxi Casino"
                         },
                         new
                         {
@@ -370,13 +370,13 @@ namespace DatabaseConsole.Migrations
                             DriveToX = 0f,
                             DriveToY = 0f,
                             DriveToZ = 0f,
-                            Driver = 1302784073u,
-                            IsSpawned = false,
+                            Driver = 1885233650u,
                             Key = 38,
                             MarkX = -1026.4174f,
                             MarkY = -2730.4631f,
                             MarkZ = 13.7566f,
                             Model = 3338918751u,
+                            SpawnHeading = 0f,
                             SpawnX = 0f,
                             SpawnY = 0f,
                             SpawnZ = 0f,
@@ -388,13 +388,13 @@ namespace DatabaseConsole.Migrations
                             DriveToX = 0f,
                             DriveToY = 0f,
                             DriveToZ = 0f,
-                            Driver = 1302784073u,
-                            IsSpawned = false,
+                            Driver = 1885233650u,
                             Key = 38,
                             MarkX = -1014.7446f,
                             MarkY = -2737.0579f,
                             MarkZ = 13.7566f,
                             Model = 3338918751u,
+                            SpawnHeading = 0f,
                             SpawnX = 0f,
                             SpawnY = 0f,
                             SpawnZ = 0f,

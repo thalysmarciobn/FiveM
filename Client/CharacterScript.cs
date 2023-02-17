@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CitizenFX.Core;
 using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
+using Client;
 using Client.Extensions;
 using Newtonsoft.Json;
 using Shared.Models.Database;
@@ -14,15 +15,6 @@ namespace FiveM.Client
 {
     public class CharacterScript : BaseScript
     {
-        public static bool s_Debug = true;
-
-        public JsonSerializer Serializer = new JsonSerializer
-        {
-            Culture = CultureInfo.CurrentCulture,
-            DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
-            NullValueHandling = NullValueHandling.Ignore
-        };
-
         public CharacterScript()
         {
             Debug.WriteLine("[PROJECT] Script: CharacterScript");
@@ -35,13 +27,12 @@ namespace FiveM.Client
             var playerPed = Game.PlayerPed;
 
             DoScreenFadeOut(500);
-
             while (IsScreenFadedOut())
                 Wait(1);
 
             player.Freeze();
 
-            var resCharacter = Serializer.Deserialize<AccountCharacterModel>(new JsonTextReader(new StringReader(json)));
+            var resCharacter = GlobalVariables.Serializer.Deserialize<AccountCharacterModel>(new JsonTextReader(new StringReader(json)));
 
             var model = new Model(resCharacter.Model);
 
@@ -96,14 +87,14 @@ namespace FiveM.Client
                 await Delay(1);
 
             ShutdownLoadingScreen();
-            DoScreenFadeIn(500);
 
+            DoScreenFadeIn(500);
             while (IsScreenFadingIn())
                 await Delay(1);
 
             player.Unfreeze();
 
-            if (s_Debug)
+            if (GlobalVariables.S_Debug)
                 Debug.WriteLine($"Spawn: {resCharacterPosition.X} {resCharacterPosition.Y} {resCharacterPosition.Z}");
 
             //SwitchInPlayer(PlayerPedId());

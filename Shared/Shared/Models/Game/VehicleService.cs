@@ -8,7 +8,9 @@ namespace Shared.Models.Game
     public class VehicleService
     {
         public int VehicleId { get; set; }
-        public int Ped { get; set; }
+        public int VehicleNetworkId { get; set; }
+        public int DriverPedId { get; set; }
+        public int DriverPedNetworkId { get; set; }
         public ServerVehicleService Model { get; set; }
     }
 }

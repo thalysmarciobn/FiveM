@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseConsole.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230215201807_init")]
+    [Migration("20230217055523_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -283,23 +283,47 @@ namespace DatabaseConsole.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
+                    b.Property<float>("DriveToX")
+                        .HasColumnType("float");
+
+                    b.Property<float>("DriveToY")
+                        .HasColumnType("float");
+
+                    b.Property<float>("DriveToZ")
+                        .HasColumnType("float");
+
                     b.Property<uint>("Driver")
                         .HasColumnType("int unsigned");
 
-                    b.Property<bool>("IsSpawned")
-                        .HasColumnType("tinyint(1)");
+                    b.Property<int>("Key")
+                        .HasColumnType("int");
+
+                    b.Property<float>("MarkX")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MarkY")
+                        .HasColumnType("float");
+
+                    b.Property<float>("MarkZ")
+                        .HasColumnType("float");
 
                     b.Property<uint>("Model")
                         .HasColumnType("int unsigned");
 
-                    b.Property<float>("X")
+                    b.Property<float>("SpawnHeading")
                         .HasColumnType("float");
 
-                    b.Property<float>("Y")
+                    b.Property<float>("SpawnX")
                         .HasColumnType("float");
 
-                    b.Property<float>("Z")
+                    b.Property<float>("SpawnY")
                         .HasColumnType("float");
+
+                    b.Property<float>("SpawnZ")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
 
                     b.HasKey("Id");
 
@@ -309,42 +333,74 @@ namespace DatabaseConsole.Migrations
                         new
                         {
                             Id = 1L,
+                            DriveToX = 134.954f,
+                            DriveToY = -1023.76f,
+                            DriveToZ = 28.8165f,
                             Driver = 1302784073u,
-                            IsSpawned = false,
+                            Key = 38,
+                            MarkX = -1049.649f,
+                            MarkY = -2719.027f,
+                            MarkZ = 13.7566f,
                             Model = 3338918751u,
-                            X = -1049.649f,
-                            Y = -2719.027f,
-                            Z = 13.7566f
+                            SpawnHeading = 240.2623f,
+                            SpawnX = -1051.63f,
+                            SpawnY = -2712.7f,
+                            SpawnZ = 14f,
+                            Title = "Taxi Praça"
                         },
                         new
                         {
                             Id = 2L,
+                            DriveToX = 923.754f,
+                            DriveToY = 47.421f,
+                            DriveToZ = 80.37f,
                             Driver = 1302784073u,
-                            IsSpawned = false,
+                            Key = 38,
+                            MarkX = -1041.9746f,
+                            MarkY = -2721.6182f,
+                            MarkZ = 13.7566f,
                             Model = 3338918751u,
-                            X = -1041.9746f,
-                            Y = -2721.6182f,
-                            Z = 13.7566f
+                            SpawnHeading = 0f,
+                            SpawnX = 0f,
+                            SpawnY = 0f,
+                            SpawnZ = 0f,
+                            Title = "Taxi Casino"
                         },
                         new
                         {
                             Id = 3L,
+                            DriveToX = 0f,
+                            DriveToY = 0f,
+                            DriveToZ = 0f,
                             Driver = 1302784073u,
-                            IsSpawned = false,
+                            Key = 38,
+                            MarkX = -1026.4174f,
+                            MarkY = -2730.4631f,
+                            MarkZ = 13.7566f,
                             Model = 3338918751u,
-                            X = -1026.4174f,
-                            Y = -2730.4631f,
-                            Z = 13.7566f
+                            SpawnHeading = 0f,
+                            SpawnX = 0f,
+                            SpawnY = 0f,
+                            SpawnZ = 0f,
+                            Title = "Chamar Taxi"
                         },
                         new
                         {
                             Id = 4L,
+                            DriveToX = 0f,
+                            DriveToY = 0f,
+                            DriveToZ = 0f,
                             Driver = 1302784073u,
-                            IsSpawned = false,
+                            Key = 38,
+                            MarkX = -1014.7446f,
+                            MarkY = -2737.0579f,
+                            MarkZ = 13.7566f,
                             Model = 3338918751u,
-                            X = -1014.7446f,
-                            Y = -2737.0579f,
-                            Z = 13.7566f
+                            SpawnHeading = 0f,
+                            SpawnX = 0f,
+                            SpawnY = 0f,
+                            SpawnZ = 0f,
+                            Title = "Chamar Taxi"
                         });
                 });
 

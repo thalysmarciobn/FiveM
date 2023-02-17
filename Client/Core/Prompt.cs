@@ -14,7 +14,8 @@ namespace Client.Core
 {
     public class Prompt
     {
-        public long Id { get; private set; }
+        public PromptService Service { get; private set; }
+        public long ValueId { get; set; }
         public float KeyTextWidth { get; private set; }
         public float LabelTextWidth { get; private set; }
         public float TextHeight { get; private set; }
@@ -24,6 +25,7 @@ namespace Client.Core
         private float MaxWidth{ get; set; }
         public bool CanInteract { get; set; }
         public bool IsPressed { get; set; }
+        public bool IsDrawPressed { get; set; }
 
         public int SW { get; private set; }
         public int SH { get; private set; }
@@ -32,9 +34,10 @@ namespace Client.Core
         public PromptBackground Background = new PromptBackground();
         public PromptFX FX = new PromptFX();
 
-        public Prompt (long id, PromptConfig config)
+        public Prompt (PromptService service, long valueId, PromptConfig config)
         {
-            Id = id;
+            Service = service;
+            ValueId = valueId;
             Config = config;
         }
 
@@ -131,7 +134,7 @@ namespace Client.Core
             RenderElement(Config.TextLabel, background, false);
             RenderElement(Config.KeyLabel, button);
 
-            if (IsPressed)
+            if (IsDrawPressed)
             {
                 FX.W = FX.W + (0.0005f * SW) / SW;
                 FX.H = FX.H + (0.0005f * SW) / SH;
@@ -144,7 +147,7 @@ namespace Client.Core
 
                 if (FX.A <= 0)
                 {
-                    IsPressed = false;
+                    IsDrawPressed = false;
                     FX.W = Button.W;
                     FX.H = Button.H;
                     FX.A = 255;

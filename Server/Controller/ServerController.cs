@@ -1,4 +1,5 @@
 ﻿using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using Microsoft.EntityFrameworkCore;
 using Server.Core;
 using Server.Core.Game;
@@ -36,7 +37,7 @@ namespace Server.Controller
                     GameInstance.Instance.AddPlayer(license, new GamePlayer(player, account));
                 }
             }
-            Debug.WriteLine($"Players registered: {GameInstance.Instance.PlayerCount}");
+            Debug.WriteLine($"[ServerController] Players registered: {GameInstance.Instance.PlayerCount}");
         }
 
         public void RegisterVehicles()
@@ -46,7 +47,33 @@ namespace Server.Controller
                 foreach (var vehicle in context.ServerVehicleService.ToList())
                     GameInstance.Instance.AddVehicle(vehicle.Id, vehicle);
             }
-            Debug.WriteLine($"Vehicles registered: {GameInstance.Instance.VehicleCount}");
+            Debug.WriteLine($"[ServerController] Vehicles registered: {GameInstance.Instance.VehicleCount}");
+        }
+
+        public void RemoveVehiclesAndDrivers()
+        {
+            foreach (var vehicle in GameInstance.Instance.GetVehicles)
+            {
+                if (API.DoesEntityExist(vehicle.ServerVehicleId))
+                {
+                    API.DeleteEntity(vehicle.ServerVehicleId);
+                    Debug.WriteLine($"[ServerController][{vehicle.ServerVehicleId}] vehicle removed.");
+                }
+                if (API.DoesEntityExist(vehicle.ServerDriverId))
+                {
+                    API.DeleteEntity(vehicle.ServerDriverId);
+                    Debug.WriteLine($"[ServerController][{vehicle.ServerVehicleId}] ped removed.");
+                }
+            }
+        }
+
+        public bool CheckIfVehicleHasEntity(long id)
+        {
+            if (GameInstance.Instance.GetVehicle(id, out var model))
+            {
+                
+            }
+            return false;
         }
     }
 }

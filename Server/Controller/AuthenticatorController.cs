@@ -40,9 +40,11 @@ namespace Server.Controller
                         var account = context.GetAccount(license);
             
                         var gamePlayer = new GamePlayer(player, account);
-            
+
                         if (GameInstance.Instance.AddPlayer(license, gamePlayer))
                             deferrals.done();
+                        else
+                            kickCallback("Conta já conectada, tente novamente");
                     }
                     else
                     {

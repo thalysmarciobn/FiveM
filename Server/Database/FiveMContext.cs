@@ -219,6 +219,12 @@ namespace FiveM.Server.Database
             {
                 e.ToTable("server_vehicle_service");
                 e.HasKey(m => m.Id);
+
+                e.Ignore(m => m.IsSpawned);
+                e.Ignore(m => m.ServerVehicleId);
+                e.Ignore(m => m.ServerVehicleNetworkId);
+                e.Ignore(m => m.ServerDriverId);
+                e.Ignore(m => m.ServerDriverNetworkId);
                 e.HasData(new []
                 {
                     new ServerVehicleService
@@ -226,12 +232,18 @@ namespace FiveM.Server.Database
                         Id = 1,
                         // VehicleHash.Bus
                         Model = 3338918751u,
-                        // PedHash.LesterCrest
-                        Driver = 1302784073u,
-                        IsSpawned = false,
+                        // PedHash
+                        Driver = 1885233650u,
                         // Control.Pickup
                         Key = 38,
-                        Title = "Chamar Taxi",
+                        Title = "Taxi Praça",
+                        DriveToX = 134.954f,
+                        DriveToY = -1023.76f,
+                        DriveToZ = 28.8165f,
+                        SpawnX = -1051.63f,
+                        SpawnY = -2712.7f,
+                        SpawnZ = 14f,
+                        SpawnHeading = 240.2623f,
                         MarkX = -1049.6491f,
                         MarkY = -2719.0270f,
                         MarkZ = 13.7566f,
@@ -241,12 +253,14 @@ namespace FiveM.Server.Database
                         Id = 2,
                         // VehicleHash.Bus
                         Model = 3338918751u,
-                        // PedHash.LesterCrest
-                        Driver = 1302784073u,
-                        IsSpawned = false,
+                        // PedHash
+                        Driver = 1885233650u,
                         // Control.Pickup
                         Key = 38,
-                        Title = "Chamar Taxi",
+                        Title = "Taxi Casino",
+                        DriveToX = 923.754f,
+                        DriveToY = 47.421f,
+                        DriveToZ = 80.37f,
                         MarkX = -1041.9746f,
                         MarkY = -2721.6181f,
                         MarkZ = 13.7566f,
@@ -256,9 +270,8 @@ namespace FiveM.Server.Database
                         Id = 3,
                         // VehicleHash.Bus
                         Model = 3338918751u,
-                        // PedHash.LesterCrest
-                        Driver = 1302784073u,
-                        IsSpawned = false,
+                        // PedHash
+                        Driver = 1885233650u,
                         // Control.Pickup
                         Key = 38,
                         Title = "Chamar Taxi",
@@ -271,9 +284,8 @@ namespace FiveM.Server.Database
                         Id = 4,
                         // VehicleHash.Bus
                         Model = 3338918751u,
-                        // PedHash.LesterCrest
-                        Driver = 1302784073u,
-                        IsSpawned = false,
+                        // PedHash
+                        Driver = 1885233650u,
                         // Control.Pickup
                         Key = 38,
                         Title = "Chamar Taxi",

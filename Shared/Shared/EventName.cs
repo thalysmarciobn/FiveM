@@ -6,6 +6,7 @@ public static class EventName
         public static class Client
         {
             public const string OnClientResourceStart = "onClientResourceStart";
+            public const string OnClientResourceStop = "onClientResourceStop";
         }
         public static class Server
         {
@@ -13,6 +14,7 @@ public static class EventName
             public const string PlayerDropped = "playerDropped";
         }
         public const string OnResourceStart = "onResourceStart";
+        public const string OnResourceStop = "onResourceStop";
         public const string OnResourceStarting = "onResourceStarting";
     }
     public static class Client
