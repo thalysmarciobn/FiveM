@@ -23,10 +23,10 @@ using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using Microsoft.EntityFrameworkCore;
 using Server.Extensions;
-using Shared.Models.Game;
 using Newtonsoft.Json;
 using Shared.Models.Database;
 using CitizenFX.Core.Native;
+using Shared.Models.Server;
 
 namespace Server
 {
@@ -90,7 +90,7 @@ namespace Server
         {
             if (resourceName != GetCurrentResourceName()) return;
 
-            ServerController.RemoveVehiclesAndDrivers();
+            ServerController.RemoveSpawnVehicles();
         }
 
         [EventHandler(EventName.Server.GetServiceVehicles)]
@@ -101,43 +101,41 @@ namespace Server
         }
 
         [EventHandler(EventName.Server.SpawnVehicleService)]
-        public void SpawnVehicleService([FromSource] Player player, int serviceId, NetworkCallbackDelegate networkCallback)
+        public async void SpawnVehicleService([FromSource] Player player, int serviceId, NetworkCallbackDelegate networkCallback)
         {
+            Debug.WriteLine("SpawnVehicleService");
             if (GameInstance.Instance.GetVehicle(serviceId, out var model))
             {
-                if (model.IsSpawned)
-                {
+                if (GameInstance.Instance.ContainsSpawnVehicle(model.Id))
                     return;
-                }
 
-                model.ServerVehicleId = CreateVehicle(model.Model, model.SpawnX, model.SpawnY, model.SpawnZ, model.SpawnHeading, true, true);
+                Debug.WriteLine("GET  SpawnVehicleService");
+
+                var serverVehicleId = CreateVehicleServerSetter(model.Model, "automobile", model.SpawnX, model.SpawnY, model.SpawnZ, model.SpawnHeading);
+                
+                while (!DoesEntityExist(serverVehicleId))
+                    await Task.Delay(0);
+
                 // 2 - trancado mas o npc abre a porta
                 // 3 - não da pra entrar
-                SetVehicleDoorsLocked(model.ServerVehicleId, 3);
+                SetVehicleDoorsLocked(serverVehicleId, 3);
 
-                while (!DoesEntityExist(model.ServerVehicleId))
-                    Task.Delay(0);
+                SetVehicleNumberPlateText(serverVehicleId, model.Id.ToString("D4"));
 
-                SetVehicleNumberPlateText(model.ServerVehicleId, model.Id.ToString("D4"));
+                var networkId = NetworkGetNetworkIdFromEntity(serverVehicleId);
 
-                model.ServerDriverId = CreatePedInsideVehicle(model.ServerVehicleId, 1, model.Driver, -1, true, true);
+                var spawnServer = new SpawnServerVehicle
+                {
+                    ServerId = serverVehicleId,
+                    NetworkId = networkId,
+                    Model = model
+                };
 
-                while (!DoesEntityExist(model.ServerDriverId))
-                    Task.Delay(0);
+                var json = JsonConvert.SerializeObject(spawnServer);
 
-                SetPedRandomProps(model.ServerDriverId);
-                SetPedRandomComponentVariation(model.ServerDriverId, true);
+                GameInstance.Instance.AddSpawnVehicle(model.Id, spawnServer);
 
-                // TaskEnterVehicle(player.Character.Handle, model.ServerVehicleId, -1, 0, 1f, 1, 0);
-
-                model.ServerVehicleNetworkId = NetworkGetNetworkIdFromEntity(model.ServerVehicleId);
-                model.ServerDriverNetworkId = NetworkGetNetworkIdFromEntity(model.ServerDriverId);
-
-                var json = JsonConvert.SerializeObject(model);
-
-                networkCallback.Invoke(json);
-
-                model.IsSpawned = true;
+                await networkCallback.Invoke(json);
             }
         }
 

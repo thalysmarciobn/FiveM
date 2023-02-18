@@ -16,6 +16,7 @@
   
     <ItemGroup>
       <Compile Remove="..\Shared\Shared\Helper\CharacterHelper.cs" />
+      <Compile Remove="..\Shared\Shared\Models\Game\VehicleService.cs" />
     </ItemGroup>
   
   <ItemGroup>

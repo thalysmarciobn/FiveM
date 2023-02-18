@@ -22,10 +22,5 @@ namespace Shared.Models.Database
         public float DriveToX { get; set; }
         public float DriveToY { get; set; }
         public float DriveToZ { get; set; }
-        public bool IsSpawned { get; set; }
-        public int ServerDriverId { get; set; }
-        public int ServerDriverNetworkId { get; set; }
-        public int ServerVehicleId { get; set; }
-        public int ServerVehicleNetworkId { get; set; }
     }
 }

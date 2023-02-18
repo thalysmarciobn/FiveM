@@ -50,19 +50,14 @@ namespace Server.Controller
             Debug.WriteLine($"[ServerController] Vehicles registered: {GameInstance.Instance.VehicleCount}");
         }
 
-        public void RemoveVehiclesAndDrivers()
+        public void RemoveSpawnVehicles()
         {
-            foreach (var vehicle in GameInstance.Instance.GetVehicles)
+            foreach (var vehicle in GameInstance.Instance.GetSpawnVehicles)
             {
-                if (API.DoesEntityExist(vehicle.ServerVehicleId))
+                if (API.DoesEntityExist(vehicle.ServerId))
                 {
-                    API.DeleteEntity(vehicle.ServerVehicleId);
-                    Debug.WriteLine($"[ServerController][{vehicle.ServerVehicleId}] vehicle removed.");
-                }
-                if (API.DoesEntityExist(vehicle.ServerDriverId))
-                {
-                    API.DeleteEntity(vehicle.ServerDriverId);
-                    Debug.WriteLine($"[ServerController][{vehicle.ServerVehicleId}] ped removed.");
+                    API.DeleteEntity(vehicle.ServerId);
+                    Debug.WriteLine($"[ServerController][{vehicle.ServerId}] vehicle removed.");
                 }
             }
         }

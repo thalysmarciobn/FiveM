@@ -53,6 +53,8 @@ namespace Server.Controller
                         var account = new AccountModel()
                         {
                             License = license,
+                            CurrentCharacter = 0,
+                            LastAddress = player.EndPoint,
                             Created = DateTime.Now,
                             WhiteListed = true
                         };
@@ -66,9 +68,10 @@ namespace Server.Controller
                             deferrals.done();
                     }
                 }
-                catch
+                catch (Exception ex)
                 {
                     deferrals.done($"Houve um problema no registro \"{license}\", tente novamente ou entre em contato com a equipe.");
+                    Debug.WriteLine(ex.ToString());
                 }
             }
         }

@@ -220,11 +220,6 @@ namespace FiveM.Server.Database
                 e.ToTable("server_vehicle_service");
                 e.HasKey(m => m.Id);
 
-                e.Ignore(m => m.IsSpawned);
-                e.Ignore(m => m.ServerVehicleId);
-                e.Ignore(m => m.ServerVehicleNetworkId);
-                e.Ignore(m => m.ServerDriverId);
-                e.Ignore(m => m.ServerDriverNetworkId);
                 e.HasData(new []
                 {
                     new ServerVehicleService

@@ -6,6 +6,7 @@ using Mono.CSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Shared.Models.Database;
+using Shared.Models.Server;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,13 +20,12 @@ namespace Client
     {
         private IList<Prompt> Prompts { get; } = new List<Prompt>();
         private PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }
-        private Queue<long> ServiceCarQueue { get; } = new Queue<long>();
+        private Queue<long> ServicesToAction { get; } = new Queue<long>();
+        private Dictionary<long, PromptServiceData> ServicesInAction { get; } = new Dictionary<long, PromptServiceData>();
 
         public MarkScript()
         {
             Tick += OnTick;
-            Tick += OnTickQueue;
-            Tick += async () => OnTickDraw();
             Debug.WriteLine("[PROJECT] Script: MarkScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
             EventHandlers[EventName.External.Client.OnClientResourceStop] += new Action<string>(OnClientResourceStop);
@@ -75,10 +75,7 @@ namespace Client
             if (CurrentPromptServiceVehicle != null)
             {
                 var vehicleId = CurrentPromptServiceVehicle.VehicleEntityId;
-                var driverId = CurrentPromptServiceVehicle.DriverEntityId;
 
-                if (DoesEntityExist(driverId))
-                    DeletePed(ref driverId);
                 if (DoesEntityExist(vehicleId))
                     DeleteVehicle(ref vehicleId);
             }
@@ -86,15 +83,14 @@ namespace Client
 
         private async Task OnTick()
         {
+            var player = Game.Player;
+            var playerPed = Game.PlayerPed;
+            var playerCharacter = player.Character;
+            var playerCoords = playerCharacter.Position;
+
             if (CurrentPromptServiceVehicle != null)
             {
-                var player = Game.Player;
-                var playerPed = Game.PlayerPed;
-                var playerCharacter = player.Character;
-                var playerCoords = playerCharacter.Position;
-
                 var vehicleId = CurrentPromptServiceVehicle.VehicleEntityId;
-                var driverId = CurrentPromptServiceVehicle.DriverEntityId;
 
                 var distance = GetDistanceBetweenCoords(playerCoords.X, playerCoords.Y, playerCoords.Z, CurrentPromptServiceVehicle.X, CurrentPromptServiceVehicle.Y, CurrentPromptServiceVehicle.Z, true);
 
@@ -105,114 +101,18 @@ namespace Client
                 {
                     if (!IsPedInVehicle(playerPed.Handle, vehicleId, false))
                     {
-                        if (DoesEntityExist(driverId))
-                        {
-                            DeletePed(ref driverId);
-                            while (DoesEntityExist(driverId))
-                                await Delay(10);
-                        }
                         DeleteVehicle(ref vehicleId);
                         while (DoesEntityExist(vehicleId))
-                            await Delay(10);
+                            Wait(0);
                         CurrentPromptServiceVehicle = null;
                     }
                 }
                 else
                 {
-                    if (DoesEntityExist(driverId))
-                    {
-                        DeletePed(ref driverId);
-                        while (DoesEntityExist(driverId))
-                            await Delay(10);
-                    }
                     player.CanControlCharacter = true;
                     CurrentPromptServiceVehicle = null;
                 }
             }
-            await Delay(10);
-        }
-
-        private async Task OnTickQueue()
-        {
-            var player = Game.Player;
-            var playerPed = Game.PlayerPed;
-            var playerCharacter = player.Character;
-            var playerCoords = playerCharacter.Position;
-
-            while (ServiceCarQueue.Count > 0)
-            {
-                var serviceId = ServiceCarQueue.Dequeue();
-
-                TriggerServerEvent(EventName.Server.SpawnVehicleService, serviceId, new Action<string>(async (arg) =>
-                {
-                    var vehicle = JsonConvert.DeserializeObject<ServerVehicleService>(arg);
-
-                    DoScreenFadeOut(500);
-                    while (IsScreenFadingOut())
-                        await Delay(0);
-
-                    while (!NetworkDoesEntityExistWithNetworkId(vehicle.ServerVehicleNetworkId))
-                        Wait(0);
-                    var vehicleEntity = NetworkGetEntityFromNetworkId(vehicle.ServerVehicleNetworkId);
-                    while (!DoesEntityExist(vehicleEntity))
-                        Wait(0);
-                    if (!IsEntityAVehicle(vehicleEntity))
-                        return;
-
-                    while (!NetworkDoesEntityExistWithNetworkId(vehicle.ServerDriverNetworkId))
-                        Wait(0);
-                    var pilotEntity = NetworkGetEntityFromNetworkId(vehicle.ServerDriverNetworkId);
-                    while (!DoesEntityExist(pilotEntity))
-                        Wait(0);
-
-                    SetDriverAbility(pilotEntity, 1.0f);
-                    SetDriverAggressiveness(pilotEntity, 0.5f);
-
-                    SetEntityInvincible(pilotEntity, false);
-                    SetEntityInvincible(vehicleEntity, false);
-                    SetEntityCompletelyDisableCollision(vehicleEntity, true, true);
-
-                    //TaskEnterVehicle(playerPed.Handle, vehicleEntity, -1, 0, 1.5f, 1, 0); // not working
-                    SetPedIntoVehicle(playerPed.Handle, vehicleEntity, 1);
-
-                    player.CanControlCharacter = false;
-
-                    while (!IsPedInVehicle(playerPed.Handle, vehicleEntity, false))
-                        await Delay(0);
-
-                    DoScreenFadeIn(500);
-                    while (IsScreenFadingIn())
-                        await Delay(0);
-
-                    var speed = 30f;
-                    // https://vespura.com/fivem/drivingstyle/
-                    var drivingStyle = 191;
-                    var stopRange = 20.0f;
-                    
-                    TaskVehicleDriveToCoordLongrange(pilotEntity, vehicleEntity, vehicle.DriveToX, vehicle.DriveToY, vehicle.DriveToZ, speed, drivingStyle, stopRange);
-                    
-                    CurrentPromptServiceVehicle = new PromptServiceVehicle
-                    {
-                        VehicleId = vehicle.ServerVehicleId,
-                        VehicleNetworkId = vehicle.ServerVehicleNetworkId,
-                        VehicleEntityId = vehicleEntity,
-                        DriverId = vehicle.ServerDriverId,
-                        DriverNetworkId = vehicle.ServerDriverNetworkId,
-                        DriverEntityId = pilotEntity,
-                        X = vehicle.DriveToX,
-                        Y = vehicle.DriveToY,
-                        Z = vehicle.DriveToZ
-                    };
-                }));
-            }
-            await Delay(1000);
-        }
-
-        private void OnTickDraw()
-        {
-            var player = Game.Player;
-            var playerCharacter = player.Character;
-            var playerCoords = playerCharacter.Position;
 
             foreach (var prompt in Prompts)
             {
@@ -239,22 +139,93 @@ namespace Client
                     }
 
                     prompt.Draw();
-                    Wait(0);
                 }
                 else
                 {
                     prompt.IsPressed = false;
                     prompt.CanInteract = false;
                 }
-
                 if (prompt.IsPressed)
                 {
-                    if (prompt.Service == PromptService.ServiceCar && CurrentPromptServiceVehicle == null)
+                    if (!ServicesInAction.ContainsKey(prompt.ValueId))
                     {
-                        ServiceCarQueue.Enqueue(prompt.ValueId);
+                        ServicesInAction.Add(prompt.ValueId, new PromptServiceData
+                        {
+                            Service = prompt.Service
+                        });
+                        ServicesToAction.Enqueue(prompt.ValueId);
                     }
                 }
             }
+            while (ServicesToAction.Count > 0)
+            {
+                var serviceId = ServicesToAction.Dequeue();
+
+                var service = ServicesInAction.FirstOrDefault(x => x.Key == serviceId);
+
+                var serviceType = service.Value.Service;
+
+                if (serviceType == PromptService.ServiceCar)
+                    TriggerServerEvent(EventName.Server.SpawnVehicleService, serviceId, new Action<string>(async (arg) =>
+                    {
+                        var vehicle = JsonConvert.DeserializeObject<SpawnServerVehicle>(arg);
+
+                        DoScreenFadeOut(500);
+                        while (IsScreenFadingOut())
+                            await Delay(0);
+
+                        while (!NetworkDoesEntityExistWithNetworkId(vehicle.NetworkId))
+                            Wait(0);
+                        var vehicleEntity = NetworkGetEntityFromNetworkId(vehicle.NetworkId);
+                        while (!DoesEntityExist(vehicleEntity))
+                            Wait(0);
+                        if (!IsEntityAVehicle(vehicleEntity))
+                            return;
+
+                        var driver = CreatePedInsideVehicle(vehicleEntity, 1, (uint) PedHash.FreemodeMale01, -1, true, true);
+
+                        while (!DoesEntityExist(driver))
+                            Wait(0);
+
+                        SetDriverAbility(driver, 1.0f);
+                        SetDriverAggressiveness(driver, 0.5f);
+
+                        SetPedRandomProps(driver);
+                        SetPedRandomComponentVariation(driver, true);
+
+                        SetEntityInvincible(driver, false);
+                        SetEntityInvincible(vehicleEntity, false);
+                        SetEntityCompletelyDisableCollision(vehicleEntity, true, true);
+
+                        SetPedIntoVehicle(playerPed.Handle, vehicleEntity, 1);
+
+                        player.CanControlCharacter = false;
+
+                        while (!IsPedInVehicle(playerPed.Handle, vehicleEntity, false))
+                            Wait(0);
+
+                        DoScreenFadeIn(500);
+                        while (IsScreenFadingIn())
+                            await Delay(0);
+
+                        var speed = 30f;
+                        // https://vespura.com/fivem/drivingstyle/
+                        var drivingStyle = 191;
+                        var stopRange = 20.0f;
+
+                        TaskVehicleDriveToCoordLongrange(driver, vehicleEntity, vehicle.Model.DriveToX, vehicle.Model.DriveToY, vehicle.Model.DriveToZ, speed, drivingStyle, stopRange);
+
+                        CurrentPromptServiceVehicle = new PromptServiceVehicle
+                        {
+                            VehicleNetworkId = vehicle.NetworkId,
+                            VehicleEntityId = vehicleEntity,
+                            X = vehicle.Model.DriveToX,
+                            Y = vehicle.Model.DriveToY,
+                            Z = vehicle.Model.DriveToZ
+                        };
+                    }));
+            }
+            Wait(0);
         }
     }
 }

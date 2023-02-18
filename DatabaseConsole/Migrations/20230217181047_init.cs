@@ -268,10 +268,10 @@ namespace DatabaseConsole.Migrations
                 columns: new[] { "Id", "DriveToX", "DriveToY", "DriveToZ", "Driver", "Key", "MarkX", "MarkY", "MarkZ", "Model", "SpawnHeading", "SpawnX", "SpawnY", "SpawnZ", "Title" },
                 values: new object[,]
                 {
-                    { 1L, 134.954f, -1023.76f, 28.8165f, 1302784073u, 38, -1049.649f, -2719.027f, 13.7566f, 3338918751u, 240.2623f, -1051.63f, -2712.7f, 14f, "Taxi Praça" },
-                    { 2L, 923.754f, 47.421f, 80.37f, 1302784073u, 38, -1041.9746f, -2721.6182f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Taxi Casino" },
-                    { 3L, 0f, 0f, 0f, 1302784073u, 38, -1026.4174f, -2730.4631f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Chamar Taxi" },
-                    { 4L, 0f, 0f, 0f, 1302784073u, 38, -1014.7446f, -2737.0579f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Chamar Taxi" }
+                    { 1L, 134.954f, -1023.76f, 28.8165f, 1885233650u, 38, -1049.649f, -2719.027f, 13.7566f, 3338918751u, 240.2623f, -1051.63f, -2712.7f, 14f, "Taxi Praça" },
+                    { 2L, 923.754f, 47.421f, 80.37f, 1885233650u, 38, -1041.9746f, -2721.6182f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Taxi Casino" },
+                    { 3L, 0f, 0f, 0f, 1885233650u, 38, -1026.4174f, -2730.4631f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Chamar Taxi" },
+                    { 4L, 0f, 0f, 0f, 1885233650u, 38, -1014.7446f, -2737.0579f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Chamar Taxi" }
                 });
 
             migrationBuilder.CreateIndex(
