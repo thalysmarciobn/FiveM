@@ -6,6 +6,7 @@ using Shared.Models.Server;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Text;
 
 namespace Server.Instances
@@ -36,5 +37,13 @@ namespace Server.Instances
         public bool GetSpawnVehicle(long id, out SpawnServerVehicle model) => SpawnVehicles.TryGetValue(id, out model);
         public bool ContainsSpawnVehicle(long id) => SpawnVehicles.ContainsKey(id);
         public ICollection<SpawnServerVehicle> GetSpawnVehicles => SpawnVehicles.Values;
+
+
+        private ConcurrentDictionary<int, bool> Passives { get; } = new ConcurrentDictionary<int, bool>();
+        public int PassivesCount => Passives.Count;
+        public void SetPassive(int id, bool isPassive) => Passives.AddOrUpdate(id, isPassive, (key, oldValue) => isPassive);
+        public bool GetPlayerIsPassive(int id) => Passives.TryGetValue(id, out bool isPassive) && isPassive;
+        public ICollection<KeyValuePair<int, bool>> GetPassiveList => Passives.ToImmutableList();
+
     }
 }

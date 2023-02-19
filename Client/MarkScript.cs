@@ -25,7 +25,6 @@ namespace Client
 
         public MarkScript()
         {
-            Tick += OnTick;
             Debug.WriteLine("[PROJECT] Script: MarkScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
             EventHandlers[EventName.External.Client.OnClientResourceStop] += new Action<string>(OnClientResourceStop);
@@ -74,44 +73,59 @@ namespace Client
 
             if (CurrentPromptServiceVehicle != null)
             {
+                var driverId = CurrentPromptServiceVehicle.DriverEntityId;
                 var vehicleId = CurrentPromptServiceVehicle.VehicleEntityId;
+
+                if (DoesEntityExist(driverId))
+                    DeleteEntity(ref driverId);
 
                 if (DoesEntityExist(vehicleId))
                     DeleteVehicle(ref vehicleId);
             }
         }
 
-        private async Task OnTick()
+        [Tick]
+        public Task OnTick()
         {
-            var player = Game.Player;
-            var playerPed = Game.PlayerPed;
-            var playerCharacter = player.Character;
-            var playerCoords = playerCharacter.Position;
+            var localPlayer = Game.Player;
+            var localPlayerPed = Game.PlayerPed;
+            var localPlayerCharacter = localPlayer.Character;
 
             if (CurrentPromptServiceVehicle != null)
             {
+                var driverId = CurrentPromptServiceVehicle.DriverEntityId;
                 var vehicleId = CurrentPromptServiceVehicle.VehicleEntityId;
 
-                var distance = GetDistanceBetweenCoords(playerCoords.X, playerCoords.Y, playerCoords.Z, CurrentPromptServiceVehicle.X, CurrentPromptServiceVehicle.Y, CurrentPromptServiceVehicle.Z, true);
+                var distance = GetDistanceBetweenCoords(localPlayerCharacter.Position.X, localPlayerCharacter.Position.Y, localPlayerCharacter.Position.Z, CurrentPromptServiceVehicle.X, CurrentPromptServiceVehicle.Y, CurrentPromptServiceVehicle.Z, true);
 
                 if (distance < 20.0f)
-                    player.CanControlCharacter = true;
+                    localPlayer.CanControlCharacter = true;
 
                 if (DoesEntityExist(vehicleId))
                 {
-                    if (!IsPedInVehicle(playerPed.Handle, vehicleId, false))
+                    if (!IsPedInVehicle(localPlayerPed.Handle, vehicleId, false))
                     {
+                        DeleteEntity(ref driverId);
+                        while (DoesEntityExist(driverId))
+                            Wait(0);
+
                         DeleteVehicle(ref vehicleId);
                         while (DoesEntityExist(vehicleId))
                             Wait(0);
+
+                        TriggerServerEvent(EventName.Server.SetPassive, false);
+                        ServicesInAction.Remove(CurrentPromptServiceVehicle.ValueId);
                         CurrentPromptServiceVehicle = null;
                     }
                 }
                 else
                 {
-                    player.CanControlCharacter = true;
+                    TriggerServerEvent(EventName.Server.SetPassive, false);
+                    ServicesInAction.Remove(CurrentPromptServiceVehicle.ValueId);
                     CurrentPromptServiceVehicle = null;
+                    localPlayer.CanControlCharacter = true;
                 }
+                
             }
 
             foreach (var prompt in Prompts)
@@ -120,7 +134,7 @@ namespace Client
                 var interactDistance = prompt.Config.InteractDistance;
                 var coords = prompt.Config.Coords;
 
-                var distance = GetDistanceBetweenCoords(playerCoords.X, playerCoords.Y, playerCoords.Z, coords.X, coords.Y, coords.Z, true);
+                var distance = GetDistanceBetweenCoords(localPlayerCharacter.Position.X, localPlayerCharacter.Position.Y, localPlayerCharacter.Position.Z, coords.X, coords.Y, coords.Z, true);
                 if (distance < drawDistance)
                 {
                     if (distance < interactDistance)
@@ -151,6 +165,7 @@ namespace Client
                     {
                         ServicesInAction.Add(prompt.ValueId, new PromptServiceData
                         {
+                            ValueId = prompt.ValueId,
                             Service = prompt.Service
                         });
                         ServicesToAction.Enqueue(prompt.ValueId);
@@ -176,9 +191,11 @@ namespace Client
 
                         while (!NetworkDoesEntityExistWithNetworkId(vehicle.NetworkId))
                             Wait(0);
+
                         var vehicleEntity = NetworkGetEntityFromNetworkId(vehicle.NetworkId);
                         while (!DoesEntityExist(vehicleEntity))
                             Wait(0);
+
                         if (!IsEntityAVehicle(vehicleEntity))
                             return;
 
@@ -187,37 +204,40 @@ namespace Client
                         while (!DoesEntityExist(driver))
                             Wait(0);
 
-                        SetDriverAbility(driver, 1.0f);
-                        SetDriverAggressiveness(driver, 0.5f);
-
                         SetPedRandomProps(driver);
                         SetPedRandomComponentVariation(driver, true);
 
-                        SetEntityInvincible(driver, false);
-                        SetEntityInvincible(vehicleEntity, false);
-                        SetEntityCompletelyDisableCollision(vehicleEntity, true, true);
+                        SetPedIntoVehicle(localPlayerPed.Handle, vehicleEntity, 1);
 
-                        SetPedIntoVehicle(playerPed.Handle, vehicleEntity, 1);
+                        //player.CanControlCharacter = false;
 
-                        player.CanControlCharacter = false;
-
-                        while (!IsPedInVehicle(playerPed.Handle, vehicleEntity, false))
+                        while (!IsPedInVehicle(localPlayerPed.Handle, vehicleEntity, false))
                             Wait(0);
+
+                        TriggerServerEvent(EventName.Server.SetPassive, true);
 
                         DoScreenFadeIn(500);
                         while (IsScreenFadingIn())
                             await Delay(0);
 
-                        var speed = 30f;
+                        var speed = 20f;
                         // https://vespura.com/fivem/drivingstyle/
-                        var drivingStyle = 191;
-                        var stopRange = 20.0f;
+                        var drivingStyle = 15;
+                        var stopRange = 8.0f;
+
+                        SetDriverAbility(driver, 1.0f);
+                        SetDriverAggressiveness(driver, 0.0f);
+
+                        SetDriveTaskDrivingStyle(driver, drivingStyle);
+
+                        TaskVehicleDriveWander(driver, vehicleEntity, speed, drivingStyle);
 
                         TaskVehicleDriveToCoordLongrange(driver, vehicleEntity, vehicle.Model.DriveToX, vehicle.Model.DriveToY, vehicle.Model.DriveToZ, speed, drivingStyle, stopRange);
 
                         CurrentPromptServiceVehicle = new PromptServiceVehicle
                         {
-                            VehicleNetworkId = vehicle.NetworkId,
+                            ValueId = service.Value.ValueId,
+                            DriverEntityId = driver,
                             VehicleEntityId = vehicleEntity,
                             X = vehicle.Model.DriveToX,
                             Y = vehicle.Model.DriveToY,
@@ -225,7 +245,7 @@ namespace Client
                         };
                     }));
             }
-            Wait(0);
+            return Task.FromResult(0);
         }
     }
 }

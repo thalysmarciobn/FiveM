@@ -28,11 +28,11 @@ namespace FiveM.Client
 
             DoScreenFadeOut(500);
             while (IsScreenFadedOut())
-                Wait(1);
+                await Delay(0);
 
             player.Freeze();
 
-            var resCharacter = GlobalVariables.Serializer.Deserialize<AccountCharacterModel>(new JsonTextReader(new StringReader(json)));
+            var resCharacter = JsonConvert.DeserializeObject<AccountCharacterModel>(json);
 
             var model = new Model(resCharacter.Model);
 
@@ -84,13 +84,13 @@ namespace FiveM.Client
             player.WantedLevel = 0;
 
             while (!HasCollisionLoadedAroundEntity(Game.PlayerPed.Handle))
-                await Delay(1);
+                await Delay(0);
 
             ShutdownLoadingScreen();
 
             DoScreenFadeIn(500);
             while (IsScreenFadingIn())
-                await Delay(1);
+                await Delay(0);
 
             player.Unfreeze();
 
@@ -105,18 +105,6 @@ namespace FiveM.Client
             // await BaseScript.Delay(100);
             // Game.Player.Character.MovementAnimationSet = this.WalkingStyle;
 
-        }
-
-        [Tick]
-        public Task OnTick()
-        {
-            var player = Game.Player;
-
-            var position = player.Character.Position;
-
-            //TriggerServerEvent(EventName.Server.ProjectPlayerPositionUpdate, position.X, position.Y, position.Z);
-            //Wait(5000);
-            return Task.FromResult(0);
         }
     }
 }

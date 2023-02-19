@@ -8,7 +8,8 @@ namespace Client.Core
 {
     public class PromptServiceVehicle
     {
-        public int VehicleNetworkId { get; set; }
+        public long ValueId { get; set; }
+        public int DriverEntityId { get; set; }
         public int VehicleEntityId { get; set; }
         public float X { get; set; }
         public float Y { get; set; }

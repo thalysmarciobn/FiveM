@@ -20,8 +20,6 @@ namespace Server.Controller
 {
     public class ServerController : AbstractController
     {
-        public ServerController(BaseScript baseScript) : base(baseScript) { }
-
         public void RegisterPlayers(ICollection<Player> players)
         {
             using (var context = DatabaseContextManager.Context)
@@ -35,9 +33,13 @@ namespace Server.Controller
                         continue;
 
                     GameInstance.Instance.AddPlayer(license, new GamePlayer(player, account));
+
+                    if (int.TryParse(player.Handle, out var playerServerId))
+                        GameInstance.Instance.SetPassive(playerServerId, false);
                 }
             }
             Debug.WriteLine($"[ServerController] Players registered: {GameInstance.Instance.PlayerCount}");
+            Debug.WriteLine($"[ServerController] Passives registered: {GameInstance.Instance.PassivesCount}");
         }
 
         public void RegisterVehicles()
@@ -60,15 +62,6 @@ namespace Server.Controller
                     Debug.WriteLine($"[ServerController][{vehicle.ServerId}] vehicle removed.");
                 }
             }
-        }
-
-        public bool CheckIfVehicleHasEntity(long id)
-        {
-            if (GameInstance.Instance.GetVehicle(id, out var model))
-            {
-                
-            }
-            return false;
         }
     }
 }

@@ -10,6 +10,7 @@ using Server.Instances;
 using Shared.Helper;
 using Shared.Models.Database;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -21,10 +22,6 @@ namespace Server.Controller
 {
     public class CharacterController : AbstractController
     {
-        public CharacterController(BaseScript baseScript) : base(baseScript)
-        {
-        }
-
         public void SpawnRequest(Player player)
         {
             var license = player.Identifiers["license"];

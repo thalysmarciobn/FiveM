@@ -19,14 +19,23 @@ public static class EventName
     }
     public static class Client
     {
-        public const string RequestCreateCharacter = "RequestCreateCharacter";
-        public const string InitCharacter = "InitCharacter";
+        public const string InitCharacter = "initCharacter";
+
+        #region Passive
+        public const string UpdatePassiveList = "updatePassiveList";
+        #endregion
     }
     public static class Server
     {
         public const string SpawnRequest = "spawnRequest";
-        public const string ProjectPlayerPositionUpdate = "ProjectPlayerPositionUpdate";
+
         public const string GetServiceVehicles = "getServiceVehicles";
         public const string SpawnVehicleService = "spawnVehicleService";
+
+        #region Passive
+        public const string SetPassive = "setPassive";
+        public const string GetPassive = "getPassive";
+        public const string GetPassiveList = "getPassiveList";
+        #endregion
     }
 }

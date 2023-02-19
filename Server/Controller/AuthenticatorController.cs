@@ -14,18 +14,20 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using static CitizenFX.Core.Native.API;
 
 namespace Server.Controller
 {
     public class AuthenticatorController : AbstractController
     {
-        public AuthenticatorController(BaseScript baseScript) : base(baseScript) { }
-
         public void PlayerConnecting(Player player, string playerName, dynamic kickCallback, dynamic deferrals)
         {
             deferrals.defer();
 
             var license = player.Identifiers["license"];
+
+            if (int.TryParse(player.Handle, out var playerServerId))
+                GameInstance.Instance.SetPassive(playerServerId, false);
 
             using (var context = DatabaseContextManager.Context)
             {
@@ -44,7 +46,10 @@ namespace Server.Controller
                         if (GameInstance.Instance.AddPlayer(license, gamePlayer))
                             deferrals.done();
                         else
+                        {
                             kickCallback("Conta já conectada, tente novamente");
+                            CancelEvent();
+                        }
                     }
                     else
                     {
@@ -79,6 +84,9 @@ namespace Server.Controller
         public void OnPlayerDropped(Player player, string reason)
         {
             var license = player.Identifiers["license"];
+
+            if (int.TryParse(player.Handle, out var playerServerId))
+                GameInstance.Instance.SetPassive(playerServerId, false);
 
             if (GameInstance.Instance.RemovePlayer(license, out var gamePlayer))
             {

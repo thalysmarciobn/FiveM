@@ -37,9 +37,9 @@ namespace Server
         private CharacterController CharacterController { get; }
         public ServerMain()
         {
-            ServerController = new ServerController(this);
-            AuthenticatorController = new AuthenticatorController(this);
-            CharacterController = new CharacterController(this);
+            ServerController = new ServerController();
+            AuthenticatorController = new AuthenticatorController();
+            CharacterController = new CharacterController();
             Debug.WriteLine("[PROJECT] ServerMain Started.");
             var directory = Directory.GetCurrentDirectory();
             var location = $"{directory}/server.yml";
@@ -63,6 +63,8 @@ namespace Server
             DatabaseContextManager.Build(settings.Database);
         }
 
+        #region Connection
+
         [EventHandler(EventName.External.Server.PlayerConnecting)]
         private void PlayerConnecting([FromSource] Player player, string playerName, dynamic kickCallback, dynamic deferrals) =>
             AuthenticatorController.PlayerConnecting(player, playerName, kickCallback, deferrals);
@@ -71,9 +73,9 @@ namespace Server
         private void OnPlayerDropped([FromSource] Player player, string reason) =>
             AuthenticatorController.OnPlayerDropped(player, reason);
 
-        [EventHandler(EventName.Server.SpawnRequest)]
-        public void SpawnRequest([FromSource] Player player) =>
-            CharacterController.SpawnRequest(player);
+        #endregion
+
+        #region Resource
 
         [EventHandler(EventName.External.OnResourceStart)]
         public void OnResourceStart(string resourceName)
@@ -93,23 +95,54 @@ namespace Server
             ServerController.RemoveSpawnVehicles();
         }
 
-        [EventHandler(EventName.Server.GetServiceVehicles)]
-        public void GetServiceVehicles(NetworkCallbackDelegate networkCallback)
+        #endregion
+
+        #region Passive
+
+        [EventHandler(EventName.Server.SetPassive)]
+        public void SetPassive([FromSource] Player player, bool isPassive)
         {
-            var json = JsonConvert.SerializeObject(GameInstance.Instance.GetVehicles);
-            networkCallback.Invoke(json);
+            if (int.TryParse(player.Handle, out var playerServerId))
+            {
+                GameInstance.Instance.SetPassive(playerServerId, isPassive);
+                Debug.WriteLine($"[PROJECT][{playerServerId}] Passive updated: {isPassive}");
+            }
+            var data = JsonConvert.SerializeObject(GameInstance.Instance.GetPassiveList);
+            foreach (var entity in Players)
+                entity.TriggerEvent(EventName.Client.UpdatePassiveList, data);
         }
+
+        [EventHandler(EventName.Server.GetPassive)]
+        public void GetPassive(int playerServerId, NetworkCallbackDelegate networkCallback) =>
+            networkCallback.Invoke(GameInstance.Instance.GetPlayerIsPassive(playerServerId));
+
+        [EventHandler(EventName.Server.GetPassiveList)]
+        public void GetPassiveList(NetworkCallbackDelegate networkCallback) =>
+            networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetPassiveList));
+
+        #endregion
+
+        #region Character
+
+        [EventHandler(EventName.Server.SpawnRequest)]
+        public void SpawnRequest([FromSource] Player player) =>
+            CharacterController.SpawnRequest(player);
+
+        #endregion
+
+        #region Vehicles
+
+        [EventHandler(EventName.Server.GetServiceVehicles)]
+        public void GetServiceVehicles(NetworkCallbackDelegate networkCallback) =>
+            networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetVehicles));
 
         [EventHandler(EventName.Server.SpawnVehicleService)]
         public async void SpawnVehicleService([FromSource] Player player, int serviceId, NetworkCallbackDelegate networkCallback)
         {
-            Debug.WriteLine("SpawnVehicleService");
             if (GameInstance.Instance.GetVehicle(serviceId, out var model))
             {
-                if (GameInstance.Instance.ContainsSpawnVehicle(model.Id))
-                    return;
-
-                Debug.WriteLine("GET  SpawnVehicleService");
+                //if (GameInstance.Instance.ContainsSpawnVehicle(model.Id))
+                //    return;
 
                 var serverVehicleId = CreateVehicleServerSetter(model.Model, "automobile", model.SpawnX, model.SpawnY, model.SpawnZ, model.SpawnHeading);
                 
@@ -138,6 +171,8 @@ namespace Server
                 await networkCallback.Invoke(json);
             }
         }
+
+        #endregion
 
         [Command("project_players")]
         public void ProjectPlayers() => 

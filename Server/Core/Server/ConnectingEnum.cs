@@ -8,8 +8,7 @@ namespace Server.Core.Server
     {
         Defering,
         Accepted,
-        NotAccepted,
-        IsBanned,
+        Connected,
         Problem
     }
 }
