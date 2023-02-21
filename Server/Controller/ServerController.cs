@@ -35,7 +35,10 @@ namespace Server.Controller
                     GameInstance.Instance.AddPlayer(license, new GamePlayer(player, account));
 
                     if (int.TryParse(player.Handle, out var playerServerId))
+                    {
                         GameInstance.Instance.SetPassive(playerServerId, false);
+                        Debug.WriteLine($"[PROJECT][{playerServerId}] Registered passive.");
+                    }
                 }
             }
             Debug.WriteLine($"[ServerController] Players registered: {GameInstance.Instance.PlayerCount}");

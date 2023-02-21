@@ -25,11 +25,17 @@ namespace DatabaseConsole.Migrations
                     b.Property<long>("AccountId")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("Armor")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime(6)");
 
                     b.Property<float>("Heading")
                         .HasColumnType("float");
+
+                    b.Property<int>("Health")
+                        .HasColumnType("int");
 
                     b.Property<string>("Model")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");

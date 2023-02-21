@@ -9,63 +9,49 @@ namespace Client.Extensions
 {
     public static class PlayerExtensions
     {
-        public static void DisableCollisionsThisFrame(this Entity one, Entity two)
+        public static void SetEntityNoCollision(this Entity one, Entity two, bool state)
         {
-            // If one of the entities is null, return
             if (one == null || two == null)
-            {
                 return;
-            }
 
-            SetEntityNoCollisionEntity(one.Handle, two.Handle, true);
-            SetEntityNoCollisionEntity(two.Handle, one.Handle, true);
+            SetEntityNoCollisionEntity(one.Handle, two.Handle, state);
+            SetEntityNoCollisionEntity(two.Handle, one.Handle, state);
         }
 
         public static Vehicle GetHookedVehicle(this Vehicle vehicle)
         {
             // If the vehicle is invalid, return
             if (vehicle == null || !vehicle.Exists())
-            {
                 return null;
-            }
 
             // Start by trying to get the vehicle attached as a trailer
             int trailer = 0;
             if (GetVehicleTrailerVehicle(vehicle.Handle, ref trailer))
-            {
                 return Entity.FromHandle(trailer) as Vehicle;
-            }
 
             // Try to get a hooked cargobob vehicle and return it if there is somehing
-            Vehicle cargobobHook = Entity.FromHandle(API.GetVehicleAttachedToCargobob(vehicle.Handle)) as Vehicle;
+            Vehicle cargobobHook = Entity.FromHandle(GetVehicleAttachedToCargobob(vehicle.Handle)) as Vehicle;
             if (cargobobHook != null && cargobobHook.Exists())
-            {
                 return cargobobHook;
-            }
 
             // Then, try to get it as a tow truck and return it if it does
-            Vehicle towHooked = Entity.FromHandle(API.GetEntityAttachedToTowTruck(vehicle.Handle)) as Vehicle;
+            Vehicle towHooked = Entity.FromHandle(GetEntityAttachedToTowTruck(vehicle.Handle)) as Vehicle;
             if (towHooked != null && towHooked.Exists())
-            {
                 return towHooked;
-            }
-
-            // If we got here, just send nothing
             return null;
         }
 
         public static void SetAlpha(this Entity entity, int alpha)
         {
-            // If the alpha is 255, reset the alpha
             if (alpha == 255)
-            {
                 ResetEntityAlpha(entity.Handle);
-            }
-            // Otherwise, set it as usual
             else
-            {
                 SetEntityAlpha(entity.Handle, alpha, 0);
-            }
+        }
+
+        public static void ResetAlpha(this Entity entity)
+        {
+            ResetEntityAlpha(entity.Handle);
         }
 
         public static void SetPedHeadBlendDatas(this Player player, AccountCharacterPedHeadDataModel model)

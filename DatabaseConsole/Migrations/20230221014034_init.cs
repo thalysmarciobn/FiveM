@@ -63,6 +63,8 @@ namespace DatabaseConsole.Migrations
                     Surname = table.Column<string>(nullable: true),
                     DateCreated = table.Column<DateTime>(nullable: false),
                     Model = table.Column<string>(nullable: true),
+                    Health = table.Column<int>(nullable: false),
+                    Armor = table.Column<int>(nullable: false),
                     Heading = table.Column<float>(nullable: false)
                 },
                 constraints: table =>

@@ -13,6 +13,8 @@ namespace Shared.Models.Database
         public string Surname { get; set; }
         public DateTime DateCreated { get; set; }
         public string Model { get; set; }
+        public int Health { get; set; }
+        public int Armor { get; set; }
         public float Heading { get; set; }
         public AccountCharacterPositionModel Position { get; set; }
         public AccountCharacterRotationModel Rotation { get; set; }

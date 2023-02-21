@@ -1,4 +1,5 @@
 ﻿using CitizenFX.Core;
+using CitizenFX.Core.Native;
 using Microsoft.EntityFrameworkCore;
 using Server.Core;
 using Server.Core.Game;
@@ -110,7 +111,9 @@ namespace Server.Controller
                             var dbCharacterRotation = dbCharacter.Rotation;
             
                             dbCharacter.Heading = gameCharacter.Heading;
-            
+                            dbCharacter.Armor = GetPedArmour(gameCharacter.Handle);
+                            dbCharacter.Health = GetEntityHealth(gameCharacter.Handle);
+
                             dbCharacterPosition.X = gameCharacterPosition.X;
                             dbCharacterPosition.Y = gameCharacterPosition.Y;
                             dbCharacterPosition.Z = gameCharacterPosition.Z;

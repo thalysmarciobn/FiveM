@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseConsole.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230217181047_init")]
+    [Migration("20230221014034_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,11 +27,17 @@ namespace DatabaseConsole.Migrations
                     b.Property<long>("AccountId")
                         .HasColumnType("bigint");
 
+                    b.Property<int>("Armor")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime(6)");
 
                     b.Property<float>("Heading")
                         .HasColumnType("float");
+
+                    b.Property<int>("Health")
+                        .HasColumnType("int");
 
                     b.Property<string>("Model")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");

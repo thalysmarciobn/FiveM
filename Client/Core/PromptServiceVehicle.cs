@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CitizenFX.Core;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,6 +9,7 @@ namespace Client.Core
 {
     public class PromptServiceVehicle
     {
+        public int Blip { get; set; }
         public long ValueId { get; set; }
         public int DriverEntityId { get; set; }
         public int VehicleEntityId { get; set; }

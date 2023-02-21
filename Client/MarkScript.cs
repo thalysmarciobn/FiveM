@@ -1,5 +1,6 @@
 ﻿using CitizenFX.Core;
 using CitizenFX.Core.Native;
+using CitizenFX.Core.UI;
 using Client.Core;
 using Client.Extensions;
 using Mono.CSharp;
@@ -11,6 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static CitizenFX.Core.Native.API;
 
@@ -93,6 +95,7 @@ namespace Client
 
             if (CurrentPromptServiceVehicle != null)
             {
+                var blipId = CurrentPromptServiceVehicle.Blip;
                 var driverId = CurrentPromptServiceVehicle.DriverEntityId;
                 var vehicleId = CurrentPromptServiceVehicle.VehicleEntityId;
 
@@ -107,6 +110,10 @@ namespace Client
                     {
                         DeleteEntity(ref driverId);
                         while (DoesEntityExist(driverId))
+                            Wait(0);
+
+                        RemoveBlip(ref blipId);
+                        while (DoesBlipExist(blipId))
                             Wait(0);
 
                         DeleteVehicle(ref vehicleId);
@@ -199,15 +206,28 @@ namespace Client
                         if (!IsEntityAVehicle(vehicleEntity))
                             return;
 
-                        var driver = CreatePedInsideVehicle(vehicleEntity, 1, (uint) PedHash.FreemodeMale01, -1, true, true);
+                        var blip = AddBlipForEntity(vehicleEntity);
+                        SetBlipColour(blip, (int)BlipColor.Yellow);
+                        BeginTextCommandSetBlipName("STRING");
+                        AddTextComponentString($"TAXI");
+                        EndTextCommandSetBlipName(blip);
+
+                        if (!HasModelLoaded((uint)PedHash.Farmer01AMM))
+                            RequestModel((uint)PedHash.Farmer01AMM);
+                        while (!HasModelLoaded((uint)PedHash.Farmer01AMM)) await Delay(1000);
+
+                        var driver = CreatePedInsideVehicle(vehicleEntity, 1, (uint) PedHash.Farmer01AMM, -1, true, true);
 
                         while (!DoesEntityExist(driver))
                             Wait(0);
 
-                        SetPedRandomProps(driver);
-                        SetPedRandomComponentVariation(driver, true);
+                        SetPedCanBeTargetted(driver, false);
+                        SetPedCanBeDraggedOut(driver, false);
+                        SetPedCombatAbility(driver, 40);
 
-                        SetPedIntoVehicle(localPlayerPed.Handle, vehicleEntity, 1);
+                        //TaskEnterVehicle(localPlayerPed.Handle, vehicleEntity, -1, (int)VehicleSeat.LeftRear, 0f, 0, 0);
+                        // Game.PlayerPed.Task.EnterVehicle(vehicleEntity, VehicleSeat.LeftRear));
+                        SetPedIntoVehicle(localPlayerPed.Handle, vehicleEntity, (int) VehicleSeat.LeftRear);
 
                         //player.CanControlCharacter = false;
 
@@ -222,7 +242,7 @@ namespace Client
 
                         var speed = 20f;
                         // https://vespura.com/fivem/drivingstyle/
-                        var drivingStyle = 15;
+                        var drivingStyle = 0; // 15;
                         var stopRange = 8.0f;
 
                         SetDriverAbility(driver, 1.0f);
@@ -232,10 +252,15 @@ namespace Client
 
                         TaskVehicleDriveWander(driver, vehicleEntity, speed, drivingStyle);
 
+                        await Delay(5000);
+
                         TaskVehicleDriveToCoordLongrange(driver, vehicleEntity, vehicle.Model.DriveToX, vehicle.Model.DriveToY, vehicle.Model.DriveToZ, speed, drivingStyle, stopRange);
+
+                        Screen.ShowNotification(vehicle.Model.Title, true);
 
                         CurrentPromptServiceVehicle = new PromptServiceVehicle
                         {
+                            Blip = blip,
                             ValueId = service.Value.ValueId,
                             DriverEntityId = driver,
                             VehicleEntityId = vehicleEntity,

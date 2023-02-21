@@ -42,6 +42,8 @@ namespace Server.Controller
                             Slot = 0,
                             DateCreated = DateTime.Now,
                             Model = "mp_m_freemode_01",
+                            Armor = 100,
+                            Heading = 100,
                             Position = new AccountCharacterPositionModel
                             {
                                 X = -1062.02f,
