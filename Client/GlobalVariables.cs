@@ -12,7 +12,7 @@ namespace Client
     {
         public const bool S_Debug = true;
 
-        public static JsonSerializer Serializer = new JsonSerializer
+        public static JsonSerializer Serializer { get; } = new JsonSerializer
         {
             Culture = CultureInfo.CurrentCulture,
             DefaultValueHandling = DefaultValueHandling.IgnoreAndPopulate,
