@@ -9,13 +9,13 @@ namespace Client.Extensions
 {
     public static class PlayerExtensions
     {
-        public static void SetEntityNoCollision(this Entity one, Entity two, bool state)
+        public static void SetEntityNoCollision(this Entity one, Entity two)
         {
             if (one == null || two == null)
                 return;
 
-            SetEntityNoCollisionEntity(one.Handle, two.Handle, state);
-            SetEntityNoCollisionEntity(two.Handle, one.Handle, state);
+            SetEntityNoCollisionEntity(one.Handle, two.Handle, true);
+            SetEntityNoCollisionEntity(two.Handle, one.Handle, true);
         }
 
         public static Vehicle GetHookedVehicle(this Vehicle vehicle)

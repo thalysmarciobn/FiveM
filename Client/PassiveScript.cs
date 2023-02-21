@@ -64,53 +64,67 @@ namespace Client
                 var peds = World.GetAllPeds();
                 var vehicles = World.GetAllVehicles();
 
+                var localPassive = false;
+
+                if (PassiveList.TryGetValue(Game.Player.ServerId, out var isLocalPassive))
+                    localPassive = isLocalPassive;
+
                 foreach (var player in Players)
                 {
                     if (PassiveList.ContainsKey(player.ServerId))
                     {
                         var passive = PassiveList[player.ServerId];
 
-                        Debug.WriteLine($"{player.ServerId} {passive}");
+                        var disableCollisions = passive || localPassive;
 
-                        var pedCharacter = player.Character;
-                        var pedVehicle = pedCharacter?.CurrentVehicle;
-                        var pedHooked = pedVehicle?.GetHookedVehicle();
+                        if (player.Handle == localPlayer.Handle) continue;
 
-                        int alpha = passive ? 200 : 255;
+                        var otherPed = player.Character;
+                        var otherVehicle = otherPed?.CurrentVehicle;
+                        var otherHooked = otherVehicle?.GetHookedVehicle();
 
-                        pedCharacter?.SetAlpha(alpha);
-                        pedVehicle?.SetAlpha(alpha);
-                        pedHooked?.SetAlpha(alpha);
+                        var alpha = disableCollisions && !GetIsTaskActive(otherPed.Handle, 2) && localVehicle?.Handle != otherVehicle?.Handle ? 200 : 255;
+                        otherPed.SetAlpha(alpha);
+                        otherVehicle?.SetAlpha(alpha);
+                        otherHooked?.SetAlpha(alpha);
 
-                        if (!passive) continue;
-
-                        pedCharacter?.SetEntityNoCollision(localPed, passive);
-                        pedVehicle?.SetEntityNoCollision(localPed, passive);
-                        pedHooked?.SetEntityNoCollision(localPed, passive);
-
-                        pedCharacter?.SetEntityNoCollision(localVehicle, passive);
-                        pedVehicle?.SetEntityNoCollision(localVehicle, passive);
-                        pedHooked?.SetEntityNoCollision(localVehicle, passive);
-
-                        pedCharacter?.SetEntityNoCollision(localHooked, passive);
-                        pedVehicle?.SetEntityNoCollision(localHooked, passive);
-                        pedHooked?.SetEntityNoCollision(localHooked, passive);
-
-                        foreach (var ped in peds)
+                        if (disableCollisions)
                         {
-                            pedCharacter?.SetEntityNoCollision(ped, passive);
-                            pedVehicle?.SetEntityNoCollision(ped, passive);
-                            pedHooked?.SetEntityNoCollision(ped, passive);
-                        }
+                            otherPed.SetEntityNoCollision(localPed);
+                            otherPed?.SetEntityNoCollision(localVehicle);
+                            otherPed?.SetEntityNoCollision(localHooked);
 
-                        foreach (var vehicle in vehicles)
-                        {
-                            pedCharacter?.SetEntityNoCollision(vehicle, passive);
-                            pedVehicle?.SetEntityNoCollision(vehicle, passive);
-                            pedHooked?.SetEntityNoCollision(vehicle, passive);
+                            otherVehicle.SetEntityNoCollision(localPed);
+                            otherVehicle?.SetEntityNoCollision(localVehicle);
+                            otherVehicle?.SetEntityNoCollision(localHooked);
+
+                            otherHooked.SetEntityNoCollision(localPed);
+                            otherHooked?.SetEntityNoCollision(localVehicle);
+                            otherHooked?.SetEntityNoCollision(localHooked);
                         }
                     }
                 }
+
+                foreach (var vehicle in vehicles)
+                {
+                    var alpha = localPassive && vehicle.Handle != localVehicle?.Handle ? 200 : 255;
+                    vehicle.SetAlpha(alpha);
+
+                    vehicle.SetEntityNoCollision(localPed);
+                    vehicle.SetEntityNoCollision(localVehicle);
+                    vehicle.SetEntityNoCollision(localHooked);
+                }
+
+                foreach (var ped in peds)
+                {
+                    var alpha = localPassive && ped?.CurrentVehicle.Handle != localVehicle?.Handle ? 200 : 255;
+                    ped.SetAlpha(alpha);
+
+                    ped.SetEntityNoCollision(localPed);
+                    ped.SetEntityNoCollision(localVehicle);
+                    ped.SetEntityNoCollision(localHooked);
+                }
+
             }
             return Task.FromResult(0);
         }
