@@ -27,6 +27,7 @@ using Newtonsoft.Json;
 using Shared.Models.Database;
 using CitizenFX.Core.Native;
 using Shared.Models.Server;
+using System.Threading;
 
 namespace Server
 {
@@ -58,6 +59,7 @@ namespace Server
                 });
                 File.WriteAllText(location, yaml);
             }
+
             var configuration = File.ReadAllText(location);
             var settings = YamlInstance.Instance.DeserializerBuilder.Deserialize<ServerSettings>(configuration);
             DatabaseContextManager.Build(settings.Database);
@@ -85,6 +87,8 @@ namespace Server
             ServerController.RegisterPlayers(Players.ToImmutableList());
 
             ServerController.RegisterVehicles();
+
+            ServerController.RegisterBlips();
         }
 
         [EventHandler(EventName.External.OnResourceStop)]
@@ -120,6 +124,12 @@ namespace Server
         public void GetPassiveList(NetworkCallbackDelegate networkCallback) =>
             networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetPassiveList));
 
+        #endregion
+
+        #region Map
+        [EventHandler(EventName.Server.GetBlips)]
+        public void GetBlips(NetworkCallbackDelegate networkCallback) =>
+            networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetBlipList));
         #endregion
 
         #region Character

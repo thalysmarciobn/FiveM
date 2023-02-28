@@ -18,14 +18,13 @@ using static CitizenFX.Core.Native.API;
 
 namespace Client
 {
-    public class MarkScript : BaseScript
+    public class ClientMarkScript : BaseScript
     {
         private IList<Prompt> Prompts { get; } = new List<Prompt>();
-        private PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }
         private Queue<long> ServicesToAction { get; } = new Queue<long>();
         private Dictionary<long, PromptServiceData> ServicesInAction { get; } = new Dictionary<long, PromptServiceData>();
 
-        public MarkScript()
+        public ClientMarkScript()
         {
             Debug.WriteLine("[PROJECT] Script: MarkScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
@@ -73,10 +72,10 @@ namespace Client
         {
             if (GetCurrentResourceName() != resourceName) return;
 
-            if (CurrentPromptServiceVehicle != null)
+            if (GlobalVariables.CurrentPromptServiceVehicle != null)
             {
-                var driverId = CurrentPromptServiceVehicle.DriverEntityId;
-                var vehicleId = CurrentPromptServiceVehicle.VehicleEntityId;
+                var driverId = GlobalVariables.CurrentPromptServiceVehicle.DriverEntityId;
+                var vehicleId = GlobalVariables.CurrentPromptServiceVehicle.VehicleEntityId;
 
                 if (DoesEntityExist(driverId))
                     DeleteEntity(ref driverId);
@@ -93,13 +92,13 @@ namespace Client
             var localPlayerPed = Game.PlayerPed;
             var localPlayerCharacter = localPlayer.Character;
 
-            if (CurrentPromptServiceVehicle != null)
+            if (GlobalVariables.CurrentPromptServiceVehicle != null)
             {
-                var blipId = CurrentPromptServiceVehicle.Blip;
-                var driverId = CurrentPromptServiceVehicle.DriverEntityId;
-                var vehicleId = CurrentPromptServiceVehicle.VehicleEntityId;
+                var blipId = GlobalVariables.CurrentPromptServiceVehicle.Blip;
+                var driverId = GlobalVariables.CurrentPromptServiceVehicle.DriverEntityId;
+                var vehicleId = GlobalVariables.CurrentPromptServiceVehicle.VehicleEntityId;
 
-                var distance = GetDistanceBetweenCoords(localPlayerCharacter.Position.X, localPlayerCharacter.Position.Y, localPlayerCharacter.Position.Z, CurrentPromptServiceVehicle.X, CurrentPromptServiceVehicle.Y, CurrentPromptServiceVehicle.Z, true);
+                var distance = GetDistanceBetweenCoords(localPlayerCharacter.Position.X, localPlayerCharacter.Position.Y, localPlayerCharacter.Position.Z, GlobalVariables.CurrentPromptServiceVehicle.X, GlobalVariables.CurrentPromptServiceVehicle.Y, GlobalVariables.CurrentPromptServiceVehicle.Z, true);
 
                 if (distance < 20.0f)
                     localPlayer.CanControlCharacter = true;
@@ -120,17 +119,17 @@ namespace Client
                         while (DoesEntityExist(vehicleId))
                             Wait(0);
 
+                        ServicesInAction.Remove(GlobalVariables.CurrentPromptServiceVehicle.ValueId);
+                        GlobalVariables.CurrentPromptServiceVehicle = null;
                         TriggerServerEvent(EventName.Server.SetPassive, false);
-                        ServicesInAction.Remove(CurrentPromptServiceVehicle.ValueId);
-                        CurrentPromptServiceVehicle = null;
                     }
                 }
                 else
                 {
-                    TriggerServerEvent(EventName.Server.SetPassive, false);
-                    ServicesInAction.Remove(CurrentPromptServiceVehicle.ValueId);
-                    CurrentPromptServiceVehicle = null;
+                    ServicesInAction.Remove(GlobalVariables.CurrentPromptServiceVehicle.ValueId);
+                    GlobalVariables.CurrentPromptServiceVehicle = null;
                     localPlayer.CanControlCharacter = true;
+                    TriggerServerEvent(EventName.Server.SetPassive, false);
                 }
                 
             }
@@ -258,7 +257,7 @@ namespace Client
 
                         Screen.ShowNotification(vehicle.Model.Title, true);
 
-                        CurrentPromptServiceVehicle = new PromptServiceVehicle
+                        GlobalVariables.CurrentPromptServiceVehicle = new PromptServiceVehicle
                         {
                             Blip = blip,
                             ValueId = service.Value.ValueId,

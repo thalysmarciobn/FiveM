@@ -55,6 +55,16 @@ namespace Server.Controller
             Debug.WriteLine($"[ServerController] Vehicles registered: {GameInstance.Instance.VehicleCount}");
         }
 
+        public void RegisterBlips()
+        {
+            using (var context = DatabaseContextManager.Context)
+            {
+                foreach (var blip in context.Blip.ToList())
+                    GameInstance.Instance.AddBlip(blip.Id, blip);
+            }
+            Debug.WriteLine($"[ServerController] Blips registered: {GameInstance.Instance.BlipCount}");
+        }
+
         public void RemoveSpawnVehicles()
         {
             foreach (var vehicle in GameInstance.Instance.GetSpawnVehicles)

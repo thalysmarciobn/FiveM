@@ -15,6 +15,8 @@ namespace Shared.Models.Database
         public string Model { get; set; }
         public int Health { get; set; }
         public int Armor { get; set; }
+        public int MoneyBalance { get; set; }
+        public int BankBalance { get; set; }
         public float Heading { get; set; }
         public AccountCharacterPositionModel Position { get; set; }
         public AccountCharacterRotationModel Rotation { get; set; }

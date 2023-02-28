@@ -15,11 +15,10 @@ using static CitizenFX.Core.Native.API;
 
 namespace Client
 {
-    public class PassiveScript : BaseScript
+    public class ClientPassiveScript : BaseScript
     {
-        private readonly object LockObject = new object();
         private ConcurrentDictionary<int, bool> PassiveList { get; } = new ConcurrentDictionary<int, bool>();
-        public PassiveScript()
+        public ClientPassiveScript()
         {
             Debug.WriteLine("[PROJECT] Script: PassiveScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
@@ -32,23 +31,17 @@ namespace Client
 
             TriggerServerEvent(EventName.Server.GetPassiveList, new Action<string>((arg) =>
             {
-                lock (LockObject)
-                {
-                    var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, bool>>>(arg);
-                    foreach (var kvp in data)
-                        PassiveList.TryAdd(kvp.Key, kvp.Value);
-                }
+                var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, bool>>>(arg);
+                foreach (var kvp in data)
+                    PassiveList.TryAdd(kvp.Key, kvp.Value);
             }));
         }
 
         private void UpdatePassiveList(string arg)
         {
-            lock (LockObject)
-            {
-                var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, bool>>>(arg);
-                foreach (var kvp in data)
-                    PassiveList.AddOrUpdate(kvp.Key, kvp.Value, (key, oldValue) => kvp.Value);
-            }
+            var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, bool>>>(arg);
+            foreach (var kvp in data)
+                PassiveList.AddOrUpdate(kvp.Key, kvp.Value, (key, oldValue) => kvp.Value);
         }
 
         [Tick]
@@ -67,8 +60,6 @@ namespace Client
 
             if (PassiveList.TryGetValue(Game.Player.ServerId, out var isLocalPassive))
                 localPassive = isLocalPassive;
-
-            Debug.WriteLine($"{localPassive}");
 
             foreach (var player in Players)
             {

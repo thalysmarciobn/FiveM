@@ -26,6 +26,27 @@ namespace DatabaseConsole.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "blips",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    BlipId = table.Column<int>(nullable: false),
+                    DisplayId = table.Column<int>(nullable: false),
+                    Title = table.Column<string>(nullable: true),
+                    Color = table.Column<int>(nullable: false),
+                    Scale = table.Column<float>(nullable: false),
+                    ShortRange = table.Column<bool>(nullable: false),
+                    X = table.Column<float>(nullable: false),
+                    Y = table.Column<float>(nullable: false),
+                    Z = table.Column<float>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_blips", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "server_vehicle_service",
                 columns: table => new
                 {
@@ -65,6 +86,8 @@ namespace DatabaseConsole.Migrations
                     Model = table.Column<string>(nullable: true),
                     Health = table.Column<int>(nullable: false),
                     Armor = table.Column<int>(nullable: false),
+                    MoneyBalance = table.Column<int>(nullable: false),
+                    BankBalance = table.Column<int>(nullable: false),
                     Heading = table.Column<float>(nullable: false)
                 },
                 constraints: table =>
@@ -266,13 +289,33 @@ namespace DatabaseConsole.Migrations
                 });
 
             migrationBuilder.InsertData(
+                table: "blips",
+                columns: new[] { "Id", "BlipId", "Color", "DisplayId", "Scale", "ShortRange", "Title", "X", "Y", "Z" },
+                values: new object[,]
+                {
+                    { 1L, 198, 5, 4, 0.9f, true, "Taxi", -1033.49f, -2727.02f, 13.75f },
+                    { 13L, 679, 0, 4, 0.9f, true, "Cassino", 917.37f, 50.76f, 80.76f },
+                    { 12L, 410, 46, 4, 0.9f, true, "Terminal Marítimo", 1299.2f, 4217.9f, 33.9f },
+                    { 11L, 826, 26, 4, 0.9f, true, "Agência de Taxi", 913.76f, -179.71f, 74.16f },
+                    { 10L, 408, 26, 4, 0.9f, true, "Dominos Pizza", 536.19f, 98.79f, 96.44f },
+                    { 8L, 50, 0, 4, 0.9f, true, "Estacionamento", -335.82f, 264.83f, 85.89f },
+                    { 9L, 50, 0, 4, 0.9f, true, "Estacionamento", 58.3f, -624.23f, 31.66f },
+                    { 6L, 50, 0, 4, 0.9f, true, "Estacionamento", -1179.2f, -1507.13f, 4.37f },
+                    { 5L, 50, 0, 4, 0.9f, true, "Estacionamento", 606.64f, 73.82f, 91.93f },
+                    { 4L, 50, 0, 4, 0.9f, true, "Estacionamento", 208.75f, -808.06f, 30.88f },
+                    { 3L, 50, 0, 4, 0.9f, true, "Estacionamento", 44.37f, -865.29f, 30.53f },
+                    { 2L, 50, 0, 4, 0.9f, true, "Estacionamento", 98.95f, -1067.59f, 29.29f },
+                    { 7L, 50, 0, 4, 0.9f, true, "Estacionamento", -1160.81f, -726.49f, 20.57f }
+                });
+
+            migrationBuilder.InsertData(
                 table: "server_vehicle_service",
                 columns: new[] { "Id", "DriveToX", "DriveToY", "DriveToZ", "Driver", "Key", "MarkX", "MarkY", "MarkZ", "Model", "SpawnHeading", "SpawnX", "SpawnY", "SpawnZ", "Title" },
                 values: new object[,]
                 {
-                    { 1L, 134.954f, -1023.76f, 28.8165f, 1885233650u, 38, -1049.649f, -2719.027f, 13.7566f, 3338918751u, 240.2623f, -1051.63f, -2712.7f, 14f, "Taxi Praça" },
-                    { 2L, 923.754f, 47.421f, 80.37f, 1885233650u, 38, -1041.9746f, -2721.6182f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Taxi Casino" },
                     { 3L, 0f, 0f, 0f, 1885233650u, 38, -1026.4174f, -2730.4631f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Chamar Taxi" },
+                    { 1L, 134.954f, -1023.76f, 28.8165f, 1885233650u, 38, -1049.649f, -2719.027f, 13.7566f, 3338918751u, 240.2623f, -1051.63f, -2712.7f, 14f, "TAXI PRAÇA" },
+                    { 2L, 923.754f, 47.421f, 80.37f, 1885233650u, 38, -1041.9746f, -2721.6182f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Taxi Casino" },
                     { 4L, 0f, 0f, 0f, 1885233650u, 38, -1014.7446f, -2737.0579f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Chamar Taxi" }
                 });
 
@@ -322,6 +365,9 @@ namespace DatabaseConsole.Migrations
 
             migrationBuilder.DropTable(
                 name: "account_character_rotation");
+
+            migrationBuilder.DropTable(
+                name: "blips");
 
             migrationBuilder.DropTable(
                 name: "server_vehicle_service");

@@ -45,5 +45,11 @@ namespace Server.Instances
         public bool GetPlayerIsPassive(int id) => Passives.TryGetValue(id, out bool isPassive) && isPassive;
         public ICollection<KeyValuePair<int, bool>> GetPassiveList => Passives.ToImmutableList();
 
+
+        private ConcurrentDictionary<long, BlipModel> BlipModels { get; } = new ConcurrentDictionary<long, BlipModel>();
+        public int BlipCount => BlipModels.Count;
+        public void AddBlip(long id, BlipModel model) => BlipModels.AddOrUpdate(id, model, (key, oldValue) => model);
+        public ICollection<KeyValuePair<long, BlipModel>> GetBlipList => BlipModels.ToImmutableList();
+
     }
 }

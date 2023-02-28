@@ -21,7 +21,9 @@ namespace FiveM.Server.Database
         public DbSet<AccountCharacterPedHeadModel> AccountCharacterAppearance { get; set; }
         public DbSet<AccountCharacterPedHeadOverlayModel> AccountCharacterPedHeadOverlay { get; set; }
         public DbSet<AccountCharacterPedHeadOverlayColorModel> AccountCharacterPedHeadOverlayColor { get; set; }
+        public DbSet<BlipModel> Blip { get; set; }
         public DbSet<ServerVehicleService> ServerVehicleService { get; set; }
+        public DbSet<VehicleModel> Vehicles { get; set; }
 
         public FiveMContext(string connectionString) =>
             _connectionString = connectionString;
@@ -220,7 +222,7 @@ namespace FiveM.Server.Database
                 e.ToTable("server_vehicle_service");
                 e.HasKey(m => m.Id);
 
-                e.HasData(new []
+                e.HasData(new[]
                 {
                     new ServerVehicleService
                     {
@@ -231,7 +233,7 @@ namespace FiveM.Server.Database
                         Driver = 1885233650u,
                         // Control.Pickup
                         Key = 38,
-                        Title = "Taxi Praça",
+                        Title = "TAXI PRAÇA",
                         DriveToX = 134.954f,
                         DriveToY = -1023.76f,
                         DriveToZ = 28.8165f,
@@ -289,6 +291,206 @@ namespace FiveM.Server.Database
                         MarkZ = 13.7566f,
                     }
                 });
+            });
+
+            modelBuilder.Entity<BlipModel>(e =>
+            {
+                e.ToTable("blips");
+                e.HasKey(m => m.Id);
+
+                e.HasData(new[]
+                {
+                    new BlipModel
+                    {
+                        Id = 1,
+                        BlipId = 198,
+                        DisplayId = 4,
+                        Title = "Terminal de Taxi",
+                        Color = 70,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = -1033.49f,
+                        Y = -2727.02f,
+                        Z = 13.75f
+                    },
+                    new BlipModel
+                    {
+                        Id = 2,
+                        BlipId = 50,
+                        DisplayId = 4,
+                        Title = "Estacionamento",
+                        Color = 0,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = 98.95f,
+                        Y = -1067.59f,
+                        Z = 29.29f
+                    },
+                    new BlipModel
+                    {
+                        Id = 3,
+                        BlipId = 50,
+                        DisplayId = 4,
+                        Title = "Estacionamento",
+                        Color = 0,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = 44.37f,
+                        Y = -865.29f,
+                        Z = 30.53f
+                    },
+                    new BlipModel
+                    {
+                        Id = 4,
+                        BlipId = 50,
+                        DisplayId = 4,
+                        Title = "Estacionamento",
+                        Color = 0,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = 208.75f,
+                        Y = -808.06f,
+                        Z = 30.88f
+                    },
+                    new BlipModel
+                    {
+                        Id = 5,
+                        BlipId = 50,
+                        DisplayId = 4,
+                        Title = "Estacionamento",
+                        Color = 0,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = 606.64f,
+                        Y = 73.82f,
+                        Z = 91.93f
+                    },
+                    new BlipModel
+                    {
+                        Id = 6,
+                        BlipId = 50,
+                        DisplayId = 4,
+                        Title = "Estacionamento",
+                        Color = 0,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = -1179.20f,
+                        Y = -1507.13f,
+                        Z = 4.37f
+                    },
+                    new BlipModel
+                    {
+                        Id = 7,
+                        BlipId = 50,
+                        DisplayId = 4,
+                        Title = "Estacionamento",
+                        Color = 0,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = -1160.81f,
+                        Y = -726.49f,
+                        Z = 20.57f
+                    },
+                    new BlipModel
+                    {
+                        Id = 8,
+                        BlipId = 50,
+                        DisplayId = 4,
+                        Title = "Estacionamento",
+                        Color = 0,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = -335.82f,
+                        Y = 264.83f,
+                        Z = 85.89f
+                    },
+                    new BlipModel
+                    {
+                        Id = 9,
+                        BlipId = 50,
+                        DisplayId = 4,
+                        Title = "Estacionamento",
+                        Color = 0,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = 58.30f,
+                        Y = -624.23f,
+                        Z = 31.66f
+                    },
+                    new BlipModel
+                    {
+                        Id = 10,
+                        BlipId = 408,
+                        DisplayId = 4,
+                        Title = "Dominos Pizza",
+                        Color = 26,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = 536.19f,
+                        Y = 98.79f,
+                        Z = 96.44f
+                    },
+                    new BlipModel
+                    {
+                        Id = 11,
+                        BlipId = 826,
+                        DisplayId = 4,
+                        Title = "Agência de Taxi",
+                        Color = 26,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = 913.76f,
+                        Y = -179.71f,
+                        Z = 74.16f
+                    },
+                    new BlipModel
+                    {
+                        Id = 12,
+                        BlipId = 410,
+                        DisplayId = 4,
+                        Title = "Terminal Marítimo",
+                        Color = 46,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = 1299.20f,
+                        Y = 4217.90f,
+                        Z = 33.90f
+                    },
+                    new BlipModel
+                    {
+                        Id = 13,
+                        BlipId = 679,
+                        DisplayId = 4,
+                        Title = "Cassino",
+                        Color = 0,
+                        Scale = 0.9f,
+                        ShortRange = true,
+                        X = 917.37f,
+                        Y = 50.76f,
+                        Z = 80.76f
+                    }
+                });
+            });
+
+            modelBuilder.Entity<VehicleModel>(e =>
+            {
+                e.ToTable("vehicle");
+
+                e.HasKey(m => m.Id);
+
+                e.HasIndex(m => new { m.Id, m.CharacterId }).IsUnique();
+
+                // e.HasData(new AccountCharacterModel
+                // {
+                //     Id = 1,
+                //     AccountId = 1,
+                //     Name = "Admin",
+                //     Surname = "Thalys",
+                //     DateCreated = DateTime.Now,
+                //     Gender = 0,
+                //     Armor = 0,
+                //     Model = "mp_m_freemode_01"
+                // });
             });
         }
     }

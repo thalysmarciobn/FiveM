@@ -109,7 +109,7 @@ namespace Server.Controller
 
                             var dbCharacterPosition = dbCharacter.Position;
                             var dbCharacterRotation = dbCharacter.Rotation;
-            
+                            
                             dbCharacter.Heading = gameCharacter.Heading;
                             dbCharacter.Armor = GetPedArmour(gameCharacter.Handle);
                             dbCharacter.Health = GetEntityHealth(gameCharacter.Handle);

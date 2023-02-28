@@ -28,6 +28,9 @@ namespace DatabaseConsole.Migrations
                     b.Property<int>("Armor")
                         .HasColumnType("int");
 
+                    b.Property<int>("BankBalance")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime(6)");
 
@@ -39,6 +42,9 @@ namespace DatabaseConsole.Migrations
 
                     b.Property<string>("Model")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("MoneyBalance")
+                        .HasColumnType("int");
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext CHARACTER SET utf8mb4");
@@ -281,6 +287,215 @@ namespace DatabaseConsole.Migrations
                     b.ToTable("account");
                 });
 
+            modelBuilder.Entity("Shared.Models.Database.BlipModel", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<int>("BlipId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Color")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DisplayId")
+                        .HasColumnType("int");
+
+                    b.Property<float>("Scale")
+                        .HasColumnType("float");
+
+                    b.Property<bool>("ShortRange")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<float>("X")
+                        .HasColumnType("float");
+
+                    b.Property<float>("Y")
+                        .HasColumnType("float");
+
+                    b.Property<float>("Z")
+                        .HasColumnType("float");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("blips");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            BlipId = 198,
+                            Color = 5,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Taxi",
+                            X = -1033.49f,
+                            Y = -2727.02f,
+                            Z = 13.75f
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            BlipId = 50,
+                            Color = 0,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Estacionamento",
+                            X = 98.95f,
+                            Y = -1067.59f,
+                            Z = 29.29f
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            BlipId = 50,
+                            Color = 0,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Estacionamento",
+                            X = 44.37f,
+                            Y = -865.29f,
+                            Z = 30.53f
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            BlipId = 50,
+                            Color = 0,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Estacionamento",
+                            X = 208.75f,
+                            Y = -808.06f,
+                            Z = 30.88f
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            BlipId = 50,
+                            Color = 0,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Estacionamento",
+                            X = 606.64f,
+                            Y = 73.82f,
+                            Z = 91.93f
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            BlipId = 50,
+                            Color = 0,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Estacionamento",
+                            X = -1179.2f,
+                            Y = -1507.13f,
+                            Z = 4.37f
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            BlipId = 50,
+                            Color = 0,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Estacionamento",
+                            X = -1160.81f,
+                            Y = -726.49f,
+                            Z = 20.57f
+                        },
+                        new
+                        {
+                            Id = 8L,
+                            BlipId = 50,
+                            Color = 0,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Estacionamento",
+                            X = -335.82f,
+                            Y = 264.83f,
+                            Z = 85.89f
+                        },
+                        new
+                        {
+                            Id = 9L,
+                            BlipId = 50,
+                            Color = 0,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Estacionamento",
+                            X = 58.3f,
+                            Y = -624.23f,
+                            Z = 31.66f
+                        },
+                        new
+                        {
+                            Id = 10L,
+                            BlipId = 408,
+                            Color = 26,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Dominos Pizza",
+                            X = 536.19f,
+                            Y = 98.79f,
+                            Z = 96.44f
+                        },
+                        new
+                        {
+                            Id = 11L,
+                            BlipId = 826,
+                            Color = 26,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Agência de Taxi",
+                            X = 913.76f,
+                            Y = -179.71f,
+                            Z = 74.16f
+                        },
+                        new
+                        {
+                            Id = 12L,
+                            BlipId = 410,
+                            Color = 46,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Terminal Marítimo",
+                            X = 1299.2f,
+                            Y = 4217.9f,
+                            Z = 33.9f
+                        },
+                        new
+                        {
+                            Id = 13L,
+                            BlipId = 679,
+                            Color = 0,
+                            DisplayId = 4,
+                            Scale = 0.9f,
+                            ShortRange = true,
+                            Title = "Cassino",
+                            X = 917.37f,
+                            Y = 50.76f,
+                            Z = 80.76f
+                        });
+                });
+
             modelBuilder.Entity("Shared.Models.Database.ServerVehicleService", b =>
                 {
                     b.Property<long>("Id")
@@ -350,7 +565,7 @@ namespace DatabaseConsole.Migrations
                             SpawnX = -1051.63f,
                             SpawnY = -2712.7f,
                             SpawnZ = 14f,
-                            Title = "Taxi Praça"
+                            Title = "TAXI PRAÇA"
                         },
                         new
                         {
