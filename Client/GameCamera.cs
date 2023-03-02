@@ -6,11 +6,18 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using static CitizenFX.Core.Native.API;
 
 namespace Client
 {
+    public enum CameraType
+    {
+        Entity,
+        Face,
+        Features
+    }
     public static class GameCamera
     {
         private static Camera Camera { get; set; }
@@ -35,8 +42,21 @@ namespace Client
                     Coords = new Vector3(0, 0.9f, 0.65f),
                     Points = new Vector3(0, 0, 0.6f)
                 }
+            },
+            {
+                CameraType.Features, new CameraData
+                {
+                    Coords = new Vector3(0, 1.6f, 0.45f),
+                    Points = new Vector3(0, 0, 0.25f)
+                }
             }
         };
+
+        public static void DeleteCamera()
+        {
+            if (Camera != null)
+                Camera.Delete();
+        }
 
         public static void SetCamera(CameraType cameraType, float fov, bool reverseCamera = false)
         {
@@ -62,26 +82,22 @@ namespace Client
 
                 var camPoints = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, points.X, points.Y, points.Z);
 
-                var tmpCamera = new Camera(CreateCamWithParams(
-                    "DEFAULT_SCRIPTED_CAMERA",
-                    camCoords.X,
-                    camCoords.Y,
-                    camCoords.Z,
-                    Camera.Rotation.X,
-                    Camera.Rotation.Y,
-                    Camera.Rotation.Z,
-                    fov,
-                    false,
-                    0
-                ));
-                
+                var tmpCamera = World.CreateCamera(camCoords, Camera.Rotation, fov);
+
                 PointCamAtCoord(tmpCamera.Handle, camPoints.X, camPoints.Y, camPoints.Z);
 
-                Camera.InterpTo(tmpCamera, 1000, 1, 1);
+                SetCamActiveWithInterp(tmpCamera.Handle, Camera.Handle, 1000, 1, 1);
 
-                Camera.Delete();
+                Task.Factory.StartNew(async () =>
+                {
+                    await BaseScript.Delay(1000);
+                    if (!Camera.IsInterpolating && tmpCamera.IsActive)
+                    {
+                        Camera.Delete();
 
-                Camera = tmpCamera;
+                        Camera = tmpCamera;
+                    }
+                });
             }
             else
             {
@@ -89,30 +105,14 @@ namespace Client
 
                 var camPoints = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, points.X, points.Y, points.Z);
 
-                var cameraHandler = CreateCamWithParams(
-                    "DEFAULT_SCRIPTED_CAMERA",
-                    camCoords.X,
-                    camCoords.Y,
-                    camCoords.Z,
-                    0,
-                    0,
-                    0,
-                    fov,
-                    false,
-                    0
-                );
-
-                Camera = new Camera(cameraHandler);
+                Camera = World.CreateCamera(camCoords, GameplayCamera.Rotation, fov);
 
                 PointCamAtCoord(Camera.Handle, camPoints.X, camPoints.Y, camPoints.Z);
-                SetCamActive(Camera.Handle, true);
-            }
-        }
-    }
 
-    public enum CameraType
-    {
-        Entity,
-        Face
+                Camera.IsActive = true;
+
+            }
+            PlaySoundFrontend(-1, "Zoom_Out", "DLC_HEIST_PLANNING_BOARD_SOUNDS", true);
+        }
     }
 }

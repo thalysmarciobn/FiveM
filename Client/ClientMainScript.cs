@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Threading.Tasks;
@@ -10,7 +11,9 @@ using Client;
 using Client.Core;
 using Client.Extensions;
 using Client.Helper;
+using Mono.CSharp;
 using Newtonsoft.Json;
+using Shared.Enumerations;
 using Shared.Helper;
 using Shared.Models.Database;
 using static CitizenFX.Core.Native.API;
@@ -30,65 +33,25 @@ namespace FiveM.Client
             EventHandlers[EventName.Client.InitCharacter] += new Action<string>(InitCharacter);
 
             RegisterNuiCallbackType("changeModel");
-            EventHandlers["__cfx_nui:changeModel"] += new Action<string, CallbackDelegate>(async (data, cb) =>
-            {
-                var player = Game.Player;
-                var playerPed = Game.PlayerPed;
-
-                while (!await player.ChangeModel(data)) await Delay(10);
-
-                SetPedDefaultComponentVariation(playerPed.Handle);
-                player.SetPedHeadBlendDatas(new AccountCharacterPedHeadDataModel());
-
-                cb(new { status = 1 });
-            });
+            EventHandlers["__cfx_nui:changeModel"] += new Action<string, CallbackDelegate>(NUIChangeModel);
 
             RegisterNuiCallbackType("setCamera");
-            EventHandlers["__cfx_nui:setCamera"] += new Action<string, CallbackDelegate>((data, cb) =>
-            {
-                Debug.WriteLine(data);
-                switch (data)
-                {
-                    case "face":
-                        GameCamera.SetCamera(CameraType.Face, 50f);
-                        break;
-                    default:
-                        GameCamera.SetCamera(CameraType.Entity, 50f);
-                        break;
-                }
-
-                cb(new { status = 1 });
-            });
+            EventHandlers["__cfx_nui:setCamera"] += new Action<string, CallbackDelegate>(NUIChangeCamera);
 
             RegisterNuiCallbackType("setPedHeadBlend");
-            EventHandlers["__cfx_nui:setPedHeadBlend"] += new Action<IDictionary<string, object>, CallbackDelegate>((data, cb) =>
-            {
-                var player = Game.Player;
-                var playerPed = Game.PlayerPed;
+            EventHandlers["__cfx_nui:setPedHeadBlend"] += new Action<IDictionary<string, object>, CallbackDelegate>(NUISetPedHeadBlend);
 
-                var pedHeadData = new AccountCharacterPedHeadDataModel();
+            RegisterNuiCallbackType("setPedFaceFeatures");
+            EventHandlers["__cfx_nui:setPedFaceFeatures"] += new Action<IDictionary<string, object>, CallbackDelegate>(NUISetPedFaceFeatures);
 
-                if (data.TryGetValue("shapeFirst", out var shapeFirst))
-                    pedHeadData.ShapeFirstID = int.TryParse(shapeFirst.ToString(), out var result) ? result : 0;
+            RegisterNuiCallbackType("setPedHeadOverlay");
+            EventHandlers["__cfx_nui:setPedHeadOverlay"] += new Action<IDictionary<string, object>, CallbackDelegate>(NUISetPedHeadOverlay);
 
-                if (data.TryGetValue("shapeSecond", out var shapeSecond))
-                    pedHeadData.ShapeSecondID = int.TryParse(shapeSecond.ToString(), out var result) ? result : 0;
+            RegisterNuiCallbackType("setPedHeadOverlayColor");
+            EventHandlers["__cfx_nui:setPedHeadOverlayColor"] += new Action<IDictionary<string, object>, CallbackDelegate>(NUISetPedHeadOverlayColor);
 
-                if (data.TryGetValue("skinFirst", out var skinFirst))
-                    pedHeadData.SkinFirstID = int.TryParse(skinFirst.ToString(), out var result) ? result : 0;
-
-                if (data.TryGetValue("skinSecond", out var skinSecond))
-                    pedHeadData.SkinSecondID = int.TryParse(skinSecond.ToString(), out var result) ? result : 0;
-
-                if (data.TryGetValue("shapeMix", out var shapeMix))
-                    pedHeadData.ShapeMix = float.TryParse(shapeMix.ToString(), out var result) ? result : 0;
-
-                if (data.TryGetValue("skinMix", out var skinMix))
-                    pedHeadData.SkinMix = float.TryParse(skinMix.ToString(), out var result) ? result : 0;
-
-                player.SetPedHeadBlendDatas(pedHeadData);
-                cb(new { status = 1 });
-            });
+            RegisterNuiCallbackType("setPedEyeColor");
+            EventHandlers["__cfx_nui:setPedEyeColor"] += new Action<int, CallbackDelegate>(NUISetPedEyeColor);
         }
 
         public void OnClientResourceStart(string resourceName)
@@ -104,6 +67,8 @@ namespace FiveM.Client
             SetParkedVehicleDensityMultiplierThisFrame(0.0f);
 
             SetScenarioPedDensityMultiplierThisFrame(0.0f, 0.0f);
+
+            DisplayRadar(false);
 
             SetGarbageTrucks(false);
 
@@ -149,6 +114,215 @@ namespace FiveM.Client
                 var blipId = blip.Value;
                 RemoveBlip(ref blipId);
             }
+            GameCamera.DeleteCamera();
+        }
+
+        public async void NUIChangeModel(string data, CallbackDelegate cb)
+        {
+            var player = Game.Player;
+            var playerPed = Game.PlayerPed;
+
+            while (!await player.ChangeModel(data)) await Delay(10);
+
+            SetPedDefaultComponentVariation(playerPed.Handle);
+            player.SetPedHeadBlendDatas(new AccountCharacterPedHeadDataModel());
+
+            cb(new { status = 1 });
+        }
+
+        public void NUIChangeCamera(string data, CallbackDelegate cb)
+        {
+            switch (data)
+            {
+                case "features":
+                    GameCamera.SetCamera(CameraType.Features, 50f);
+                    break;
+                case "face":
+                    GameCamera.SetCamera(CameraType.Face, 50f);
+                    break;
+                default:
+                    GameCamera.SetCamera(CameraType.Entity, 50f);
+                    break;
+            }
+
+            cb(new { status = 1 });
+        }
+
+        public void NUISetPedHeadBlend(IDictionary<string, object> data, CallbackDelegate cb)
+        {
+            var player = Game.Player;
+            var ped = player.Character.Handle;
+
+            var shapeFirstID = 0;
+            var shapeSecondID = 0;
+            var shapeThirdID = 0;
+            var skinFirstID = 0;
+            var skinSecondID = 0;
+            var skinThirdID = 0;
+            var shapeMixScale = 0f;
+            var skinMixScale = 0f;
+            var thirdMixScale = 0f;
+            var isParent = false;
+
+            if (data.TryGetValue("shapeFirst", out var shapeFirst))
+                shapeFirstID = int.TryParse(shapeFirst.ToString(), out var result) ? result : 0;
+
+            if (data.TryGetValue("shapeSecond", out var shapeSecond))
+                shapeSecondID = int.TryParse(shapeSecond.ToString(), out var result) ? result : 0;
+
+            if (data.TryGetValue("skinFirst", out var skinFirst))
+                skinFirstID = int.TryParse(skinFirst.ToString(), out var result) ? result : 0;
+
+            if (data.TryGetValue("skinSecond", out var skinSecond))
+                skinSecondID = int.TryParse(skinSecond.ToString(), out var result) ? result : 0;
+
+            if (data.TryGetValue("shapeMix", out var shapeMix))
+                shapeMixScale = float.TryParse(shapeMix.ToString(), out var result) ? result : 0;
+
+            if (data.TryGetValue("skinMix", out var skinMix))
+                skinMixScale = float.TryParse(skinMix.ToString(), out var result) ? result : 0;
+
+            SetPedHeadBlendData(ped, shapeFirstID, shapeSecondID, shapeThirdID, skinFirstID, skinSecondID, skinThirdID, shapeMixScale, skinMixScale, thirdMixScale, isParent);
+
+            cb(new { status = 1 });
+        }
+
+        public void NUISetPedFaceFeatures(IDictionary<string, object> data, CallbackDelegate cb)
+        {
+            var player = Game.Player;
+            var ped = player.Character.Handle;
+
+            if (data.TryGetValue("noseWidth", out var noseWidth))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.NoseWidth, float.TryParse(noseWidth.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("nosePeakHeight", out var nosePeakHeight))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.NosePeakHeight, float.TryParse(nosePeakHeight.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("nosePeakSize", out var nosePeakSize))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.NosePeakLength, float.TryParse(nosePeakSize.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("noseBoneHeight", out var noseBoneHeight))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.NoseBoneHeight, float.TryParse(noseBoneHeight.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("nosePeakLowering", out var nosePeakLowering))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.NosePeakLowering, float.TryParse(nosePeakLowering.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("noseBoneTwist", out var noseBoneTwist))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.NoseBoneTwist, float.TryParse(noseBoneTwist.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("eyeBrownHeight", out var eyeBrownHeight))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.EyeBrowHeight, float.TryParse(eyeBrownHeight.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("eyeBrownForward", out var eyeBrownForward))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.EyeBrowLength, float.TryParse(eyeBrownForward.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("cheeksBoneHeight", out var cheeksBoneHeight))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.CheekBoneHeight, float.TryParse(cheeksBoneHeight.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("cheeksBoneWidth", out var cheeksBoneWidth))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.CheekBoneWidth, float.TryParse(cheeksBoneWidth.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("cheeksWidth", out var cheeksWidth))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.CheekWidth, float.TryParse(cheeksWidth.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("eyesOpening", out var eyesOpening))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.EyeOpenings, float.TryParse(eyesOpening.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("lipsThickness", out var lipsThickness))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.LipThickness, float.TryParse(lipsThickness.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("jawBoneWidth", out var jawBoneWidth))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.JawBoneWidth, float.TryParse(jawBoneWidth.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("jawBoneBackSize", out var jawBoneBackSize))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.JawBoneLength, float.TryParse(jawBoneBackSize.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("chinBoneLowering", out var chinBoneLowering))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.ChinBoneLowering, float.TryParse(chinBoneLowering.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("chinBoneLenght", out var chinBoneLenght))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.ChinBoneLength, float.TryParse(chinBoneLenght.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("chinBoneSize", out var chinBoneSize))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.ChinBoneWidth, float.TryParse(chinBoneSize.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("chinHole", out var chinHole))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.ChinDimple, float.TryParse(chinHole.ToString(), out var result) ? result : 0);
+
+            if (data.TryGetValue("neckThickness", out var neckThickness))
+                SetPedFaceFeature(ped, (int)FaceShapeEnum.NeckThickness, float.TryParse(neckThickness.ToString(), out var result) ? result : 0);
+
+            cb(new { status = 1 });
+        }
+
+        public void NUISetPedHeadOverlay(IDictionary<string, object> data, CallbackDelegate cb)
+        {
+            var player = Game.Player;
+            var ped = player.Character.Handle;
+
+            foreach (var item in data)
+            {
+                var overlayID = 0;
+                var indexID = 0;
+                var opacityScale = 0f;
+
+                var _object = item.Value as IDictionary<string, object>;
+
+                if (_object.TryGetValue("overlay", out var overlay))
+                    overlayID = int.TryParse(overlay.ToString(), out var result) ? result : 0;
+
+                if (_object.TryGetValue("index", out var index))
+                    indexID = int.TryParse(index.ToString(), out var result) ? result : 0;
+
+                if (_object.TryGetValue("opacity", out var opacity))
+                    opacityScale = float.TryParse(opacity.ToString(), out var result) ? result : 0;
+
+                SetPedHeadOverlay(ped, overlayID, indexID, opacityScale);
+            }
+
+            cb(new { status = 1 });
+        }
+
+        public void NUISetPedHeadOverlayColor(IDictionary<string, object> data, CallbackDelegate cb)
+        {
+            var player = Game.Player;
+            var ped = player.Character.Handle;
+
+            foreach (var item in data)
+            {
+                var overlayID = 0;
+                var colorTypeID = 0;
+                var colorID = 0;
+                var secondColorID = 0;
+
+                var _object = item.Value as IDictionary<string, object>;
+
+                if (_object.TryGetValue("overlay", out var overlay))
+                    overlayID = int.TryParse(overlay.ToString(), out var result) ? result : 0;
+
+                if (_object.TryGetValue("colorType", out var colorType))
+                    colorTypeID = int.TryParse(colorType.ToString(), out var result) ? result : 0;
+
+                if (_object.TryGetValue("colorId", out var colorId))
+                    colorID = int.TryParse(colorId.ToString(), out var result) ? result : 0;
+
+                if (_object.TryGetValue("secondColorId", out var secondColorId))
+                    secondColorID = int.TryParse(secondColorId.ToString(), out var result) ? result : 0;
+
+                SetPedHeadOverlayColor(ped, overlayID, colorTypeID, colorID, secondColorID);
+            }
+
+            cb(new { status = 1 });
+        }
+
+        private void NUISetPedEyeColor(int color, CallbackDelegate cb)
+        {
+            var player = Game.Player;
+            var ped = player.Character.Handle;
+
+            SetPedEyeColor(ped, color);
+
+            cb(new { status = 1 });
         }
 
         private async void InitAccount(string json)
@@ -157,17 +331,10 @@ namespace FiveM.Client
             while (IsScreenFadedOut())
                 await Delay(0);
 
-            var account = JsonConvert.DeserializeObject<AccountModel>(json);
+            GlobalVariables.Account = JsonConvert.DeserializeObject<AccountModel>(json);
 
             var player = Game.Player;
             var playerPed = Game.PlayerPed;
-
-            var model = new Model("mp_m_freemode_01");
-
-            while (!await Game.Player.ChangeModel(model)) await Delay(10);
-
-            SetPedDefaultComponentVariation(playerPed.Handle);
-            player.SetPedHeadBlendDatas(new AccountCharacterPedHeadDataModel());
             //player.SetPedHead(new AccountCharacterPedHeadModel
             //{
             //
@@ -187,15 +354,19 @@ namespace FiveM.Client
 
             //ClearPedTasksImmediately(GetPlayerPed(-1));
 
-            ShutdownLoadingScreen();
-
-            DoScreenFadeIn(500);
-            while (IsScreenFadingIn())
-                await Delay(0);
-
-            if (account.Character.Count <= 0)
+            if (GlobalVariables.Account.Character.Count <= 0)
             {
+                var model = new Model("mp_m_freemode_01");
+
+                while (!await Game.Player.ChangeModel(model)) await Delay(10);
+
+                SetPedDefaultComponentVariation(player.Character.Handle);
+                SetPedHeadBlendData(player.Character.Handle, 0, 0, 0, 0, 0, 0, 0f, 0f, 0f, false);
+
                 var characterPosition = GlobalVariables.Creation.Position;
+
+                LoadScene(characterPosition.X, characterPosition.Y, characterPosition.Z);
+                RequestCollisionAtCoord(characterPosition.X, characterPosition.Y, characterPosition.Z);
 
                 var groundZ = 0f;
                 var ground = GetGroundZFor_3dCoord(characterPosition.X, characterPosition.Y, characterPosition.Z, ref groundZ, false);
@@ -211,8 +382,7 @@ namespace FiveM.Client
 
                 playerPed.Heading = GlobalVariables.Creation.Heading;
 
-                LoadScene(characterPosition.X, characterPosition.Y, characterPosition.Z);
-                RequestCollisionAtCoord(characterPosition.X, characterPosition.Y, characterPosition.Z);
+                ClearPedTasksImmediately(playerPed.Handle);
 
                 SetNuiFocus(true, true);
 
@@ -229,6 +399,12 @@ namespace FiveM.Client
 
                 //TriggerEvent(EventName.Client.InitCreation);
             }
+
+            ShutdownLoadingScreen();
+
+            DoScreenFadeIn(500);
+            while (IsScreenFadingIn())
+                await Delay(0);
             //player.Character.Armor = 200;
             //player.Character.Health = 200;
             //player.Character.Weapons.Drop();
@@ -252,7 +428,7 @@ namespace FiveM.Client
             while (!await Game.Player.ChangeModel(model)) await Delay(10);
 
             player.SetPedHeadBlendDatas(resCharacter.PedHeadData);
-            player.SetPedHead(resCharacter.PedHead);
+            //player.SetPedHead(resCharacter.PedHead);
             player.SetPedHeadOverlays(resCharacter.PedHeadOverlay);
             player.SetPedHeadOverlayColors(resCharacter.PedHeadOverlayColor);
             player.SetPedFaceFeatures(resCharacter.PedFace);

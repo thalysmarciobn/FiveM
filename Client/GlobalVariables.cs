@@ -19,7 +19,7 @@ namespace Client
 
         public static class Character
         {
-            public static AccountCharacterPedHeadDataModel AccountCharacterPedHeadDataModel { get; set; }
+            public static AccountCharacterModel Model { get; set; }
         }
 
         public static class Creation
