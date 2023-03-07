@@ -60,10 +60,15 @@ namespace Client.Extensions
             SetPedHeadBlendData(ped, model.ShapeFirstID, model.ShapeSecondID, model.ShapeThirdID, model.SkinFirstID, model.SkinSecondID, model.SkinThirdID, model.ShapeMix, model.SkinMix, model.ThirdMix, model.IsParent);
         }
 
-        public static void SetPedHead(this Player player, AccountCharacterPedHeadModel model)
+        public static void SetHairColor(this Player player, AccountCharacterPedHeadModel model)
         {
             var ped = player.Character.Handle;
             SetPedHairColor(ped, model.HairColorId, model.HairHighlightColor);
+        }
+
+        public static void SetEyeColor(this Player player, AccountCharacterModel model)
+        {
+            var ped = player.Character.Handle;
             SetPedEyeColor(ped, model.EyeColorId);
         }
 
@@ -78,7 +83,7 @@ namespace Client.Extensions
         {
             var ped = player.Character.Handle;
             foreach (var overlay in model)
-                SetPedHeadOverlayColor(ped, (int)overlay.OverlayId, overlay.ColorType, overlay.ColortId, overlay.SecondColorId);
+                SetPedHeadOverlayColor(ped, (int)overlay.OverlayId, overlay.ColorType, overlay.ColorId, overlay.SecondColorId);
         }
 
         public static void SetPedFaceFeatures(this Player player, ICollection<AccountCharacterPedFaceModel> shapes)
@@ -88,16 +93,18 @@ namespace Client.Extensions
                 SetPedFaceFeature(ped, (int) shape.Index, shape.Scale);
         }
 
-        public static void StyleComponents(this Player player, ICollection<AccountCharacterPedComponentModel> components)
+        public static void SetComponentVariation(this Player player, ICollection<AccountCharacterPedComponentModel> components)
         {
+            var ped = player.Character.Handle;
             foreach (var component in components)
-                player.Character.Style[(PedComponents)component.ComponentId].SetVariation(component.Index, component.Texture);
+                SetPedComponentVariation(ped, (int)component.ComponentId, component.DrawableId, component.TextureId, component.PalleteId);
         }
 
-        public static void StyleProps(this Player player, ICollection<AccountCharacterPedPropModel> components)
+        public static void SetPropIndex(this Player player, ICollection<AccountCharacterPedPropModel> props)
         {
-            foreach (var component in components)
-                player.Character.Style[(PedProps)component.PropId].SetVariation(component.Index, component.Texture);
+            var ped = player.Character.Handle;
+            foreach (var prop in props)
+                SetPedPropIndex(ped, (int)prop.ComponentId, prop.DrawableId, prop.TextureId, prop.Attach);
         }
 
         public static void Freeze(this Player player, bool freeze = true)

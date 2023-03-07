@@ -9,7 +9,8 @@ namespace Shared.Models.Database
     {
         public long CharacterId { get; set; }
         public ComponentVariationEnum ComponentId { get; set; }
-        public int Index { get; set; }
-        public int Texture { get; set; }
+        public int DrawableId { get; set; }
+        public int TextureId { get; set; }
+        public int PalleteId { get; set; }
     }
 }

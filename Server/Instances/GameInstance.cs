@@ -16,7 +16,7 @@ namespace Server.Instances
         private ConcurrentDictionary<string, GamePlayer> Players = new ConcurrentDictionary<string, GamePlayer>();
         public int PlayerCount => Players.Count;
         public bool ContainsPlayer(string license) => Players.ContainsKey(license);
-        public bool AddPlayer(string license, GamePlayer model) => Players.TryAdd(license, model);
+        public void AddPlayer(string license, GamePlayer model) => Players.AddOrUpdate(license, model, (key, oldValue) => model);
         public bool RemovePlayer(string license, out GamePlayer model) => Players.TryRemove(license, out model);
         public bool GetPlayer(string license, out GamePlayer model) => Players.TryGetValue(license, out model);
         public ICollection<GamePlayer> GetPlayers => Players.Values;

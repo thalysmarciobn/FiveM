@@ -20,8 +20,6 @@ public static class EventName
     public static class Client
     {
         public const string InitAccount = "initAccount";
-        public const string InitCreation = "initCreation";
-        public const string InitCharacter = "initCharacter";
 
         #region Passive
         public const string UpdatePassiveList = "updatePassiveList";
@@ -29,10 +27,14 @@ public static class EventName
     }
     public static class Server
     {
-        public const string SpawnRequest = "spawnRequest";
-
         public const string GetServiceVehicles = "getServiceVehicles";
         public const string SpawnVehicleService = "spawnVehicleService";
+
+        #region Character
+        public const string SpawnRequest = "spawnRequest";
+        public const string CharacterRequest = "characterRequest";
+        public const string RegisterCharacter = "registerCharacter";
+        #endregion
 
         #region Map
         public const string GetBlips = "getBlips";

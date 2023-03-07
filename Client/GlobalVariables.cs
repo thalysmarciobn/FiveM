@@ -14,13 +14,7 @@ namespace Client
     public class GlobalVariables
     {
         public static readonly bool S_Debug = true;
-        public static AccountModel Account { get; set; }
         public static PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }
-
-        public static class Character
-        {
-            public static AccountCharacterModel Model { get; set; }
-        }
 
         public static class Creation
         {

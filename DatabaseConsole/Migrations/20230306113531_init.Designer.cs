@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseConsole.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230224023801_init")]
+    [Migration("20230306113531_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -35,6 +35,9 @@ namespace DatabaseConsole.Migrations
 
                     b.Property<DateTime>("DateCreated")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<int>("EyeColorId")
+                        .HasColumnType("int");
 
                     b.Property<float>("Heading")
                         .HasColumnType("float");
@@ -75,10 +78,13 @@ namespace DatabaseConsole.Migrations
                     b.Property<int>("ComponentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Index")
+                    b.Property<int>("DrawableId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Texture")
+                    b.Property<int>("PalleteId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TextureId")
                         .HasColumnType("int");
 
                     b.HasKey("CharacterId", "ComponentId");
@@ -147,9 +153,6 @@ namespace DatabaseConsole.Migrations
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("EyeColorId")
-                        .HasColumnType("int");
-
                     b.Property<int>("HairColorId")
                         .HasColumnType("int");
 
@@ -169,10 +172,10 @@ namespace DatabaseConsole.Migrations
                     b.Property<int>("OverlayId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ColorType")
+                    b.Property<int>("ColorId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ColortId")
+                    b.Property<int>("ColorType")
                         .HasColumnType("int");
 
                     b.Property<int>("SecondColorId")
@@ -210,10 +213,16 @@ namespace DatabaseConsole.Migrations
                     b.Property<int>("PropId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Index")
+                    b.Property<bool>("Attach")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("ComponentId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Texture")
+                    b.Property<int>("DrawableId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TextureId")
                         .HasColumnType("int");
 
                     b.HasKey("CharacterId", "PropId");
@@ -331,11 +340,11 @@ namespace DatabaseConsole.Migrations
                         {
                             Id = 1L,
                             BlipId = 198,
-                            Color = 5,
+                            Color = 70,
                             DisplayId = 4,
                             Scale = 0.9f,
                             ShortRange = true,
-                            Title = "Taxi",
+                            Title = "Terminal de Taxi",
                             X = -1033.49f,
                             Y = -2727.02f,
                             Z = 13.75f
@@ -623,6 +632,26 @@ namespace DatabaseConsole.Migrations
                             SpawnZ = 0f,
                             Title = "Chamar Taxi"
                         });
+                });
+
+            modelBuilder.Entity("Shared.Models.Database.VehicleModel", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("GarageId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Id", "CharacterId")
+                        .IsUnique();
+
+                    b.ToTable("vehicle");
                 });
 
             modelBuilder.Entity("Shared.Models.Database.AccountCharacterModel", b =>

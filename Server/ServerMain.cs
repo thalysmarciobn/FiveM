@@ -28,6 +28,8 @@ using Shared.Models.Database;
 using CitizenFX.Core.Native;
 using Shared.Models.Server;
 using System.Threading;
+using System.Dynamic;
+using Shared.Enumerations;
 
 namespace Server
 {
@@ -137,6 +139,14 @@ namespace Server
         [EventHandler(EventName.Server.SpawnRequest)]
         public void SpawnRequest([FromSource] Player player) =>
             CharacterController.SpawnRequest(player);
+
+        [EventHandler(EventName.Server.CharacterRequest)]
+        public void CharacterRequest([FromSource] Player player, int slot, NetworkCallbackDelegate networkCallback) =>
+            CharacterController.CharacterRequest(player, slot, networkCallback);
+
+        [EventHandler(EventName.Server.RegisterCharacter)]
+        public void RegisterCharacter([FromSource] Player player, string name, string lastName, int age, int slot, ExpandoObject appearance, NetworkCallbackDelegate networkCallback) =>
+            CharacterController.RegisterCharacter(player, name, lastName, age, slot, appearance, networkCallback);
 
         #endregion
 

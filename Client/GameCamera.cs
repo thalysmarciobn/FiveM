@@ -16,7 +16,8 @@ namespace Client
     {
         Entity,
         Face,
-        Features
+        Hair,
+        Shoes
     }
     public static class GameCamera
     {
@@ -44,74 +45,60 @@ namespace Client
                 }
             },
             {
-                CameraType.Features, new CameraData
+                CameraType.Hair, new CameraData
                 {
                     Coords = new Vector3(0, 1.6f, 0.45f),
                     Points = new Vector3(0, 0, 0.25f)
+                }
+            },
+            {
+                CameraType.Shoes, new CameraData
+                {
+                    Coords = new Vector3(0, 1.0f, -0.5f),
+                    Points = new Vector3(0, 0, -0.8f)
                 }
             }
         };
 
         public static void DeleteCamera()
         {
-            if (Camera != null)
-                Camera.Delete();
+            Camera?.Delete();
         }
 
         public static void SetCamera(CameraType cameraType, float fov, bool reverseCamera = false)
         {
-            if (Camera != null && Camera.IsInterpolating)
-                return;
+            if (Camera != null && Camera.IsInterpolating) return;
 
             var data = Cameras[cameraType];
-
             var coords = data.Coords;
             var points = data.Points;
 
-            if (GlobalVariables.S_Debug)
-                Debug.WriteLine($"[GameCamera] SetCamera: {cameraType}");
+            var camCoords = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, coords.X, coords.Y, coords.Z);
+            var camPoints = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, points.X, points.Y, points.Z);
+
+            var tmpCamera = World.CreateCamera(camCoords, GameplayCamera.Rotation, fov);
+            PointCamAtCoord(tmpCamera.Handle, camPoints.X, camPoints.Y, camPoints.Z);
 
             if (Camera != null)
             {
-                var camCoords = GetOffsetFromEntityInWorldCoords(
-                    Game.PlayerPed.Handle,
-                    coords.X,
-                    coords.Y,
-                    coords.Z
-                );
-
-                var camPoints = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, points.X, points.Y, points.Z);
-
-                var tmpCamera = World.CreateCamera(camCoords, Camera.Rotation, fov);
-
-                PointCamAtCoord(tmpCamera.Handle, camPoints.X, camPoints.Y, camPoints.Z);
-
                 SetCamActiveWithInterp(tmpCamera.Handle, Camera.Handle, 1000, 1, 1);
 
                 Task.Factory.StartNew(async () =>
                 {
-                    await BaseScript.Delay(1000);
+                    await BaseScript.Delay(1500);
                     if (!Camera.IsInterpolating && tmpCamera.IsActive)
                     {
                         Camera.Delete();
-
                         Camera = tmpCamera;
                     }
                 });
             }
             else
             {
-                var camCoords = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, coords.X, coords.Y, coords.Z);
-
-                var camPoints = GetOffsetFromEntityInWorldCoords(Game.PlayerPed.Handle, points.X, points.Y, points.Z);
-
-                Camera = World.CreateCamera(camCoords, GameplayCamera.Rotation, fov);
-
-                PointCamAtCoord(Camera.Handle, camPoints.X, camPoints.Y, camPoints.Z);
-
-                Camera.IsActive = true;
-
+                tmpCamera.IsActive = true;
+                Camera = tmpCamera;
             }
+
             PlaySoundFrontend(-1, "Zoom_Out", "DLC_HEIST_PLANNING_BOARD_SOUNDS", true);
         }
     }

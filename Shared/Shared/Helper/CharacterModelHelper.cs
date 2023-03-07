@@ -32,8 +32,9 @@ namespace Shared.Helper
                         input.Add(new AccountCharacterPedComponentModel
                         {
                             ComponentId = enumId,
-                            Index = 0,
-                            Texture = 0
+                            DrawableId = 0,
+                            TextureId = 0,
+                            PalleteId = 0
                         });
                     }
                     break;
@@ -44,8 +45,10 @@ namespace Shared.Helper
                         input.Add(new AccountCharacterPedPropModel
                         {
                             PropId = enumId,
-                            Index = -1,
-                            Texture = -1
+                            ComponentId = -1,
+                            DrawableId = 0,
+                            TextureId = 0,
+                            Attach = false
                         });
                     }
                     break;

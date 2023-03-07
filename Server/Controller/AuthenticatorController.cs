@@ -44,13 +44,9 @@ namespace Server.Controller
             
                         var gamePlayer = new GamePlayer(player, account);
 
-                        if (GameInstance.Instance.AddPlayer(license, gamePlayer))
-                            deferrals.done();
-                        else
-                        {
-                            kickCallback("Conta já conectada, tente novamente");
-                            CancelEvent();
-                        }
+                        GameInstance.Instance.AddPlayer(license, gamePlayer);
+                        
+                        deferrals.done();
                     }
                     else
                     {
@@ -69,9 +65,10 @@ namespace Server.Controller
                         context.SaveChanges();
             
                         var gamePlayer = new GamePlayer(player, account);
-            
-                        if (GameInstance.Instance.AddPlayer(license, gamePlayer))
-                            deferrals.done();
+
+                        GameInstance.Instance.AddPlayer(license, gamePlayer);
+
+                        deferrals.done();
                     }
                 }
                 catch (Exception ex)

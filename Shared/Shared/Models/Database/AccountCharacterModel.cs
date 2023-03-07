@@ -17,11 +17,12 @@ namespace Shared.Models.Database
         public int Armor { get; set; }
         public int MoneyBalance { get; set; }
         public int BankBalance { get; set; }
+        public int EyeColorId { get; set; }
         public float Heading { get; set; }
         public AccountCharacterPositionModel Position { get; set; }
         public AccountCharacterRotationModel Rotation { get; set; }
-        public AccountCharacterPedHeadDataModel PedHeadData { get; set; }
         public AccountCharacterPedHeadModel PedHead { get; set; }
+        public AccountCharacterPedHeadDataModel PedHeadData { get; set; }
         public ICollection<AccountCharacterPedFaceModel> PedFace { get; set; }
         public ICollection<AccountCharacterPedComponentModel> PedComponent { get; set; }
         public ICollection<AccountCharacterPedPropModel> PedProp { get; set; }

@@ -11,11 +11,7 @@ namespace Client.Helper
 {
     public static class NuiHelper
     {
-        public static void SendMessage(NuiMessage message)
-        {
-            string data = JsonConvert.SerializeObject(message);
-
-            SendNuiMessage(data);
-        }
+        public static void SendMessage(NuiMessage message) =>
+            SendNuiMessage(JsonConvert.SerializeObject(message));
     }
 }

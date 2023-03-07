@@ -73,6 +73,20 @@ namespace DatabaseConsole.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "vehicle",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false)
+                        .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
+                    GarageId = table.Column<long>(nullable: false),
+                    CharacterId = table.Column<long>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_vehicle", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "account_character",
                 columns: table => new
                 {
@@ -88,6 +102,7 @@ namespace DatabaseConsole.Migrations
                     Armor = table.Column<int>(nullable: false),
                     MoneyBalance = table.Column<int>(nullable: false),
                     BankBalance = table.Column<int>(nullable: false),
+                    EyeColorId = table.Column<int>(nullable: false),
                     Heading = table.Column<float>(nullable: false)
                 },
                 constraints: table =>
@@ -107,8 +122,9 @@ namespace DatabaseConsole.Migrations
                 {
                     CharacterId = table.Column<long>(nullable: false),
                     ComponentId = table.Column<int>(nullable: false),
-                    Index = table.Column<int>(nullable: false),
-                    Texture = table.Column<int>(nullable: false)
+                    DrawableId = table.Column<int>(nullable: false),
+                    TextureId = table.Column<int>(nullable: false),
+                    PalleteId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -145,7 +161,6 @@ namespace DatabaseConsole.Migrations
                 columns: table => new
                 {
                     CharacterId = table.Column<long>(nullable: false),
-                    EyeColorId = table.Column<int>(nullable: false),
                     HairColorId = table.Column<int>(nullable: false),
                     HairHighlightColor = table.Column<int>(nullable: false)
                 },
@@ -214,7 +229,7 @@ namespace DatabaseConsole.Migrations
                     CharacterId = table.Column<long>(nullable: false),
                     OverlayId = table.Column<int>(nullable: false),
                     ColorType = table.Column<int>(nullable: false),
-                    ColortId = table.Column<int>(nullable: false),
+                    ColorId = table.Column<int>(nullable: false),
                     SecondColorId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -234,8 +249,10 @@ namespace DatabaseConsole.Migrations
                 {
                     CharacterId = table.Column<long>(nullable: false),
                     PropId = table.Column<int>(nullable: false),
-                    Index = table.Column<int>(nullable: false),
-                    Texture = table.Column<int>(nullable: false)
+                    ComponentId = table.Column<int>(nullable: false),
+                    DrawableId = table.Column<int>(nullable: false),
+                    TextureId = table.Column<int>(nullable: false),
+                    Attach = table.Column<bool>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -293,7 +310,7 @@ namespace DatabaseConsole.Migrations
                 columns: new[] { "Id", "BlipId", "Color", "DisplayId", "Scale", "ShortRange", "Title", "X", "Y", "Z" },
                 values: new object[,]
                 {
-                    { 1L, 198, 5, 4, 0.9f, true, "Taxi", -1033.49f, -2727.02f, 13.75f },
+                    { 1L, 198, 70, 4, 0.9f, true, "Terminal de Taxi", -1033.49f, -2727.02f, 13.75f },
                     { 13L, 679, 0, 4, 0.9f, true, "Cassino", 917.37f, 50.76f, 80.76f },
                     { 12L, 410, 46, 4, 0.9f, true, "Terminal Marítimo", 1299.2f, 4217.9f, 33.9f },
                     { 11L, 826, 26, 4, 0.9f, true, "Agência de Taxi", 913.76f, -179.71f, 74.16f },
@@ -335,6 +352,12 @@ namespace DatabaseConsole.Migrations
                 table: "account_character",
                 columns: new[] { "Id", "AccountId", "Slot" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_vehicle_Id_CharacterId",
+                table: "vehicle",
+                columns: new[] { "Id", "CharacterId" },
+                unique: true);
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -371,6 +394,9 @@ namespace DatabaseConsole.Migrations
 
             migrationBuilder.DropTable(
                 name: "server_vehicle_service");
+
+            migrationBuilder.DropTable(
+                name: "vehicle");
 
             migrationBuilder.DropTable(
                 name: "account_character");
