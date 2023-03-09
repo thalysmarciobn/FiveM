@@ -24,6 +24,10 @@ public static class EventName
         #region Passive
         public const string UpdatePassiveList = "updatePassiveList";
         #endregion
+
+        #region Map
+        public const string SetTimeSync = "setTimeSync";
+        #endregion
     }
     public static class Server
     {
@@ -38,6 +42,7 @@ public static class EventName
 
         #region Map
         public const string GetBlips = "getBlips";
+        public const string GetTimeSync = "getTimeSync";
         #endregion
 
         #region Passive

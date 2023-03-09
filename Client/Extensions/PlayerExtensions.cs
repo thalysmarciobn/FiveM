@@ -114,7 +114,9 @@ namespace Client.Extensions
             player.Character.IsCollisionEnabled = !freeze;
             player.Character.IsPositionFrozen = freeze;
             player.Character.IsInvincible = freeze;
-            player.Character.Task.ClearAllImmediately();
+
+            if (!IsPedFatallyInjured(player.Handle))
+                player.Character.Task.ClearAllImmediately();
         }
 
         public static void Unfreeze(this Player player) => player.Freeze(false);

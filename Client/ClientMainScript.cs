@@ -18,6 +18,7 @@ using Newtonsoft.Json;
 using Shared.Enumerations;
 using Shared.Helper;
 using Shared.Models.Database;
+using Shared.Models.Server;
 using static CitizenFX.Core.Native.API;
 
 namespace FiveM.Client
@@ -31,6 +32,7 @@ namespace FiveM.Client
             Debug.WriteLine("[PROJECT] Script: CharacterScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
             EventHandlers[EventName.External.Client.OnClientResourceStop] += new Action<string>(OnClientResourceStop);
+            EventHandlers[EventName.Client.SetTimeSync] += new Action<string>(SetTimeSync);
             EventHandlers[EventName.Client.InitAccount] += new Action<string>(InitAccount);
 
             RegisterNuiCallbackType("characterRequest");
@@ -93,6 +95,12 @@ namespace FiveM.Client
             SetCreateRandomCops(false);
             SetCreateRandomCopsNotOnScenarios(false);
             SetCreateRandomCopsOnScenarios(false);
+
+            // Weather
+            ClearOverrideWeather();
+            ClearWeatherTypePersist();
+
+            TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>((arg) => SetTimeSync(arg)));
 
             TriggerServerEvent(EventName.Server.GetBlips, new Action<string>((arg) =>
             {
@@ -325,6 +333,41 @@ namespace FiveM.Client
             }));
         }
 
+        private void SetTimeSync(string json)
+        {
+            var data = JsonConvert.DeserializeObject<ServerTimeSync>(json);
+
+            if (GlobalVariables.World.Weather != data.Weather)
+            {
+                SetForceVehicleTrails(data.Weather == (uint)Weather.Christmas);
+                SetForcePedFootstepsTracks(data.Weather == (uint)Weather.Christmas);
+                World.TransitionToWeather((Weather)data.Weather, 30f);
+                GlobalVariables.World.Weather = data.Weather;
+            }
+
+            if (GlobalVariables.World.RainLevel != data.RainLevel)
+            {
+                SetRainFxIntensity(data.RainLevel);
+                GlobalVariables.World.RainLevel = data.RainLevel;
+            }
+
+            if (GlobalVariables.World.WindSpeed != data.WindSpeed)
+            {
+                SetWindSpeed(data.WindSpeed);
+                GlobalVariables.World.WindSpeed = data.WindSpeed;
+            }
+
+            if (GlobalVariables.World.WindDirection != data.WindDirection)
+            {
+                SetWindDirection(data.WindDirection);
+                GlobalVariables.World.WindDirection = data.WindDirection;
+            }
+
+            GlobalVariables.World.Hour = data.Hour;
+            GlobalVariables.World.Minute = data.Minute;
+            GlobalVariables.World.Second = data.Second;
+        }
+
         private async void InitAccount(string json)
         {
             DoScreenFadeOut(500);
@@ -351,7 +394,10 @@ namespace FiveM.Client
                 var characterPosition = GlobalVariables.Creation.Position;
 
                 LoadScene(characterPosition.X, characterPosition.Y, characterPosition.Z);
+
                 RequestCollisionAtCoord(characterPosition.X, characterPosition.Y, characterPosition.Z);
+                while (HasCollisionLoadedAroundEntity(playerPed.Handle))
+                    await Delay(10);
 
                 var groundZ = 0f;
                 var ground = GetGroundZFor_3dCoord(characterPosition.X, characterPosition.Y, characterPosition.Z, ref groundZ, false);
@@ -366,6 +412,8 @@ namespace FiveM.Client
                 player.Character.Rotation = GlobalVariables.Creation.Rotation;
 
                 playerPed.Heading = GlobalVariables.Creation.Heading;
+
+                NetworkResurrectLocalPlayer(characterPosition.X, characterPosition.Y, ground ? groundZ : characterPosition.Z, playerPed.Heading, true, true);
 
                 ClearPedTasksImmediately(playerPed.Handle);
                 
@@ -385,7 +433,7 @@ namespace FiveM.Client
             else
             {
                 var character = account.Character.SingleOrDefault(x => x.Slot == 0);
-                EnterCharacter(character);
+                await EnterCharacter(character);
             }
 
             ShutdownLoadingScreen();
@@ -399,18 +447,18 @@ namespace FiveM.Client
 
         private void CharacterRequest(int slot)
         {
-            TriggerServerEvent(EventName.Server.CharacterRequest, slot, new Action<string>((json) =>
+            TriggerServerEvent(EventName.Server.CharacterRequest, slot, new Action<string>(async (json) =>
             {
                 var data = JsonConvert.DeserializeObject<AccountCharacterModel>(json);
 
                 GameCamera.DeleteCamera();
 
-                EnterCharacter(data);
+                await EnterCharacter(data);
                 RenderScriptCams(false, false, 0, true, true);
             }));
         }
 
-        private async void EnterCharacter(AccountCharacterModel resCharacter)
+        private async Task EnterCharacter(AccountCharacterModel resCharacter)
         {
             SetNuiFocus(false, false);
 
@@ -466,25 +514,33 @@ namespace FiveM.Client
             player.Character.Health = resCharacter.Health;
             playerPed.Heading = resCharacter.Heading;
 
-            // https://vespura.com/fivem/gta-stats/
+            NetworkResurrectLocalPlayer(resCharacterRotation.X, resCharacterRotation.Y, ground ? groundZ : resCharacterRotation.Z, playerPed.Heading, true, true);
 
+            // https://vespura.com/fivem/gta-stats/
 
             StatSetInt((uint)GetHashKey("MP0_WALLET_BALANCE"), resCharacter.MoneyBalance, true);
             StatSetInt((uint)GetHashKey("BANK_BALANCE"), resCharacter.BankBalance, true);
 
             LoadScene(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
-            RequestCollisionAtCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
 
-            //ClearPedTasksImmediately(GetPlayerPed(-1));
+            RequestCollisionAtCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
+            while (HasCollisionLoadedAroundEntity(playerPed.Handle))
+                await Delay(10);
+
+            ClearPedTasksImmediately(playerPed.Handle);
 
             //RemoveAllPedWeapons(GetPlayerPed(-1), false);
             player.Character.Weapons.Drop();
 
             //ClearPlayerWantedLevel(PlayerId());
             player.WantedLevel = 0;
+        }
 
-            while (!HasCollisionLoadedAroundEntity(Game.PlayerPed.Handle))
-                await Delay(0);
+        [Tick]
+        public async Task OnTick()
+        {
+            NetworkOverrideClockTime(GlobalVariables.World.Hour, GlobalVariables.World.Minute, GlobalVariables.World.Second);
+            await Delay(1000);
         }
     }
 }

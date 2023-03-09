@@ -1,24 +1,31 @@
 ﻿using CitizenFX.Core;
 using Client.Core;
-using Newtonsoft.Json;
-using Shared.Models.Database;
-using System;
+using Shared.Enumerations;
 using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Client
 {
     public class GlobalVariables
     {
+
         public static readonly bool S_Debug = true;
+
+        public static class World
+        {
+            public static int Hour { get; set; }
+            public static int Minute { get; set; }
+            public static int Second { get; set; }
+            public static uint Weather { get; set; }
+            public static float RainLevel { get; set; }
+            public static float WindSpeed { get; set; }
+            public static float WindDirection { get; set; }
+            public static bool HasOverrideClockTime { get; set; }
+        }
+
         public static PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }
 
         public static class Creation
         {
-
             public static readonly Vector3 Position = new Vector3
             {
                 X = -1062.02f,

@@ -42,6 +42,7 @@ namespace Server.Instances
         private ConcurrentDictionary<int, bool> Passives { get; } = new ConcurrentDictionary<int, bool>();
         public int PassivesCount => Passives.Count;
         public void SetPassive(int id, bool isPassive) => Passives.AddOrUpdate(id, isPassive, (key, oldValue) => isPassive);
+        public bool RemovePassive(int id) => Passives.TryRemove(id, out var model);
         public bool GetPlayerIsPassive(int id) => Passives.TryGetValue(id, out bool isPassive) && isPassive;
         public ICollection<KeyValuePair<int, bool>> GetPassiveList => Passives.ToImmutableList();
 

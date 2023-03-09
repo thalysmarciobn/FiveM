@@ -38,11 +38,13 @@ namespace Server
         private ServerController ServerController { get; }
         private AuthenticatorController AuthenticatorController { get; }
         private CharacterController CharacterController { get; }
+        private TimeSyncController TimeSyncController { get; }
         public ServerMain()
         {
             ServerController = new ServerController();
             AuthenticatorController = new AuthenticatorController();
             CharacterController = new CharacterController();
+            TimeSyncController = new TimeSyncController();
             Debug.WriteLine("[PROJECT] ServerMain Started.");
             var directory = Directory.GetCurrentDirectory();
             var location = $"{directory}/server.yml";
@@ -65,6 +67,44 @@ namespace Server
             var configuration = File.ReadAllText(location);
             var settings = YamlInstance.Instance.DeserializerBuilder.Deserialize<ServerSettings>(configuration);
             DatabaseContextManager.Build(settings.Database);
+
+            TimeSyncController.Initialize();
+            ThreadInstance.Instance.CreateThread(async () =>
+            {
+                while (TimeSyncController.IsRunning)
+                {
+                    var date = TimeSyncController.CurrentDate;
+                    var data = JsonConvert.SerializeObject(new ServerTimeSync
+                    {
+                        Weather = (uint)TimeSyncController.CurrentWeather,
+                        RainLevel = TimeSyncController.RainLevel,
+                        WindSpeed = TimeSyncController.WindSpeed,
+                        WindDirection = TimeSyncController.WindDirection,
+                        Hour = date.Hour,
+                        Minute = date.Minute,
+                        Second = date.Second
+                    });
+                    foreach (var player in Players)
+                        player.TriggerEvent(EventName.Client.SetTimeSync, data);
+                    Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
+
+                    await Task.Delay(TimeSpan.FromSeconds(30));
+                }
+            }).Start();
+            ThreadInstance.Instance.CreateThread(async () =>
+            {
+                while (TimeSyncController.IsRunning)
+                {
+                    if (DateTime.Now.Ticks < TimeSyncController.CanUpdate)
+                    {
+                        await Task.Delay(100);
+                        continue;
+                    }
+                    var date = TimeSyncController.CurrentDate;
+                    TimeSyncController.Next();
+                    Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
+                }
+            }).Start();
         }
 
         #region Connection
@@ -99,6 +139,8 @@ namespace Server
             if (resourceName != GetCurrentResourceName()) return;
 
             ServerController.RemoveSpawnVehicles();
+
+            ThreadInstance.Instance.Shutdown();
         }
 
         #endregion
@@ -132,6 +174,19 @@ namespace Server
         [EventHandler(EventName.Server.GetBlips)]
         public void GetBlips(NetworkCallbackDelegate networkCallback) =>
             networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetBlipList));
+
+        [EventHandler(EventName.Server.GetTimeSync)]
+        public void GetTimeSync(NetworkCallbackDelegate networkCallback) =>
+            networkCallback.Invoke(JsonConvert.SerializeObject(new ServerTimeSync
+            {
+                Weather = (uint)TimeSyncController.CurrentWeather,
+                RainLevel = TimeSyncController.RainLevel,
+                WindSpeed = TimeSyncController.WindSpeed,
+                WindDirection = TimeSyncController.WindDirection,
+                Hour = TimeSyncController.CurrentDate.Hour,
+                Minute = TimeSyncController.CurrentDate.Minute,
+                Second = TimeSyncController.CurrentDate.Second
+            }));
         #endregion
 
         #region Character
@@ -198,10 +253,12 @@ namespace Server
         public void ProjectPlayers() => 
             Debug.WriteLine($"Players Connected: {GameInstance.Instance.PlayerCount} / {Players.Count()}");
 
-        [Command("project_sync")]
-        public void ProjectSync()
+        [Command("weather")]
+        public void Weather(int weather)
         {
-
+            TimeSyncController.Update((uint)weather);
+            var date = TimeSyncController.CurrentDate;
+            Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
         }
     }
 }

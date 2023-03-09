@@ -5,7 +5,6 @@ using Newtonsoft.Json;
 using Server.Core;
 using Server.Core.Game;
 using Server.Core.NUI;
-using Server.Core.Server;
 using Server.Database;
 using Server.Extensions;
 using Server.Instances;

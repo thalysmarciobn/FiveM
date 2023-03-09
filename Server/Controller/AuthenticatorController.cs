@@ -84,7 +84,7 @@ namespace Server.Controller
             var license = player.Identifiers["license"];
 
             if (int.TryParse(player.Handle, out var playerServerId))
-                GameInstance.Instance.SetPassive(playerServerId, false);
+                GameInstance.Instance.RemovePassive(playerServerId);
 
             if (GameInstance.Instance.RemovePlayer(license, out var gamePlayer))
             {
@@ -98,7 +98,7 @@ namespace Server.Controller
                             var account = gamePlayer.Account;
             
                             var gameCharacter = player.Character;
-            
+
                             var gameCharacterPosition = gameCharacter.Position;
                             var gameCharacterRotation = gameCharacter.Rotation;
             

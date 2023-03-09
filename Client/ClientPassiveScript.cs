@@ -1,23 +1,16 @@
-﻿using CitizenFX.Core;
-using CitizenFX.Core.Native;
-using Client.Extensions;
-using Mono.CSharp;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
+using CitizenFX.Core;
+using Client.Extensions;
+using Newtonsoft.Json;
 using static CitizenFX.Core.Native.API;
 
 namespace Client
 {
     public class ClientPassiveScript : BaseScript
     {
-        private ConcurrentDictionary<int, bool> PassiveList { get; } = new ConcurrentDictionary<int, bool>();
         public ClientPassiveScript()
         {
             Debug.WriteLine("[PROJECT] Script: PassiveScript");
@@ -25,11 +18,13 @@ namespace Client
             EventHandlers[EventName.Client.UpdatePassiveList] += new Action<string>(UpdatePassiveList);
         }
 
+        private ConcurrentDictionary<int, bool> PassiveList { get; } = new ConcurrentDictionary<int, bool>();
+
         public void OnClientResourceStart(string resourceName)
         {
             if (GetCurrentResourceName() != resourceName) return;
 
-            TriggerServerEvent(EventName.Server.GetPassiveList, new Action<string>((arg) =>
+            TriggerServerEvent(EventName.Server.GetPassiveList, new Action<string>(arg =>
             {
                 var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, bool>>>(arg);
                 foreach (var kvp in data)
@@ -62,7 +57,6 @@ namespace Client
                 localPassive = isLocalPassive;
 
             foreach (var player in Players)
-            {
                 if (PassiveList.ContainsKey(player.ServerId))
                 {
                     var passive = PassiveList[player.ServerId];
@@ -75,7 +69,10 @@ namespace Client
                     var otherVehicle = otherPed?.CurrentVehicle;
                     var otherHooked = otherVehicle?.GetHookedVehicle();
 
-                    var alpha = disableCollisions && !GetIsTaskActive(otherPed.Handle, 2) && localVehicle?.Handle != otherVehicle?.Handle ? 200 : 255;
+                    var alpha = disableCollisions && !GetIsTaskActive(otherPed.Handle, 2) &&
+                                localVehicle?.Handle != otherVehicle?.Handle
+                        ? 200
+                        : 255;
                     otherPed.SetAlpha(alpha);
                     otherVehicle?.SetAlpha(alpha);
                     otherHooked?.SetAlpha(alpha);
@@ -95,7 +92,6 @@ namespace Client
                         otherHooked?.SetEntityNoCollision(localHooked);
                     }
                 }
-            }
 
             foreach (var vehicle in vehicles)
             {

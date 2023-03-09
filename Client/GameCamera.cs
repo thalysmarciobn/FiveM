@@ -1,13 +1,6 @@
-﻿using CitizenFX.Core;
-using CitizenFX.Core.Native;
-using Mono.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
 namespace Client
@@ -19,16 +12,10 @@ namespace Client
         Hair,
         Shoes
     }
+
     public static class GameCamera
     {
-        private static Camera Camera { get; set; }
-        private class CameraData
-        {
-            public Vector3 Coords { get; set; }
-            public Vector3 Points { get; set; }
-        }
-
-        private static Dictionary<CameraType, CameraData> Cameras = new Dictionary<CameraType, CameraData>
+        private static readonly Dictionary<CameraType, CameraData> Cameras = new Dictionary<CameraType, CameraData>
         {
             {
                 CameraType.Entity, new CameraData
@@ -59,6 +46,8 @@ namespace Client
                 }
             }
         };
+
+        private static Camera Camera { get; set; }
 
         public static void DeleteCamera()
         {
@@ -100,6 +89,12 @@ namespace Client
             }
 
             PlaySoundFrontend(-1, "Zoom_Out", "DLC_HEIST_PLANNING_BOARD_SOUNDS", true);
+        }
+
+        private class CameraData
+        {
+            public Vector3 Coords { get; set; }
+            public Vector3 Points { get; set; }
         }
     }
 }
