@@ -10,6 +10,6 @@ namespace Client.Core
     {
         public string Action { get; set; }
         public string Key { get; set; }
-        public string[] Params { get; set; }
+        public object[] Params { get; set; }
     }
 }

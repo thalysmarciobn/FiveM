@@ -10,6 +10,8 @@ namespace Client
 
         public static readonly bool S_Debug = true;
 
+        public static readonly bool S_FriendlyFire = true;
+
         public static class World
         {
             public static int Hour { get; set; }

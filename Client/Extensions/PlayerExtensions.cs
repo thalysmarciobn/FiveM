@@ -9,6 +9,12 @@ namespace Client.Extensions
 {
     public static class PlayerExtensions
     {
+        public static void SetFriendlyFire(this Ped ped, bool flag)
+        {
+            NetworkSetFriendlyFireOption(flag);
+            SetCanAttackFriendly(ped.Handle, flag, flag);
+        }
+
         public static void SetEntityNoCollision(this Entity one, Entity two)
         {
             if (one == null || two == null)

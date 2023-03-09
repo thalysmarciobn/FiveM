@@ -19,7 +19,9 @@ public static class EventName
     }
     public static class Client
     {
+        #region Account
         public const string InitAccount = "initAccount";
+        #endregion
 
         #region Passive
         public const string UpdatePassiveList = "updatePassiveList";

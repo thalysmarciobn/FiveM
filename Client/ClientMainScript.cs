@@ -366,6 +366,22 @@ namespace FiveM.Client
             GlobalVariables.World.Hour = data.Hour;
             GlobalVariables.World.Minute = data.Minute;
             GlobalVariables.World.Second = data.Second;
+
+            NuiHelper.SendMessage(new NuiMessage
+            {
+                Action = "interface",
+                Key = "world",
+                Params = new object[]
+                {
+                    data.Weather,
+                    data.RainLevel,
+                    data.WindSpeed,
+                    data.WindDirection,
+                    data.Hour,
+                    data.Minute,
+                    data.Second
+                }
+            });
         }
 
         private async void InitAccount(string json)
@@ -380,7 +396,6 @@ namespace FiveM.Client
             var playerPed = Game.PlayerPed;
 
             player.Freeze();
-            
 
             if (account.Character.Count <= 0)
             {
@@ -534,6 +549,8 @@ namespace FiveM.Client
 
             //ClearPlayerWantedLevel(PlayerId());
             player.WantedLevel = 0;
+
+            playerPed.SetFriendlyFire(GlobalVariables.S_FriendlyFire);
         }
 
         [Tick]
