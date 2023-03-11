@@ -191,9 +191,9 @@ namespace Server
 
         #region Character
 
-        [EventHandler(EventName.Server.SpawnRequest)]
-        public void SpawnRequest([FromSource] Player player) =>
-            CharacterController.SpawnRequest(player);
+        [EventHandler(EventName.Server.AccountRequest)]
+        public void AccountRequest([FromSource] Player player) =>
+            CharacterController.AccountRequest(player);
 
         [EventHandler(EventName.Server.CharacterRequest)]
         public void CharacterRequest([FromSource] Player player, int slot, NetworkCallbackDelegate networkCallback) =>

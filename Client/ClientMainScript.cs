@@ -31,7 +31,6 @@ namespace FiveM.Client
         {
             Debug.WriteLine("[PROJECT] Script: CharacterScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
-            EventHandlers[EventName.External.Client.OnClientMapStart] += new Action(OnClientMapStart);
             EventHandlers[EventName.External.Client.OnClientResourceStop] += new Action<string>(OnClientResourceStop);
             EventHandlers[EventName.Client.SetTimeSync] += new Action<string>(SetTimeSync);
             EventHandlers[EventName.Client.InitAccount] += new Action<string>(InitAccount);
@@ -101,6 +100,8 @@ namespace FiveM.Client
             ClearOverrideWeather();
             ClearWeatherTypePersist();
 
+            PauseClock(true);
+
             TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>((arg) => SetTimeSync(arg)));
 
             TriggerServerEvent(EventName.Server.GetBlips, new Action<string>((arg) =>
@@ -128,11 +129,8 @@ namespace FiveM.Client
                     Blips.Add(id, blipId);
                 }
             }));
-        }
 
-        public void OnClientMapStart()
-        {
-            TriggerServerEvent(EventName.Server.SpawnRequest);
+            TriggerServerEvent(EventName.Server.AccountRequest);
         }
 
         public void OnClientResourceStop(string resourceName)
@@ -341,21 +339,28 @@ namespace FiveM.Client
         {
             var data = JsonConvert.DeserializeObject<ServerTimeSync>(json);
 
-            if (GlobalVariables.World.Weather != data.Weather)
-                GlobalVariables.World.Weather = data.Weather;
+            if (GlobalVariables.G_World.Weather != data.Weather)
+                GlobalVariables.G_World.Weather = data.Weather;
 
-            if (GlobalVariables.World.RainLevel != data.RainLevel)
-                GlobalVariables.World.RainLevel = data.RainLevel;
+            if (GlobalVariables.G_World.RainLevel != data.RainLevel)
+                GlobalVariables.G_World.RainLevel = data.RainLevel;
 
-            if (GlobalVariables.World.WindSpeed != data.WindSpeed)
-                GlobalVariables.World.WindSpeed = data.WindSpeed;
+            if (GlobalVariables.G_World.WindSpeed != data.WindSpeed)
+                GlobalVariables.G_World.WindSpeed = data.WindSpeed;
 
-            if (GlobalVariables.World.WindDirection != data.WindDirection)
-                GlobalVariables.World.WindDirection = data.WindDirection;
+            if (GlobalVariables.G_World.WindDirection != data.WindDirection)
+                GlobalVariables.G_World.WindDirection = data.WindDirection;
 
-            GlobalVariables.World.Hour = data.Hour;
-            GlobalVariables.World.Minute = data.Minute;
-            GlobalVariables.World.Second = data.Second;
+            GlobalVariables.G_World.Hour = data.Hour;
+            GlobalVariables.G_World.Minute = data.Minute;
+            GlobalVariables.G_World.Second = data.Second;
+
+            GlobalVariables.G_World.Update = true;
+        }
+
+        private void LoadSceneRequest()
+        {
+
         }
 
         private async void InitAccount(string json)
@@ -367,42 +372,36 @@ namespace FiveM.Client
             var account = JsonConvert.DeserializeObject<AccountModel>(json);
 
             var player = Game.Player;
-            var playerPed = Game.PlayerPed;
-
-            player.Freeze();
+            var character = player.Character;
 
             if (account.Character.Count <= 0)
             {
                 var model = new Model("mp_m_freemode_01");
 
-                while (!await Game.Player.ChangeModel(model)) await Delay(10);
-
-                SetPedDefaultComponentVariation(player.Character.Handle);
-                SetPedHeadBlendData(player.Character.Handle, 0, 0, 0, 0, 0, 0, 0f, 0f, 0f, false);
-
                 var characterPosition = GlobalVariables.Creation.Position;
 
-                LoadScene(characterPosition.X, characterPosition.Y, characterPosition.Z);
-
-                RequestCollisionAtCoord(characterPosition.X, characterPosition.Y, characterPosition.Z);
-                while (HasCollisionLoadedAroundEntity(playerPed.Handle))
+                while (HasCollisionLoadedAroundEntity(character.Handle))
                     await Delay(10);
+
+                while (!await Game.Player.ChangeModel(model)) await Delay(10);
+
+                SetPedDefaultComponentVariation(character.Handle);
+                SetPedHeadBlendData(character.Handle, 0, 0, 0, 0, 0, 0, 0f, 0f, 0f, false);
 
                 var groundZ = 0f;
                 var ground = GetGroundZFor_3dCoord(characterPosition.X, characterPosition.Y, characterPosition.Z, ref groundZ, false);
 
-                player.Character.Position = new Vector3
+                player.Spawn(new Vector3
                 {
                     X = characterPosition.X,
                     Y = characterPosition.Y,
                     Z = ground ? groundZ : characterPosition.Z
-                };
+                });
 
-                player.Character.Rotation = GlobalVariables.Creation.Rotation;
+                character.Rotation = GlobalVariables.Creation.Rotation;
+                character.Heading = GlobalVariables.Creation.Heading;
 
-                playerPed.Heading = GlobalVariables.Creation.Heading;
-
-                ClearPedTasksImmediately(playerPed.Handle);
+                ClearPedTasksImmediately(character.Handle);
                 
                 GameCamera.SetCamera(CameraType.Entity, 50f);
                 
@@ -419,13 +418,11 @@ namespace FiveM.Client
             }
             else
             {
-                var character = account.Character.SingleOrDefault(x => x.Slot == 0);
-                await EnterCharacter(character);
+                var resCharacter = account.Character.SingleOrDefault(x => x.Slot == 0);
+                await EnterCharacter(resCharacter);
             }
 
             ShutdownLoadingScreen();
-
-            player.Unfreeze();
 
             DoScreenFadeIn(500);
             while (IsScreenFadingIn())
@@ -448,9 +445,15 @@ namespace FiveM.Client
         private async Task EnterCharacter(AccountCharacterModel resCharacter)
         {
             var player = Game.Player;
-            var playerPed = Game.PlayerPed;
+            var character = player.Character;
 
             var model = new Model(resCharacter.Model);
+
+            var resCharacterPosition = resCharacter.Position;
+            var resCharacterRotation = resCharacter.Rotation;
+
+            while (HasCollisionLoadedAroundEntity(character.Handle))
+                await Delay(10);
 
             while (!await Game.Player.ChangeModel(model)) await Delay(10);
 
@@ -466,53 +469,45 @@ namespace FiveM.Client
             player.SetPedHeadOverlays(resCharacter.PedHeadOverlay);
             player.SetPedHeadOverlayColors(resCharacter.PedHeadOverlayColor);
 
-            var resCharacterPosition = resCharacter.Position;
-            var resCharacterRotation = resCharacter.Rotation;
-
             //SetEntityCoordsNoOffset(GetPlayerPed(-1), vector3.X, vector3.Y, vector3.Z, false, false, false); ;
             //NetworkResurrectLocalPlayer(vector3.X, vector3.Y, vector3.Z, heading, true, true);
             var groundZ = 0f;
             var ground = GetGroundZFor_3dCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z, ref groundZ, false);
 
-            player.Character.Position = new Vector3
+            player.Spawn(new Vector3
             {
                 X = resCharacterPosition.X,
                 Y = resCharacterPosition.Y,
                 Z = ground ? groundZ : resCharacterPosition.Z
-            };
-
-            player.Character.Rotation = new Vector3
+            });
+            
+            character.Rotation = new Vector3
             {
                 X = resCharacterRotation.X,
                 Y = resCharacterRotation.Y,
                 Z = resCharacterRotation.Z
             };
-
-            player.Character.Armor = resCharacter.Armor;
-            player.Character.Health = resCharacter.Health;
-            playerPed.Heading = resCharacter.Heading;
-
+            character.Heading = resCharacter.Heading;
+            
+            character.Armor = resCharacter.Armor;
+            character.Health = resCharacter.Health;
+            character.MaxHealth = GlobalVariables.Character.MaxHealth;
+            
             // https://vespura.com/fivem/gta-stats/
-
+            
             StatSetInt((uint)GetHashKey("MP0_WALLET_BALANCE"), resCharacter.MoneyBalance, true);
             StatSetInt((uint)GetHashKey("BANK_BALANCE"), resCharacter.BankBalance, true);
-
-            LoadScene(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
-
-            RequestCollisionAtCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
-            while (HasCollisionLoadedAroundEntity(playerPed.Handle))
-                await Delay(10);
-
-            ClearPedTasksImmediately(playerPed.Handle);
-
+            
+            ClearPedTasksImmediately(character.Handle);
+            
             //RemoveAllPedWeapons(GetPlayerPed(-1), false);
-            player.Character.Weapons.Drop();
-
+            character.Weapons.Drop();
+            
             //ClearPlayerWantedLevel(PlayerId());
             player.WantedLevel = 0;
 
-            playerPed.SetFriendlyFire(GlobalVariables.S_FriendlyFire);
-
+            character.SetFriendlyFire(GlobalVariables.S_FriendlyFire);
+            
             SetNuiFocus(false, false);
 
             NuiHelper.SendMessage(new NuiMessage
@@ -527,38 +522,36 @@ namespace FiveM.Client
         public void Test()
         {
             var ped = Game.PlayerPed;
-            var position = ped.Position;
-            var heading = ped.Heading;
-            ped.Resurrect();
-            //NetworkResurrectLocalPlayer(position.X, position.Y, position.Z, heading, true, true);
             ped.IsInvincible = false;
+            ped.Resurrect();
             ped.ClearBloodDamage();
         }
 
         [Tick]
         public async Task OnTick()
         {
-            if (GlobalVariables.World.Update)
+            if (GlobalVariables.G_World.Update)
             {
-                SetRainFxIntensity(GlobalVariables.World.RainLevel);
-                SetWindSpeed(GlobalVariables.World.WindSpeed);
-                SetWindDirection(GlobalVariables.World.WindDirection);
+                Debug.WriteLine("updateeeeeeee");
+                SetRainFxIntensity(GlobalVariables.G_World.RainLevel);
+                SetWindSpeed(GlobalVariables.G_World.WindSpeed);
+                SetWindDirection(GlobalVariables.G_World.WindDirection);
 
-                if (GlobalVariables.World.Weather == (uint)Weather.Christmas)
+                if (GlobalVariables.G_World.Weather == (uint)Weather.Christmas)
                 {
                     SetForceVehicleTrails(true);
                     SetForcePedFootstepsTracks(true);
                 }
-                if (GlobalVariables.World.Weather != (uint)Weather.Christmas &&
-                    GlobalVariables.World.LastWeather != (uint)Weather.Christmas)
+                if (GlobalVariables.G_World.Weather != (uint)Weather.Christmas &&
+                    GlobalVariables.G_World.LastWeather != (uint)Weather.Christmas)
                 {
                     SetForceVehicleTrails(false);
                     SetForcePedFootstepsTracks(false);
                 }
-                World.TransitionToWeather((Weather)GlobalVariables.World.Weather, 45f);
+                World.TransitionToWeather((Weather)GlobalVariables.G_World.Weather, 45f);
             }
 
-            NetworkOverrideClockTime(GlobalVariables.World.Hour, GlobalVariables.World.Minute, GlobalVariables.World.Second);
+            AdvanceClockTimeTo(GlobalVariables.G_World.Hour, GlobalVariables.G_World.Minute, GlobalVariables.G_World.Second);
 
             NuiHelper.SendMessage(new NuiMessage
             {
@@ -566,13 +559,13 @@ namespace FiveM.Client
                 Key = "world",
                 Params = new object[]
                 {
-                    GlobalVariables.World.Weather,
-                    GlobalVariables.World.RainLevel,
-                    GlobalVariables.World.WindSpeed,
-                    GlobalVariables.World.WindDirection,
-                    GlobalVariables.World.Hour,
-                    GlobalVariables.World.Minute,
-                    GlobalVariables.World.Second
+                    GlobalVariables.G_World.Weather,
+                    GlobalVariables.G_World.RainLevel,
+                    GlobalVariables.G_World.WindSpeed,
+                    GlobalVariables.G_World.WindDirection,
+                    GlobalVariables.G_World.Hour,
+                    GlobalVariables.G_World.Minute,
+                    GlobalVariables.G_World.Second
                 }
             });
             await Delay(1000);

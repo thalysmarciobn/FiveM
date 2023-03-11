@@ -12,7 +12,12 @@ namespace Client
 
         public static readonly bool S_FriendlyFire = true;
 
-        public static class World
+        public static class Character
+        {
+            public const int MaxHealth = 500;
+        }
+
+        public static class G_World
         {
             private static int _hour { get; set; }
             private static int _minute { get; set; }
@@ -32,6 +37,10 @@ namespace Client
                         return true;
                     }
                     return false;
+                }
+                set
+                {
+                    _canUpdate = value;
                 }
             }
 
@@ -82,7 +91,6 @@ namespace Client
                 set
                 {
                     LastWeather = _weather;
-                    _canUpdate = true;
                     _weather = value;
                 }
             }
@@ -95,7 +103,6 @@ namespace Client
                 }
                 set
                 {
-                    _canUpdate = true;
                     _rainLevel = value;
                 }
             }
@@ -108,7 +115,6 @@ namespace Client
                 }
                 set
                 {
-                    _canUpdate = true;
                     _windSpeed = value;
                 }
             }
@@ -121,7 +127,6 @@ namespace Client
                 }
                 set
                 {
-                    _canUpdate = true;
                     _windDirection = value;
                 }
             }

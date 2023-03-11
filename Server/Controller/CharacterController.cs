@@ -26,20 +26,17 @@ namespace Server.Controller
 {
     public class CharacterController : AbstractController
     {
-        public void SpawnRequest(Player player)
+        public void AccountRequest(Player player)
         {
             var license = player.Identifiers["license"];
 
             if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
             {
-                using (var context = DatabaseContextManager.Context)
-                {
-                    var account = gamePlayer.Account;
+                var account = gamePlayer.Account;
 
-                    var json = JsonConvert.SerializeObject(account);
+                var json = JsonConvert.SerializeObject(account);
 
-                    TriggerClientEvent(gamePlayer.Player, EventName.Client.InitAccount, json);
-                }
+                TriggerClientEvent(gamePlayer.Player, EventName.Client.InitAccount, json);
             }
         }
 

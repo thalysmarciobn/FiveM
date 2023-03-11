@@ -38,7 +38,7 @@ public static class EventName
         public const string SpawnVehicleService = "spawnVehicleService";
 
         #region Character
-        public const string SpawnRequest = "spawnRequest";
+        public const string AccountRequest = "accountRequest";
         public const string CharacterRequest = "characterRequest";
         public const string RegisterCharacter = "registerCharacter";
         #endregion
