@@ -17,17 +17,22 @@ namespace Server.Controller
         public static long LastUpdate { get; set; }
         public static long CanUpdate { get; set; }
 
-        private static WeatherEnum _localWeatherType = WeatherEnum.ExtraSunny;
+        private static WeatherEnum _localWeatherType = WeatherEnum.Clouds;
         public static WeatherEnum LastWeatherType { get; private set; }
         public static WeatherEnum CurrentWeather
         {
             get => _localWeatherType;
             private set
             {
+                var date = CurrentDate;
+                var hours = date.Hour;
                 LastWeatherType = _localWeatherType;
-                LastUpdate = CurrentDate.Ticks;
+                LastUpdate = date.Ticks;
                 CanUpdate = CurrentDate.AddMinutes(5).Ticks;
-                _localWeatherType = value;
+                if (hours < 6 && hours > 20 && value == WeatherEnum.ExtraSunny)
+                    _localWeatherType = WeatherEnum.Neutral;
+                else
+                    _localWeatherType = value;
             }
         }
 
@@ -252,7 +257,7 @@ namespace Server.Controller
             }
         }
 
-        public void Update(uint weather)
+        public void Update(int weather)
         {
             CurrentWeather = (WeatherEnum)weather;
         }

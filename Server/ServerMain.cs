@@ -88,23 +88,23 @@ namespace Server
                         player.TriggerEvent(EventName.Client.SetTimeSync, data);
                     Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
 
-                    await Task.Delay(TimeSpan.FromSeconds(30));
+                    await Task.Delay(TimeSpan.FromSeconds(2));
                 }
             }).Start();
-            ThreadInstance.Instance.CreateThread(async () =>
-            {
-                while (TimeSyncController.IsRunning)
-                {
-                    if (DateTime.Now.Ticks < TimeSyncController.CanUpdate)
-                    {
-                        await Task.Delay(100);
-                        continue;
-                    }
-                    var date = TimeSyncController.CurrentDate;
-                    TimeSyncController.Next();
-                    Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
-                }
-            }).Start();
+            //ThreadInstance.Instance.CreateThread(async () =>
+            //{
+            //    while (TimeSyncController.IsRunning)
+            //    {
+            //        if (DateTime.Now.Ticks < TimeSyncController.CanUpdate)
+            //        {
+            //            await Task.Delay(100);
+            //            continue;
+            //        }
+            //        var date = TimeSyncController.CurrentDate;
+            //        TimeSyncController.Next();
+            //        Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
+            //    }
+            //}).Start();
         }
 
         #region Connection
@@ -254,9 +254,9 @@ namespace Server
             Debug.WriteLine($"Players Connected: {GameInstance.Instance.PlayerCount} / {Players.Count()}");
 
         [Command("weather")]
-        public void Weather(int weather)
+        public void Weather(int src, List<object> args, string raw)
         {
-            TimeSyncController.Update((uint)weather);
+            TimeSyncController.Update(int.Parse(args[0].ToString()));
             var date = TimeSyncController.CurrentDate;
             Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
         }

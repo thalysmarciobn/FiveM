@@ -7,6 +7,7 @@ public static class EventName
         {
             public const string OnClientResourceStart = "onClientResourceStart";
             public const string OnClientResourceStop = "onClientResourceStop";
+            public const string OnClientMapStart = "onClientMapStart";
         }
         public static class Server
         {

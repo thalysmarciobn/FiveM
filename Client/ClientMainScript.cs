@@ -31,6 +31,7 @@ namespace FiveM.Client
         {
             Debug.WriteLine("[PROJECT] Script: CharacterScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
+            EventHandlers[EventName.External.Client.OnClientMapStart] += new Action(OnClientMapStart);
             EventHandlers[EventName.External.Client.OnClientResourceStop] += new Action<string>(OnClientResourceStop);
             EventHandlers[EventName.Client.SetTimeSync] += new Action<string>(SetTimeSync);
             EventHandlers[EventName.Client.InitAccount] += new Action<string>(InitAccount);
@@ -127,7 +128,10 @@ namespace FiveM.Client
                     Blips.Add(id, blipId);
                 }
             }));
+        }
 
+        public void OnClientMapStart()
+        {
             TriggerServerEvent(EventName.Server.SpawnRequest);
         }
 
@@ -338,50 +342,20 @@ namespace FiveM.Client
             var data = JsonConvert.DeserializeObject<ServerTimeSync>(json);
 
             if (GlobalVariables.World.Weather != data.Weather)
-            {
-                SetForceVehicleTrails(data.Weather == (uint)Weather.Christmas);
-                SetForcePedFootstepsTracks(data.Weather == (uint)Weather.Christmas);
-                World.TransitionToWeather((Weather)data.Weather, 30f);
                 GlobalVariables.World.Weather = data.Weather;
-            }
 
             if (GlobalVariables.World.RainLevel != data.RainLevel)
-            {
-                SetRainFxIntensity(data.RainLevel);
                 GlobalVariables.World.RainLevel = data.RainLevel;
-            }
 
             if (GlobalVariables.World.WindSpeed != data.WindSpeed)
-            {
-                SetWindSpeed(data.WindSpeed);
                 GlobalVariables.World.WindSpeed = data.WindSpeed;
-            }
 
             if (GlobalVariables.World.WindDirection != data.WindDirection)
-            {
-                SetWindDirection(data.WindDirection);
                 GlobalVariables.World.WindDirection = data.WindDirection;
-            }
 
             GlobalVariables.World.Hour = data.Hour;
             GlobalVariables.World.Minute = data.Minute;
             GlobalVariables.World.Second = data.Second;
-
-            NuiHelper.SendMessage(new NuiMessage
-            {
-                Action = "interface",
-                Key = "world",
-                Params = new object[]
-                {
-                    data.Weather,
-                    data.RainLevel,
-                    data.WindSpeed,
-                    data.WindDirection,
-                    data.Hour,
-                    data.Minute,
-                    data.Second
-                }
-            });
         }
 
         private async void InitAccount(string json)
@@ -428,22 +402,20 @@ namespace FiveM.Client
 
                 playerPed.Heading = GlobalVariables.Creation.Heading;
 
-                NetworkResurrectLocalPlayer(characterPosition.X, characterPosition.Y, ground ? groundZ : characterPosition.Z, playerPed.Heading, true, true);
-
                 ClearPedTasksImmediately(playerPed.Handle);
                 
-                SetNuiFocus(true, true);
+                GameCamera.SetCamera(CameraType.Entity, 50f);
                 
+                RenderScriptCams(true, false, 0, true, true);
+
+                SetNuiFocus(true, true);
+
                 NuiHelper.SendMessage(new NuiMessage
                 {
                     Action = "interface",
                     Key = "creation",
                     Params = new[] { "true", "0" }
                 });
-                
-                GameCamera.SetCamera(CameraType.Entity, 50f);
-                
-                RenderScriptCams(true, false, 0, true, true);
             }
             else
             {
@@ -475,15 +447,6 @@ namespace FiveM.Client
 
         private async Task EnterCharacter(AccountCharacterModel resCharacter)
         {
-            SetNuiFocus(false, false);
-
-            NuiHelper.SendMessage(new NuiMessage
-            {
-                Action = "interface",
-                Key = "creation",
-                Params = new[] { "false", "0" }
-            });
-
             var player = Game.Player;
             var playerPed = Game.PlayerPed;
 
@@ -529,8 +492,6 @@ namespace FiveM.Client
             player.Character.Health = resCharacter.Health;
             playerPed.Heading = resCharacter.Heading;
 
-            NetworkResurrectLocalPlayer(resCharacterRotation.X, resCharacterRotation.Y, ground ? groundZ : resCharacterRotation.Z, playerPed.Heading, true, true);
-
             // https://vespura.com/fivem/gta-stats/
 
             StatSetInt((uint)GetHashKey("MP0_WALLET_BALANCE"), resCharacter.MoneyBalance, true);
@@ -551,12 +512,69 @@ namespace FiveM.Client
             player.WantedLevel = 0;
 
             playerPed.SetFriendlyFire(GlobalVariables.S_FriendlyFire);
+
+            SetNuiFocus(false, false);
+
+            NuiHelper.SendMessage(new NuiMessage
+            {
+                Action = "interface",
+                Key = "creation",
+                Params = new[] { "false", "0" }
+            });
+        }
+
+        [Command("test")]
+        public void Test()
+        {
+            var ped = Game.PlayerPed;
+            var position = ped.Position;
+            var heading = ped.Heading;
+            ped.Resurrect();
+            //NetworkResurrectLocalPlayer(position.X, position.Y, position.Z, heading, true, true);
+            ped.IsInvincible = false;
+            ped.ClearBloodDamage();
         }
 
         [Tick]
         public async Task OnTick()
         {
+            if (GlobalVariables.World.Update)
+            {
+                SetRainFxIntensity(GlobalVariables.World.RainLevel);
+                SetWindSpeed(GlobalVariables.World.WindSpeed);
+                SetWindDirection(GlobalVariables.World.WindDirection);
+
+                if (GlobalVariables.World.Weather == (uint)Weather.Christmas)
+                {
+                    SetForceVehicleTrails(true);
+                    SetForcePedFootstepsTracks(true);
+                }
+                if (GlobalVariables.World.Weather != (uint)Weather.Christmas &&
+                    GlobalVariables.World.LastWeather != (uint)Weather.Christmas)
+                {
+                    SetForceVehicleTrails(false);
+                    SetForcePedFootstepsTracks(false);
+                }
+                World.TransitionToWeather((Weather)GlobalVariables.World.Weather, 45f);
+            }
+
             NetworkOverrideClockTime(GlobalVariables.World.Hour, GlobalVariables.World.Minute, GlobalVariables.World.Second);
+
+            NuiHelper.SendMessage(new NuiMessage
+            {
+                Action = "interface",
+                Key = "world",
+                Params = new object[]
+                {
+                    GlobalVariables.World.Weather,
+                    GlobalVariables.World.RainLevel,
+                    GlobalVariables.World.WindSpeed,
+                    GlobalVariables.World.WindDirection,
+                    GlobalVariables.World.Hour,
+                    GlobalVariables.World.Minute,
+                    GlobalVariables.World.Second
+                }
+            });
             await Delay(1000);
         }
     }
