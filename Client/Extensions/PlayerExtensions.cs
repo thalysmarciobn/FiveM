@@ -4,6 +4,7 @@ using Shared.Models.Database;
 using System.Collections.Generic;
 using static CitizenFX.Core.Native.API;
 using static Client.Extensions.PlayerExtensions;
+using static Client.GlobalVariables;
 
 namespace Client.Extensions
 {

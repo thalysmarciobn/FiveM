@@ -452,9 +452,6 @@ namespace FiveM.Client
             var resCharacterPosition = resCharacter.Position;
             var resCharacterRotation = resCharacter.Rotation;
 
-            while (HasCollisionLoadedAroundEntity(character.Handle))
-                await Delay(10);
-
             while (!await Game.Player.ChangeModel(model)) await Delay(10);
 
             player.SetEyeColor(resCharacter);
@@ -522,9 +519,13 @@ namespace FiveM.Client
         public void Test()
         {
             var ped = Game.PlayerPed;
-            ped.IsInvincible = false;
             ped.Resurrect();
+            var position = ped.Position;
+            NetworkResurrectLocalPlayer(position.X, position.Y, position.Z, ped.Heading, true, false);
+            ped.IsInvincible = false;
             ped.ClearBloodDamage();
+            ped.Health = GlobalVariables.Character.MaxHealth;
+            //ped.Resurrect();
         }
 
         [Tick]
@@ -569,6 +570,31 @@ namespace FiveM.Client
                 }
             });
             await Delay(1000);
+        }
+
+        [Command("fps")]
+        public void Fps(int src, List<object> args, string raw)
+        {
+            var active = args[0].ToString();            switch (active)
+            {
+                case "on":
+                    SetTimecycleModifier("cinema");
+                    break;
+                case "off":
+                default:
+                    SetTimecycleModifier("default");
+                    break;
+            }
+            NuiHelper.SendMessage(new NuiMessage
+            {
+                Action = "interface",
+                Key = "notification",
+                Params = new object[]
+                {
+                    "info",
+                    active == "on" ? "Ciclo mudado para cinema." : "Ciclo definido como pardão."
+                }
+            });
         }
     }
 }
