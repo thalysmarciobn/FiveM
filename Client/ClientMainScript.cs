@@ -551,8 +551,6 @@ namespace FiveM.Client
             if (!GlobalVariables.G_World.HasTime)
                 return;
 
-            NetworkOverrideClockTime(GlobalVariables.G_World.CurrentTime.Hours, GlobalVariables.G_World.CurrentTime.Minutes, GlobalVariables.G_World.CurrentTime.Seconds);
-
             NuiHelper.SendMessage(new NuiMessage
             {
                 Action = "interface",
@@ -569,6 +567,17 @@ namespace FiveM.Client
                 }
             });
             await Delay(1000);
+        }
+
+        [Tick]
+        public async Task OnTickOverrideClockTime()
+        {
+            if (!GlobalVariables.G_World.HasTime)
+                return;
+
+            NetworkOverrideClockTime(GlobalVariables.G_World.CurrentTime.Hours, GlobalVariables.G_World.CurrentTime.Minutes, GlobalVariables.G_World.CurrentTime.Seconds);
+
+            await Delay(10);
         }
 
         [Command("fps")]
