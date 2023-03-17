@@ -7,8 +7,13 @@ public static class EventName
         {
             public const string OnClientResourceStart = "onClientResourceStart";
             public const string OnClientResourceStop = "onClientResourceStop";
-            public const string OnClientMapStart = "onClientMapStart";
         }
+
+        public static class BaseEvents
+        {
+            public const string OnBaseResourceStart = "onBaseResourceStart";
+        }
+
         public static class Server
         {
             public const string PlayerConnecting = "playerConnecting";
@@ -29,7 +34,6 @@ public static class EventName
         #endregion
 
         #region Map
-        public const string SetTimeSync = "setTimeSync";
         #endregion
     }
     public static class Server

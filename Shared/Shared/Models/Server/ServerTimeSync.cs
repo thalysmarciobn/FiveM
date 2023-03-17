@@ -12,8 +12,6 @@ namespace Shared.Models.Server
         public float RainLevel { get; set; }
         public float WindSpeed { get; set; }
         public float WindDirection { get; set; }
-        public int Hour { get; set; }
-        public int Minute { get; set; }
-        public int Second { get; set; }
+        public long Ticks { get; set; }
     }
 }

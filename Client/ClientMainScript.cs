@@ -32,7 +32,7 @@ namespace FiveM.Client
             Debug.WriteLine("[PROJECT] Script: CharacterScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
             EventHandlers[EventName.External.Client.OnClientResourceStop] += new Action<string>(OnClientResourceStop);
-            EventHandlers[EventName.Client.SetTimeSync] += new Action<string>(SetTimeSync);
+            EventHandlers[EventName.External.BaseEvents.OnBaseResourceStart] += new Action(OnBaseResourceStart);
             EventHandlers[EventName.Client.InitAccount] += new Action<string>(InitAccount);
 
             RegisterNuiCallbackType("characterRequest");
@@ -100,9 +100,28 @@ namespace FiveM.Client
             ClearOverrideWeather();
             ClearWeatherTypePersist();
 
-            PauseClock(true);
+            TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>((arg) =>
+            {
+                var data = JsonConvert.DeserializeObject<ServerTimeSync>(arg);
 
-            TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>((arg) => SetTimeSync(arg)));
+                if (GlobalVariables.G_World.Weather != data.Weather)
+                    GlobalVariables.G_World.Weather = data.Weather;
+
+                if (GlobalVariables.G_World.RainLevel != data.RainLevel)
+                    GlobalVariables.G_World.RainLevel = data.RainLevel;
+
+                if (GlobalVariables.G_World.WindSpeed != data.WindSpeed)
+                    GlobalVariables.G_World.WindSpeed = data.WindSpeed;
+
+                if (GlobalVariables.G_World.WindDirection != data.WindDirection)
+                    GlobalVariables.G_World.WindDirection = data.WindDirection;
+
+                GlobalVariables.G_World.LastRealTime = DateTime.UtcNow;
+                GlobalVariables.G_World.LastServerTime = new DateTime(data.Ticks);
+                GlobalVariables.G_World.HasTime = true;
+
+                GlobalVariables.G_World.Update = true;
+            }));
 
             TriggerServerEvent(EventName.Server.GetBlips, new Action<string>((arg) =>
             {
@@ -129,18 +148,24 @@ namespace FiveM.Client
                     Blips.Add(id, blipId);
                 }
             }));
-
-            TriggerServerEvent(EventName.Server.AccountRequest);
         }
 
         public void OnClientResourceStop(string resourceName)
         {
+            if (GetCurrentResourceName() != resourceName) return;
+
             foreach (var blip in Blips)
             {
                 var blipId = blip.Value;
                 RemoveBlip(ref blipId);
             }
+
             GameCamera.DeleteCamera();
+        }
+
+        public void OnBaseResourceStart()
+        {
+            TriggerServerEvent(EventName.Server.AccountRequest);
         }
 
         public async void NUIChangeModel(string data, CallbackDelegate cb)
@@ -335,34 +360,6 @@ namespace FiveM.Client
             }));
         }
 
-        private void SetTimeSync(string json)
-        {
-            var data = JsonConvert.DeserializeObject<ServerTimeSync>(json);
-
-            if (GlobalVariables.G_World.Weather != data.Weather)
-                GlobalVariables.G_World.Weather = data.Weather;
-
-            if (GlobalVariables.G_World.RainLevel != data.RainLevel)
-                GlobalVariables.G_World.RainLevel = data.RainLevel;
-
-            if (GlobalVariables.G_World.WindSpeed != data.WindSpeed)
-                GlobalVariables.G_World.WindSpeed = data.WindSpeed;
-
-            if (GlobalVariables.G_World.WindDirection != data.WindDirection)
-                GlobalVariables.G_World.WindDirection = data.WindDirection;
-
-            GlobalVariables.G_World.Hour = data.Hour;
-            GlobalVariables.G_World.Minute = data.Minute;
-            GlobalVariables.G_World.Second = data.Second;
-
-            GlobalVariables.G_World.Update = true;
-        }
-
-        private void LoadSceneRequest()
-        {
-
-        }
-
         private async void InitAccount(string json)
         {
             DoScreenFadeOut(500);
@@ -533,7 +530,6 @@ namespace FiveM.Client
         {
             if (GlobalVariables.G_World.Update)
             {
-                Debug.WriteLine("updateeeeeeee");
                 SetRainFxIntensity(GlobalVariables.G_World.RainLevel);
                 SetWindSpeed(GlobalVariables.G_World.WindSpeed);
                 SetWindDirection(GlobalVariables.G_World.WindDirection);
@@ -552,7 +548,10 @@ namespace FiveM.Client
                 World.TransitionToWeather((Weather)GlobalVariables.G_World.Weather, 45f);
             }
 
-            AdvanceClockTimeTo(GlobalVariables.G_World.Hour, GlobalVariables.G_World.Minute, GlobalVariables.G_World.Second);
+            if (!GlobalVariables.G_World.HasTime)
+                return;
+
+            NetworkOverrideClockTime(GlobalVariables.G_World.CurrentTime.Hours, GlobalVariables.G_World.CurrentTime.Minutes, GlobalVariables.G_World.CurrentTime.Seconds);
 
             NuiHelper.SendMessage(new NuiMessage
             {
@@ -564,9 +563,9 @@ namespace FiveM.Client
                     GlobalVariables.G_World.RainLevel,
                     GlobalVariables.G_World.WindSpeed,
                     GlobalVariables.G_World.WindDirection,
-                    GlobalVariables.G_World.Hour,
-                    GlobalVariables.G_World.Minute,
-                    GlobalVariables.G_World.Second
+                    GlobalVariables.G_World.CurrentTime.Hours,
+                    GlobalVariables.G_World.CurrentTime.Minutes,
+                    GlobalVariables.G_World.CurrentTime.Seconds,
                 }
             });
             await Delay(1000);
@@ -575,7 +574,8 @@ namespace FiveM.Client
         [Command("fps")]
         public void Fps(int src, List<object> args, string raw)
         {
-            var active = args[0].ToString();            switch (active)
+            var active = args[0].ToString();
+            switch (active)
             {
                 case "on":
                     SetTimecycleModifier("cinema");

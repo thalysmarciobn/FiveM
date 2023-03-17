@@ -1,6 +1,7 @@
 ﻿using CitizenFX.Core;
 using Client.Core;
 using Shared.Enumerations;
+using System;
 using System.Collections.Generic;
 
 namespace Client
@@ -17,11 +18,46 @@ namespace Client
             public const int MaxHealth = 500;
         }
 
+        public static class Key
+        {
+            public const int OpenPanel = 344; // F11
+        }
+
+        public static class Hud
+        {
+            public static bool PanelOpened = false;
+        }
+
         public static class G_World
         {
-            private static int _hour { get; set; }
-            private static int _minute { get; set; }
-            private static int _second { get; set; }
+            public static bool HasTime { get; set; }
+            public static DateTime LastRealTime { get; set; }
+            public static DateTime LastServerTime { get; set; }
+
+            private static double _timeElapsed
+            {
+                get
+                {
+                    return DateTime.UtcNow.Subtract(LastRealTime).TotalMilliseconds;
+                }
+            }
+
+            public static DateTime CurrentDate
+            {
+                get
+                {
+                    return LastServerTime.AddMilliseconds(_timeElapsed);
+                }
+            }
+
+            public static TimeSpan CurrentTime
+            {
+                get
+                {
+                    return CurrentDate.TimeOfDay;
+                }
+            }
+
             private static uint _weather { get; set; }
             private static float _rainLevel { get; set; }
             private static float _windSpeed { get; set; }
@@ -41,42 +77,6 @@ namespace Client
                 set
                 {
                     _canUpdate = value;
-                }
-            }
-
-            public static int Hour
-            {
-                get
-                {
-                    return _hour;
-                }
-                set
-                {
-                    _hour = value;
-                }
-            }
-
-            public static int Minute
-            {
-                get
-                {
-                    return _minute;
-                }
-                set
-                {
-                    _minute = value;
-                }
-            }
-
-            public static int Second
-            {
-                get
-                {
-                    return _second;
-                }
-                set
-                {
-                    _second = value;
                 }
             }
 

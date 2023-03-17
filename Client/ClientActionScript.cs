@@ -3,6 +3,7 @@ using CitizenFX.Core.Native;
 using CitizenFX.Core.UI;
 using Client.Core;
 using Client.Extensions;
+using Client.Helper;
 using Mono.CSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -18,13 +19,13 @@ using static CitizenFX.Core.Native.API;
 
 namespace Client
 {
-    public class ClientMarkScript : BaseScript
+    public class ClientActionScript : BaseScript
     {
         private IList<Prompt> Prompts { get; } = new List<Prompt>();
         private Queue<long> ServicesToAction { get; } = new Queue<long>();
         private Dictionary<long, PromptServiceData> ServicesInAction { get; } = new Dictionary<long, PromptServiceData>();
 
-        public ClientMarkScript()
+        public ClientActionScript()
         {
             Debug.WriteLine("[PROJECT] Script: MarkScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
@@ -43,7 +44,7 @@ namespace Client
                     Prompts.Add(new Prompt(PromptService.ServiceCar, vehicle.Id, new PromptConfig
                     {
                         Key = (Control)vehicle.Key,
-                        KeyLabel = "E",
+                        KeyLabel = GetControlInstructionalButton(2, vehicle.Key, 1),
                         TextLabel = vehicle.Title,
                         Font = 0,
                         Scale = 0.4f,
@@ -86,7 +87,7 @@ namespace Client
         }
 
         [Tick]
-        public Task OnTick()
+        public Task OnTickDraw()
         {
             var localPlayer = Game.Player;
             var localPlayerPed = Game.PlayerPed;
@@ -131,7 +132,6 @@ namespace Client
                     localPlayer.CanControlCharacter = true;
                     TriggerServerEvent(EventName.Server.SetPassive, false);
                 }
-                
             }
 
             foreach (var prompt in Prompts)
@@ -178,6 +178,33 @@ namespace Client
                     }
                 }
             }
+            return Task.FromResult(0);
+        }
+
+        [Tick]
+        public Task OnTickAction()
+        {
+            var localPlayer = Game.Player;
+            var localPlayerPed = Game.PlayerPed;
+
+            if (IsControlJustPressed(0, GlobalVariables.Key.OpenPanel))
+            {
+                GlobalVariables.Hud.PanelOpened = !GlobalVariables.Hud.PanelOpened;
+
+                var opened = GlobalVariables.Hud.PanelOpened;
+
+                SetNuiFocus(opened, opened);
+                SetNuiFocusKeepInput(opened);
+
+                NuiHelper.SendMessage(new NuiMessage
+                {
+                    Action = "interface",
+                    Key = "panel",
+                    Params = new[] { opened ? "true" : "false" }
+                });
+                return Task.FromResult(0);
+            }
+
             while (ServicesToAction.Count > 0)
             {
                 var serviceId = ServicesToAction.Dequeue();
@@ -225,10 +252,10 @@ namespace Client
                         SetPedCombatAbility(driver, 40);
 
                         //TaskEnterVehicle(localPlayerPed.Handle, vehicleEntity, -1, (int)VehicleSeat.LeftRear, 0f, 0, 0);
-                        // Game.PlayerPed.Task.EnterVehicle(vehicleEntity, VehicleSeat.LeftRear));
+                        //Game.PlayerPed.Task.EnterVehicle(vehicleEntity, VehicleSeat.LeftRear));
                         SetPedIntoVehicle(localPlayerPed.Handle, vehicleEntity, (int) VehicleSeat.LeftRear);
 
-                        //player.CanControlCharacter = false;
+                        localPlayer.CanControlCharacter = false;
 
                         while (!IsPedInVehicle(localPlayerPed.Handle, vehicleEntity, false))
                             Wait(0);
@@ -251,10 +278,13 @@ namespace Client
 
                         TaskVehicleDriveWander(driver, vehicleEntity, speed, drivingStyle);
 
-                        await Delay(5000);
-
-                        TaskVehicleDriveToCoordLongrange(driver, vehicleEntity, vehicle.Model.DriveToX, vehicle.Model.DriveToY, vehicle.Model.DriveToZ, speed, drivingStyle, stopRange);
-
+                        _ = Task.Factory.StartNew(async () =>
+                        {
+                            await Delay(5000);
+                            
+                            TaskVehicleDriveToCoordLongrange(driver, vehicleEntity, vehicle.Model.DriveToX, vehicle.Model.DriveToY, vehicle.Model.DriveToZ, speed, drivingStyle, stopRange);
+                        });
+                        
                         Screen.ShowNotification(vehicle.Model.Title, true);
 
                         GlobalVariables.CurrentPromptServiceVehicle = new PromptServiceVehicle

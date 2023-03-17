@@ -69,28 +69,7 @@ namespace Server
             DatabaseContextManager.Build(settings.Database);
 
             TimeSyncController.Initialize();
-            ThreadInstance.Instance.CreateThread(async () =>
-            {
-                while (TimeSyncController.IsRunning)
-                {
-                    var date = TimeSyncController.CurrentDate;
-                    var data = JsonConvert.SerializeObject(new ServerTimeSync
-                    {
-                        Weather = (uint)TimeSyncController.CurrentWeather,
-                        RainLevel = TimeSyncController.RainLevel,
-                        WindSpeed = TimeSyncController.WindSpeed,
-                        WindDirection = TimeSyncController.WindDirection,
-                        Hour = date.Hour,
-                        Minute = date.Minute,
-                        Second = date.Second
-                    });
-                    foreach (var player in Players)
-                        player.TriggerEvent(EventName.Client.SetTimeSync, data);
-                    Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
 
-                    await Task.Delay(TimeSpan.FromSeconds(2));
-                }
-            }).Start();
             //ThreadInstance.Instance.CreateThread(async () =>
             //{
             //    while (TimeSyncController.IsRunning)
@@ -183,9 +162,7 @@ namespace Server
                 RainLevel = TimeSyncController.RainLevel,
                 WindSpeed = TimeSyncController.WindSpeed,
                 WindDirection = TimeSyncController.WindDirection,
-                Hour = TimeSyncController.CurrentDate.Hour,
-                Minute = TimeSyncController.CurrentDate.Minute,
-                Second = TimeSyncController.CurrentDate.Second
+                Ticks = TimeSyncController.CurrentDate.Ticks,
             }));
         #endregion
 
