@@ -196,6 +196,8 @@ namespace Client
                 SetNuiFocus(opened, opened);
                 SetNuiFocusKeepInput(opened);
 
+                DisableControlAction(2, (int)Control.Attack, opened);
+
                 NuiHelper.SendMessage(new NuiMessage
                 {
                     Action = "interface",
