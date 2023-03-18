@@ -16,7 +16,11 @@
   
     <ItemGroup>
       <Compile Remove="..\Shared\Shared\Helper\CharacterHelper.cs" />
+      <Compile Remove="..\Shared\Shared\Models\Database\VehicleExtraTurnedModel.cs" />
+      <Compile Remove="..\Shared\Shared\Models\Database\VehicleModModel.cs" />
+      <Compile Remove="..\Shared\Shared\Models\Database\VehicleNeonLightModel.cs" />
       <Compile Remove="..\Shared\Shared\Models\Game\VehicleService.cs" />
+      <Compile Remove="..\Shared\Shared\Models\Server\VehicleData.cs" />
     </ItemGroup>
   
   <ItemGroup>

@@ -580,6 +580,19 @@ namespace FiveM.Client
             await Delay(10);
         }
 
+        [Command("forcevehicle")]
+        public void ForceVehicle(int src, List<object> args, string raw)
+        {
+            var model = new Model(args[0].ToString());
+
+            var id = (uint) model.Hash;
+
+            TriggerServerEvent(EventName.Server.ForceVehicle, id, new Action<string>((arg) =>
+            {
+                Debug.WriteLine(arg);
+            }));
+        }
+
         [Command("fps")]
         public void Fps(int src, List<object> args, string raw)
         {

@@ -78,8 +78,39 @@ namespace DatabaseConsole.Migrations
                 {
                     Id = table.Column<long>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    GarageId = table.Column<long>(nullable: false),
-                    CharacterId = table.Column<long>(nullable: false)
+                    CharacterId = table.Column<long>(nullable: false),
+                    Model = table.Column<uint>(nullable: false),
+                    Livery = table.Column<int>(nullable: false),
+                    BodyHealth = table.Column<float>(nullable: false),
+                    DashboardColor = table.Column<int>(nullable: false),
+                    DirtLevel = table.Column<float>(nullable: false),
+                    DoorLockStatus = table.Column<int>(nullable: false),
+                    DoorsLockedForPlayer = table.Column<int>(nullable: false),
+                    DoorStatus = table.Column<int>(nullable: false),
+                    EngineHealth = table.Column<float>(nullable: false),
+                    Handbrake = table.Column<bool>(nullable: false),
+                    HeadlightsColour = table.Column<int>(nullable: false),
+                    HomingLockonState = table.Column<int>(nullable: false),
+                    InteriorColor = table.Column<int>(nullable: false),
+                    LightsOn = table.Column<bool>(nullable: false),
+                    HighbeamsOn = table.Column<bool>(nullable: false),
+                    NumberPlateText = table.Column<string>(nullable: true),
+                    NumberPlateTextIndex = table.Column<int>(nullable: false),
+                    WheelType = table.Column<int>(nullable: false),
+                    WindowTint = table.Column<int>(nullable: false),
+                    PrimaryColour = table.Column<int>(nullable: false),
+                    SecondaryColour = table.Column<int>(nullable: false),
+                    PearlColour = table.Column<int>(nullable: false),
+                    WheelColour = table.Column<int>(nullable: false),
+                    CustomPrimaryColourR = table.Column<int>(nullable: false),
+                    CustomPrimaryColourG = table.Column<int>(nullable: false),
+                    CustomPrimaryColourB = table.Column<int>(nullable: false),
+                    CustomSecondaryColourR = table.Column<int>(nullable: false),
+                    CustomSecondaryColourG = table.Column<int>(nullable: false),
+                    CustomSecondaryColourB = table.Column<int>(nullable: false),
+                    TyreSmokeColorR = table.Column<int>(nullable: false),
+                    TyreSmokeColorG = table.Column<int>(nullable: false),
+                    TyreSmokeColorB = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -330,9 +361,9 @@ namespace DatabaseConsole.Migrations
                 columns: new[] { "Id", "DriveToX", "DriveToY", "DriveToZ", "Driver", "Key", "MarkX", "MarkY", "MarkZ", "Model", "SpawnHeading", "SpawnX", "SpawnY", "SpawnZ", "Title" },
                 values: new object[,]
                 {
-                    { 3L, 0f, 0f, 0f, 1885233650u, 38, -1026.4174f, -2730.4631f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Chamar Taxi" },
+                    { 3L, -1596.211f, -1044.552f, 12.533f, 1885233650u, 38, -1026.4174f, -2730.4631f, 13.7566f, 3338918751u, 238.933f, -1024.145f, -2728.84f, 13.272f, "Taxi Del Perro" },
                     { 1L, 134.954f, -1023.76f, 28.8165f, 1885233650u, 38, -1049.649f, -2719.027f, 13.7566f, 3338918751u, 240.2623f, -1051.63f, -2712.7f, 14f, "TAXI PRAÇA" },
-                    { 2L, 923.754f, 47.421f, 80.37f, 1885233650u, 38, -1041.9746f, -2721.6182f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Taxi Casino" },
+                    { 2L, 918.015f, 50.655f, 80.247f, 1885233650u, 38, -1041.9746f, -2721.6182f, 13.7566f, 3338918751u, 240.2623f, -1040.689f, -2719.0955f, 13.28f, "Taxi Casino" },
                     { 4L, 0f, 0f, 0f, 1885233650u, 38, -1014.7446f, -2737.0579f, 13.7566f, 3338918751u, 0f, 0f, 0f, 0f, "Chamar Taxi" }
                 });
 

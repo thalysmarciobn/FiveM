@@ -38,8 +38,11 @@ public static class EventName
     }
     public static class Server
     {
+        #region Vehicle
         public const string GetServiceVehicles = "getServiceVehicles";
         public const string SpawnVehicleService = "spawnVehicleService";
+        public const string ForceVehicle = "forceVehicle";
+        #endregion
 
         #region Character
         public const string AccountRequest = "accountRequest";

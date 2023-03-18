@@ -30,6 +30,8 @@ using Shared.Models.Server;
 using System.Threading;
 using System.Dynamic;
 using Shared.Enumerations;
+using Shared.Helper;
+using Client.Helper;
 
 namespace Server
 {
@@ -188,6 +190,41 @@ namespace Server
         public void GetServiceVehicles(NetworkCallbackDelegate networkCallback) =>
             networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetVehicles));
 
+        [EventHandler(EventName.Server.ForceVehicle)]
+        public async void ForceVehicle([FromSource] Player player, uint model, NetworkCallbackDelegate networkCallback)
+        {
+            var heading = player.Character.Heading;
+            var position = player.Character.Position;
+
+            if (VehicleDataHelper.GetVehicleType(model, out var type))
+            {
+                Debug.WriteLine($"{model}  {type}  {position.X}  {position.Y}  {position.Z}");
+                var serverVehicleId = CreateVehicleServerSetter(model, type, position.X, position.Y + 8.0f, position.Z + 0.5f, heading);
+
+                while (!DoesEntityExist(serverVehicleId))
+                    await Task.Delay(0);
+
+                var networkId = NetworkGetNetworkIdFromEntity(serverVehicleId);
+
+                var serverVehicle = new ServerVehicle
+                {
+                    ServerId = serverVehicleId,
+                    NetworkId = networkId,
+                };
+
+                var json = JsonConvert.SerializeObject(serverVehicle);
+
+                using (var context = DatabaseContextManager.Context)
+                {
+                    var data = VehicleHelper.VehicleToData(model, serverVehicleId);
+                    context.Vehicles.Add(data);
+                    context.SaveChanges();
+                }
+
+                await networkCallback.Invoke(json);
+            }
+        }
+
         [EventHandler(EventName.Server.SpawnVehicleService)]
         public async void SpawnVehicleService([FromSource] Player player, int serviceId, NetworkCallbackDelegate networkCallback)
         {
@@ -197,7 +234,7 @@ namespace Server
                 //    return;
 
                 var serverVehicleId = CreateVehicleServerSetter(model.Model, "automobile", model.SpawnX, model.SpawnY, model.SpawnZ, model.SpawnHeading);
-                
+
                 while (!DoesEntityExist(serverVehicleId))
                     await Task.Delay(0);
 

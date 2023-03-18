@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseConsole.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230306113531_init")]
+    [Migration("20230318010640_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -581,38 +581,38 @@ namespace DatabaseConsole.Migrations
                         new
                         {
                             Id = 2L,
-                            DriveToX = 923.754f,
-                            DriveToY = 47.421f,
-                            DriveToZ = 80.37f,
+                            DriveToX = 918.015f,
+                            DriveToY = 50.655f,
+                            DriveToZ = 80.247f,
                             Driver = 1885233650u,
                             Key = 38,
                             MarkX = -1041.9746f,
                             MarkY = -2721.6182f,
                             MarkZ = 13.7566f,
                             Model = 3338918751u,
-                            SpawnHeading = 0f,
-                            SpawnX = 0f,
-                            SpawnY = 0f,
-                            SpawnZ = 0f,
+                            SpawnHeading = 240.2623f,
+                            SpawnX = -1040.689f,
+                            SpawnY = -2719.0955f,
+                            SpawnZ = 13.28f,
                             Title = "Taxi Casino"
                         },
                         new
                         {
                             Id = 3L,
-                            DriveToX = 0f,
-                            DriveToY = 0f,
-                            DriveToZ = 0f,
+                            DriveToX = -1596.211f,
+                            DriveToY = -1044.552f,
+                            DriveToZ = 12.533f,
                             Driver = 1885233650u,
                             Key = 38,
                             MarkX = -1026.4174f,
                             MarkY = -2730.4631f,
                             MarkZ = 13.7566f,
                             Model = 3338918751u,
-                            SpawnHeading = 0f,
-                            SpawnX = 0f,
-                            SpawnY = 0f,
-                            SpawnZ = 0f,
-                            Title = "Chamar Taxi"
+                            SpawnHeading = 238.933f,
+                            SpawnX = -1024.145f,
+                            SpawnY = -2728.84f,
+                            SpawnZ = 13.272f,
+                            Title = "Taxi Del Perro"
                         },
                         new
                         {
@@ -640,11 +640,104 @@ namespace DatabaseConsole.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bigint");
 
+                    b.Property<float>("BodyHealth")
+                        .HasColumnType("float");
+
                     b.Property<long>("CharacterId")
                         .HasColumnType("bigint");
 
-                    b.Property<long>("GarageId")
-                        .HasColumnType("bigint");
+                    b.Property<int>("CustomPrimaryColourB")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomPrimaryColourG")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomPrimaryColourR")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomSecondaryColourB")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomSecondaryColourG")
+                        .HasColumnType("int");
+
+                    b.Property<int>("CustomSecondaryColourR")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DashboardColor")
+                        .HasColumnType("int");
+
+                    b.Property<float>("DirtLevel")
+                        .HasColumnType("float");
+
+                    b.Property<int>("DoorLockStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DoorStatus")
+                        .HasColumnType("int");
+
+                    b.Property<int>("DoorsLockedForPlayer")
+                        .HasColumnType("int");
+
+                    b.Property<float>("EngineHealth")
+                        .HasColumnType("float");
+
+                    b.Property<bool>("Handbrake")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("HeadlightsColour")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("HighbeamsOn")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("HomingLockonState")
+                        .HasColumnType("int");
+
+                    b.Property<int>("InteriorColor")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("LightsOn")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<int>("Livery")
+                        .HasColumnType("int");
+
+                    b.Property<uint>("Model")
+                        .HasColumnType("int unsigned");
+
+                    b.Property<string>("NumberPlateText")
+                        .HasColumnType("longtext CHARACTER SET utf8mb4");
+
+                    b.Property<int>("NumberPlateTextIndex")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PearlColour")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PrimaryColour")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SecondaryColour")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TyreSmokeColorB")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TyreSmokeColorG")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TyreSmokeColorR")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WheelColour")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WheelType")
+                        .HasColumnType("int");
+
+                    b.Property<int>("WindowTint")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

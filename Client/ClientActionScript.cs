@@ -41,6 +41,7 @@ namespace Client
                 var vehicles = JsonConvert.DeserializeObject<ICollection<ServerVehicleService>>(arg);
                 foreach (var vehicle in vehicles)
                 {
+                    new Model("aa");
                     Prompts.Add(new Prompt(PromptService.ServiceCar, vehicle.Id, new PromptConfig
                     {
                         Key = (Control)vehicle.Key,
