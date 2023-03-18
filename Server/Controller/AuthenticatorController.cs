@@ -102,7 +102,10 @@ namespace Server.Controller
                             var gameCharacterPosition = gameCharacter.Position;
                             var gameCharacterRotation = gameCharacter.Rotation;
             
-                            var dbCharacter = account.Character.FirstOrDefault(m => m.Slot == account.CurrentCharacter);
+                            var dbCharacter = account.Character.FirstOrDefault(m => m.Id == account.CurrentCharacter);
+
+                            if (dbCharacter == null)
+                                return;
 
                             var dbCharacterPosition = dbCharacter.Position;
                             var dbCharacterRotation = dbCharacter.Rotation;

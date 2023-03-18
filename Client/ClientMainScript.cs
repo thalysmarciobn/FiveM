@@ -33,6 +33,7 @@ namespace FiveM.Client
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
             EventHandlers[EventName.External.Client.OnClientResourceStop] += new Action<string>(OnClientResourceStop);
             EventHandlers[EventName.External.BaseEvents.OnBaseResourceStart] += new Action(OnBaseResourceStart);
+            //EventHandlers["onClientResourceStart"] += new Action(OnBaseResourceStart);
             EventHandlers[EventName.Client.InitAccount] += new Action<string>(InitAccount);
 
             RegisterNuiCallbackType("characterRequest");
@@ -369,40 +370,43 @@ namespace FiveM.Client
             var account = JsonConvert.DeserializeObject<AccountModel>(json);
 
             var player = Game.Player;
-            var character = player.Character;
+
+            player.Freeze();
 
             if (account.Character.Count <= 0)
             {
                 var model = new Model("mp_m_freemode_01");
 
-                var characterPosition = GlobalVariables.Creation.Position;
-
-                while (HasCollisionLoadedAroundEntity(character.Handle))
-                    await Delay(10);
-
                 while (!await Game.Player.ChangeModel(model)) await Delay(10);
 
-                SetPedDefaultComponentVariation(character.Handle);
-                SetPedHeadBlendData(character.Handle, 0, 0, 0, 0, 0, 0, 0f, 0f, 0f, false);
+                SetPedDefaultComponentVariation(player.Character.Handle);
+                SetPedHeadBlendData(player.Character.Handle, 0, 0, 0, 0, 0, 0, 0f, 0f, 0f, false);
+
+                var characterPosition = GlobalVariables.Creation.Position;
+
+                LoadScene(characterPosition.X, characterPosition.Y, characterPosition.Z);
+                await Delay(500);
+
+                RequestCollisionAtCoord(characterPosition.X, characterPosition.Y, characterPosition.Z);
+                await Delay(500);
 
                 var groundZ = 0f;
                 var ground = GetGroundZFor_3dCoord(characterPosition.X, characterPosition.Y, characterPosition.Z, ref groundZ, false);
 
-                player.Spawn(new Vector3
+                player.Character.Position = new Vector3
                 {
                     X = characterPosition.X,
                     Y = characterPosition.Y,
                     Z = ground ? groundZ : characterPosition.Z
-                });
+                };
 
-                character.Rotation = GlobalVariables.Creation.Rotation;
-                character.Heading = GlobalVariables.Creation.Heading;
+                player.Character.Rotation = GlobalVariables.Creation.Rotation;
+                player.Character.Heading = GlobalVariables.Creation.Heading;
 
-                ClearPedTasksImmediately(character.Handle);
-                
-                GameCamera.SetCamera(CameraType.Entity, 50f);
-                
-                RenderScriptCams(true, false, 0, true, true);
+                while (HasCollisionLoadedAroundEntity(player.Character.Handle))
+                    await Delay(10);
+
+                ClearPedTasksImmediately(player.Character.Handle);
 
                 SetNuiFocus(true, true);
 
@@ -412,6 +416,10 @@ namespace FiveM.Client
                     Key = "creation",
                     Params = new[] { "true", "0" }
                 });
+
+                GameCamera.SetCamera(CameraType.Entity, 50f);
+
+                RenderScriptCams(true, false, 0, true, true);
             }
             else
             {
@@ -420,6 +428,8 @@ namespace FiveM.Client
             }
 
             ShutdownLoadingScreen();
+
+            player.Unfreeze();
 
             DoScreenFadeIn(500);
             while (IsScreenFadingIn())

@@ -527,9 +527,6 @@ namespace Server.Controller
                         },
                     };
 
-
-                    var data2 = JsonConvert.SerializeObject(createCharacter);
-
                     using (var context = DatabaseContextManager.Context)
                     {
                         try
@@ -537,6 +534,8 @@ namespace Server.Controller
                             account.Character.Add(createCharacter);
 
                             context.Update(account);
+
+                            account.CurrentCharacter = createCharacter.Id;
 
                             context.SaveChanges();
 

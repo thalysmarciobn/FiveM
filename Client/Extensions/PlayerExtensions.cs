@@ -135,6 +135,8 @@ namespace Client.Extensions
             LoadScene(position.X, position.Y, position.Z);
             RequestCollisionAtCoord(position.X, position.Y, position.Z);
 
+            ClearPedTasksImmediately(player.Character.Handle);
+
             player.Character.Position = position;
             player.Character.ClearBloodDamage();
             player.Character.Weapons.Drop();
