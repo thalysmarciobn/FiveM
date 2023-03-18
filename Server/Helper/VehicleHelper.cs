@@ -10,10 +10,11 @@ namespace Client.Helper
 {
     public static class VehicleHelper
     {
-        public static VehicleModel VehicleToData(uint model, int veh)
+        public static VehicleModel VehicleToData(uint model, long character, int veh)
         {
             var data = new VehicleModel
             {
+                CharacterId = character,
                 Model = model,
                 Livery = GetVehicleLivery(veh),
                 BodyHealth = GetVehicleBodyHealth(veh),

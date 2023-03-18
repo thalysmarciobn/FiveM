@@ -193,35 +193,41 @@ namespace Server
         [EventHandler(EventName.Server.ForceVehicle)]
         public async void ForceVehicle([FromSource] Player player, uint model, NetworkCallbackDelegate networkCallback)
         {
+            var license = player.Identifiers["license"];
+
             var heading = player.Character.Heading;
             var position = player.Character.Position;
 
-            if (VehicleDataHelper.GetVehicleType(model, out var type))
+            if (GameInstance.Instance.GetPlayer(license, out var gamePlayer))
             {
-                Debug.WriteLine($"{model}  {type}  {position.X}  {position.Y}  {position.Z}");
-                var serverVehicleId = CreateVehicleServerSetter(model, type, position.X, position.Y + 8.0f, position.Z + 0.5f, heading);
 
-                while (!DoesEntityExist(serverVehicleId))
-                    await Task.Delay(0);
-
-                var networkId = NetworkGetNetworkIdFromEntity(serverVehicleId);
-
-                var serverVehicle = new ServerVehicle
+                if (VehicleDataHelper.GetVehicleType(model, out var type))
                 {
-                    ServerId = serverVehicleId,
-                    NetworkId = networkId,
-                };
+                    Debug.WriteLine($"{model}  {type}  {position.X}  {position.Y}  {position.Z}");
+                    var serverVehicleId = CreateVehicleServerSetter(model, type, position.X, position.Y + 8.0f, position.Z + 0.5f, heading);
 
-                var json = JsonConvert.SerializeObject(serverVehicle);
+                    while (!DoesEntityExist(serverVehicleId))
+                        await Task.Delay(0);
 
-                using (var context = DatabaseContextManager.Context)
-                {
-                    var data = VehicleHelper.VehicleToData(model, serverVehicleId);
-                    context.Vehicles.Add(data);
-                    context.SaveChanges();
+                    var networkId = NetworkGetNetworkIdFromEntity(serverVehicleId);
+
+                    var serverVehicle = new ServerVehicle
+                    {
+                        ServerId = serverVehicleId,
+                        NetworkId = networkId,
+                    };
+
+                    var json = JsonConvert.SerializeObject(serverVehicle);
+
+                    using (var context = DatabaseContextManager.Context)
+                    {
+                        var data = VehicleHelper.VehicleToData(model, gamePlayer.Account.CurrentCharacter, serverVehicleId);
+                        context.Vehicles.Add(data);
+                        context.SaveChanges();
+                    }
+
+                    await networkCallback.Invoke(json);
                 }
-
-                await networkCallback.Invoke(json);
             }
         }
 
