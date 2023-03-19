@@ -512,7 +512,7 @@ namespace FiveM.Client
             
             character.Armor = resCharacter.Armor;
             character.Health = resCharacter.Health;
-            character.MaxHealth = GlobalVariables.Character.MaxHealth;
+            character.MaxHealth = GlobalVariables.G_Character.MaxHealth;
             
             // https://vespura.com/fivem/gta-stats/
             
@@ -546,7 +546,7 @@ namespace FiveM.Client
             NetworkResurrectLocalPlayer(position.X, position.Y, position.Z, ped.Heading, true, false);
             ped.IsInvincible = false;
             ped.ClearBloodDamage();
-            ped.Health = Character.MaxHealth;
+            ped.Health = G_Character.MaxHealth;
             //ped.Resurrect();
         }
 
@@ -594,15 +594,41 @@ namespace FiveM.Client
             await Delay(1000);
         }
 
+        [Tick] 
+        public async Task OnFrame()
+        {
+            var player = Game.Player;
+            var character = player.Character;
+
+            if (character.IsInVehicle())
+            {
+                var vehicle = character.CurrentVehicle;
+                if (vehicle != null)
+                {
+                    var seatDriver = vehicle.GetPedOnSeat(VehicleSeat.Driver);
+                    var isDriver = seatDriver == character;
+                    G_Character.DisplayRadar = isDriver;
+                    DisplayRadar(isDriver);
+                }
+            }
+            else if (G_Character.DisplayRadar)
+            {
+                G_Character.DisplayRadar = false;
+                DisplayRadar(false);
+            }
+
+            await Delay(10);
+        }
+
         [Tick]
-        public Task OnTickOverrideClockTime()
+        public async Task OnTickOverrideClockTime()
         {
             if (!G_World.HasTime)
-                return Task.FromResult(0);
+                return;
 
             NetworkOverrideClockTime(G_World.CurrentTime.Hours, G_World.CurrentTime.Minutes, G_World.CurrentTime.Seconds);
 
-            return Task.FromResult(0);
+            await Delay(10);
         }
 
         [Command("forcevehicle")]

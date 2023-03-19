@@ -13,9 +13,11 @@ namespace Client
 
         public static readonly bool S_FriendlyFire = true;
 
-        public static class Character
+        public static class G_Character
         {
             public const int MaxHealth = 500;
+
+            public static bool DisplayRadar = false;
         }
 
         public static class Key
