@@ -41,7 +41,6 @@ namespace Client
                 var vehicles = JsonConvert.DeserializeObject<ICollection<ServerVehicleService>>(arg);
                 foreach (var vehicle in vehicles)
                 {
-                    new Model("aa");
                     Prompts.Add(new Prompt(PromptService.ServiceCar, vehicle.Id, new PromptConfig
                     {
                         Key = (Control)vehicle.Key,
@@ -183,6 +182,19 @@ namespace Client
         }
 
         [Tick]
+        public Task OnFrame()
+        {
+            if (GlobalVariables.G_Hud.PanelOpened)
+            {
+                DisableControlAction(0, 2, true);
+                DisableControlAction(0, 1, true);
+                DisableControlAction(0, 25, true);
+                DisableControlAction(0, 24, true);
+            }
+            return Task.FromResult(0);
+        }
+
+        [Tick]
         public Task OnTickAction()
         {
             var localPlayer = Game.Player;
@@ -190,14 +202,12 @@ namespace Client
 
             if (IsControlJustPressed(0, GlobalVariables.Key.OpenPanel))
             {
-                GlobalVariables.Hud.PanelOpened = !GlobalVariables.Hud.PanelOpened;
+                GlobalVariables.G_Hud.PanelOpened = !GlobalVariables.G_Hud.PanelOpened;
 
-                var opened = GlobalVariables.Hud.PanelOpened;
+                var opened = GlobalVariables.G_Hud.PanelOpened;
 
                 SetNuiFocus(opened, opened);
                 SetNuiFocusKeepInput(opened);
-
-                DisableControlAction(2, (int)Control.Attack, opened);
 
                 NuiHelper.SendMessage(new NuiMessage
                 {

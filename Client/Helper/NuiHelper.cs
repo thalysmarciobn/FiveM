@@ -1,4 +1,6 @@
-﻿using Client.Core;
+﻿using CitizenFX.Core;
+using CitizenFX.Core.Native;
+using Client.Core;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
