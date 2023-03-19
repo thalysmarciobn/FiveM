@@ -408,6 +408,9 @@ namespace FiveM.Client
                 player.CanControlCharacter = false;
 
                 // NetworkSetEntityInvisibleToNetwork?
+                SetEntityVisible(PlayerId(), false, false);
+                Character.LocallyVisible = true;
+                Character.AllInvisible = true;
 
                 player.Character.IsCollisionEnabled = false;
                 player.Character.IsPositionFrozen = true;
@@ -597,6 +600,25 @@ namespace FiveM.Client
             NetworkOverrideClockTime(G_World.CurrentTime.Hours, G_World.CurrentTime.Minutes, G_World.CurrentTime.Seconds);
 
             await Delay(10);
+        }
+
+        [Tick]
+        public Task Frame()
+        {
+            if (Character.LocallyVisible)
+                SetEntityLocallyVisible(PlayerPedId());
+
+            if (Character.AllInvisible)
+            {
+                foreach (var player in Players)
+                {
+                    if (player.Handle == Game.Player.Handle)
+                        continue;
+
+                    player.Character.IsVisible = false;
+                }
+            }
+            return Task.FromResult(0);
         }
 
         [Command("forcevehicle")]

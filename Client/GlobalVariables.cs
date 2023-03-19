@@ -16,6 +16,9 @@ namespace Client
         public static class Character
         {
             public const int MaxHealth = 500;
+
+            public static bool LocallyVisible = false;
+            public static bool AllInvisible = false;
         }
 
         public static class Key
