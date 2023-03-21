@@ -29,8 +29,8 @@ public static class EventName
         public const string InitAccount = "initAccount";
         #endregion
 
-        #region Passive
-        public const string UpdatePassiveList = "updatePassiveList";
+        #region PlayerData
+        public const string UpdatePlayerDataList = "updatePlayerDataList";
         #endregion
 
         #region Map
@@ -55,10 +55,10 @@ public static class EventName
         public const string GetTimeSync = "getTimeSync";
         #endregion
 
-        #region Passive
+        #region PlayerData
         public const string SetPassive = "setPassive";
         public const string GetPassive = "getPassive";
-        public const string GetPassiveList = "getPassiveList";
+        public const string GetPlayerDataList = "getPlayerDataList";
         #endregion
     }
 }

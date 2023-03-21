@@ -126,28 +126,29 @@ namespace Server
 
         #endregion
 
-        #region Passive
+        #region PlayerData
 
         [EventHandler(EventName.Server.SetPassive)]
         public void SetPassive([FromSource] Player player, bool isPassive)
         {
             if (int.TryParse(player.Handle, out var playerServerId))
             {
-                GameInstance.Instance.SetPassive(playerServerId, isPassive);
+                var serverPlayer = GameInstance.Instance.GetOrAddPlayerData(playerServerId);
                 Debug.WriteLine($"[PROJECT][{playerServerId}] Passive updated: {isPassive}");
+                serverPlayer.IsPassive = isPassive;
             }
-            var data = JsonConvert.SerializeObject(GameInstance.Instance.GetPassiveList);
+            var data = JsonConvert.SerializeObject(GameInstance.Instance.GetPlayerDataList);
             foreach (var entity in Players)
-                entity.TriggerEvent(EventName.Client.UpdatePassiveList, data);
+                entity.TriggerEvent(EventName.Client.UpdatePlayerDataList, data);
         }
 
         [EventHandler(EventName.Server.GetPassive)]
         public void GetPassive(int playerServerId, NetworkCallbackDelegate networkCallback) =>
             networkCallback.Invoke(GameInstance.Instance.GetPlayerIsPassive(playerServerId));
 
-        [EventHandler(EventName.Server.GetPassiveList)]
-        public void GetPassiveList(NetworkCallbackDelegate networkCallback) =>
-            networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetPassiveList));
+        [EventHandler(EventName.Server.GetPlayerDataList)]
+        public void GetPlayerDataList(NetworkCallbackDelegate networkCallback) =>
+            networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetPlayerDataList));
 
         #endregion
 
@@ -204,7 +205,7 @@ namespace Server
                 if (VehicleDataHelper.GetVehicleType(model, out var type))
                 {
                     Debug.WriteLine($"{model}  {type}  {position.X}  {position.Y}  {position.Z}");
-                    var serverVehicleId = CreateVehicleServerSetter(model, type, position.X, position.Y + 8.0f, position.Z + 0.5f, heading);
+                    var serverVehicleId = CreateVehicle(model, position.X, position.Y + 8.0f, position.Z + 0.5f, heading, true, false);
 
                     while (!DoesEntityExist(serverVehicleId))
                         await Task.Delay(0);

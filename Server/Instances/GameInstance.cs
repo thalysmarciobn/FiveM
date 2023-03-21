@@ -16,7 +16,7 @@ namespace Server.Instances
         private ConcurrentDictionary<string, GamePlayer> Players = new ConcurrentDictionary<string, GamePlayer>();
         public int PlayerCount => Players.Count;
         public bool ContainsPlayer(string license) => Players.ContainsKey(license);
-        public void AddPlayer(string license, GamePlayer model) => Players.AddOrUpdate(license, model, (key, oldValue) => model);
+        public bool AddPlayer(string license, GamePlayer model) => Players.TryAdd(license, model);
         public bool RemovePlayer(string license, out GamePlayer model) => Players.TryRemove(license, out model);
         public bool GetPlayer(string license, out GamePlayer model) => Players.TryGetValue(license, out model);
         public ICollection<GamePlayer> GetPlayers => Players.Values;
@@ -39,12 +39,28 @@ namespace Server.Instances
         public ICollection<SpawnServerVehicle> GetSpawnVehicles => SpawnVehicles.Values;
 
 
-        private ConcurrentDictionary<int, bool> Passives { get; } = new ConcurrentDictionary<int, bool>();
-        public int PassivesCount => Passives.Count;
-        public void SetPassive(int id, bool isPassive) => Passives.AddOrUpdate(id, isPassive, (key, oldValue) => isPassive);
-        public bool RemovePassive(int id) => Passives.TryRemove(id, out var model);
-        public bool GetPlayerIsPassive(int id) => Passives.TryGetValue(id, out bool isPassive) && isPassive;
-        public ICollection<KeyValuePair<int, bool>> GetPassiveList => Passives.ToImmutableList();
+        private ConcurrentDictionary<int, ServerPlayer> PlayersData { get; } = new ConcurrentDictionary<int, ServerPlayer>();
+        public int PlayerDataCount => PlayersData.Count;
+        public void SetPlayerData(int id, ServerPlayer data) => PlayersData.AddOrUpdate(id, data, (key, oldValue) => data);
+        public bool RemovePlayerData(int id) => PlayersData.TryRemove(id, out var serverPlayer);
+        public ServerPlayer GetOrAddPlayerData(int id)
+        {
+            if (PlayersData.TryGetValue(id, out var serverPlayer))
+            {
+                return serverPlayer;
+            }
+
+            var newServerPlayer = new ServerPlayer
+            {
+                ServerId = id,
+                IsPassive = false
+            };
+
+            PlayersData.AddOrUpdate(id, newServerPlayer, (key, oldValue) => newServerPlayer);
+            return newServerPlayer;
+        }
+        public bool GetPlayerIsPassive(int id) => PlayersData.TryGetValue(id, out var serverPlayer) && serverPlayer.IsPassive;
+        public ICollection<KeyValuePair<int, ServerPlayer>> GetPlayerDataList => PlayersData.ToImmutableList();
 
 
         private ConcurrentDictionary<long, BlipModel> BlipModels { get; } = new ConcurrentDictionary<long, BlipModel>();

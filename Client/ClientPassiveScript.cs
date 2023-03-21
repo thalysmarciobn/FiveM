@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CitizenFX.Core;
 using Client.Extensions;
 using Newtonsoft.Json;
+using Shared.Models.Server;
 using static CitizenFX.Core.Native.API;
 
 namespace Client
@@ -15,28 +16,29 @@ namespace Client
         {
             Debug.WriteLine("[PROJECT] Script: PassiveScript");
             EventHandlers[EventName.External.Client.OnClientResourceStart] += new Action<string>(OnClientResourceStart);
-            EventHandlers[EventName.Client.UpdatePassiveList] += new Action<string>(UpdatePassiveList);
+            EventHandlers[EventName.Client.UpdatePlayerDataList] += new Action<string>(UpdatePlayerDataList);
         }
 
-        private ConcurrentDictionary<int, bool> PassiveList { get; } = new ConcurrentDictionary<int, bool>();
+        private ConcurrentDictionary<int, ServerPlayer> PlayerDataList { get; } = new ConcurrentDictionary<int, ServerPlayer>();
 
         public void OnClientResourceStart(string resourceName)
         {
             if (GetCurrentResourceName() != resourceName) return;
 
-            TriggerServerEvent(EventName.Server.GetPassiveList, new Action<string>(arg =>
+            TriggerServerEvent(EventName.Server.GetPlayerDataList, new Action<string>(arg =>
             {
-                var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, bool>>>(arg);
+                var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
                 foreach (var kvp in data)
-                    PassiveList.TryAdd(kvp.Key, kvp.Value);
+                    PlayerDataList.TryAdd(kvp.Key, kvp.Value);
             }));
         }
 
-        private void UpdatePassiveList(string arg)
+        private void UpdatePlayerDataList(string arg)
         {
-            var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, bool>>>(arg);
+            Debug.WriteLine(arg);
+            var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
             foreach (var kvp in data)
-                PassiveList.AddOrUpdate(kvp.Key, kvp.Value, (key, oldValue) => kvp.Value);
+                PlayerDataList.AddOrUpdate(kvp.Key, kvp.Value, (key, oldValue) => kvp.Value);
         }
 
         [Tick]
@@ -53,15 +55,15 @@ namespace Client
 
             var localPassive = false;
 
-            if (PassiveList.TryGetValue(Game.Player.ServerId, out var isLocalPassive))
-                localPassive = isLocalPassive;
+            if (PlayerDataList.TryGetValue(localPlayer.ServerId, out var isLocalPassive))
+                localPassive = isLocalPassive.IsPassive;
 
             foreach (var player in Players)
-                if (PassiveList.ContainsKey(player.ServerId))
+                if (PlayerDataList.ContainsKey(player.ServerId))
                 {
-                    var passive = PassiveList[player.ServerId];
+                    var data = PlayerDataList[player.ServerId];
 
-                    var disableCollisions = passive || localPassive;
+                    var disableCollisions = data.IsPassive || localPassive;
 
                     if (player.Handle == localPlayer.Handle) continue;
 
@@ -107,10 +109,16 @@ namespace Client
 
             foreach (var ped in peds)
             {
-                var alpha = localPassive && localVehicle?.Handle != ped?.CurrentVehicle.Handle ? 200 : 255;
+                const int passiveAlpha = 200;
+                const int activeAlpha = 255;
+                int alpha = localPassive ? passiveAlpha : activeAlpha;
+
+                if (localVehicle?.Handle != ped.CurrentVehicle?.Handle)
+                    alpha = passiveAlpha;
+
                 ped.SetAlpha(alpha);
 
-                if (!localPassive || localVehicle?.Handle == ped?.CurrentVehicle.Handle) continue;
+                if (!localPassive || localVehicle?.Handle == ped.CurrentVehicle?.Handle) continue;
 
                 ped.SetEntityNoCollision(localPed);
                 ped.SetEntityNoCollision(localVehicle);

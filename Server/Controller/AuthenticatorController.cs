@@ -8,6 +8,7 @@ using Server.Database;
 using Server.Extensions;
 using Server.Instances;
 using Shared.Models.Database;
+using Shared.Models.Server;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -27,9 +28,6 @@ namespace Server.Controller
 
             var license = player.Identifiers["license"];
 
-            if (int.TryParse(player.Handle, out var playerServerId))
-                GameInstance.Instance.SetPassive(playerServerId, false);
-
             using (var context = DatabaseContextManager.Context)
             {
                 try
@@ -44,9 +42,8 @@ namespace Server.Controller
             
                         var gamePlayer = new GamePlayer(player, account);
 
-                        GameInstance.Instance.AddPlayer(license, gamePlayer);
-                        
-                        deferrals.done();
+                        if (GameInstance.Instance.AddPlayer(license, gamePlayer))
+                            deferrals.done();
                     }
                     else
                     {
@@ -66,9 +63,8 @@ namespace Server.Controller
             
                         var gamePlayer = new GamePlayer(player, account);
 
-                        GameInstance.Instance.AddPlayer(license, gamePlayer);
-
-                        deferrals.done();
+                        if (GameInstance.Instance.AddPlayer(license, gamePlayer))
+                            deferrals.done();
                     }
                 }
                 catch (Exception ex)
@@ -84,7 +80,10 @@ namespace Server.Controller
             var license = player.Identifiers["license"];
 
             if (int.TryParse(player.Handle, out var playerServerId))
-                GameInstance.Instance.RemovePassive(playerServerId);
+            {
+                GameInstance.Instance.RemovePlayerData(playerServerId);
+                Debug.WriteLine($"[{player.Handle}] Dropped session: {player.EndPoint}");
+            }
 
             if (GameInstance.Instance.RemovePlayer(license, out var gamePlayer))
             {

@@ -8,6 +8,7 @@ using Server.Database;
 using Server.Extensions;
 using Server.Instances;
 using Shared.Models.Database;
+using Shared.Models.Server;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -36,13 +37,15 @@ namespace Server.Controller
 
                     if (int.TryParse(player.Handle, out var playerServerId))
                     {
-                        GameInstance.Instance.SetPassive(playerServerId, false);
-                        Debug.WriteLine($"[PROJECT][{playerServerId}] Registered passive.");
+                        GameInstance.Instance.SetPlayerData(playerServerId, new ServerPlayer
+                        {
+                            IsPassive = false
+                        });
                     }
                 }
             }
             Debug.WriteLine($"[ServerController] Players registered: {GameInstance.Instance.PlayerCount}");
-            Debug.WriteLine($"[ServerController] Passives registered: {GameInstance.Instance.PassivesCount}");
+            Debug.WriteLine($"[ServerController] Player Data registered: {GameInstance.Instance.PlayerDataCount}");
         }
 
         public void RegisterVehicles()
