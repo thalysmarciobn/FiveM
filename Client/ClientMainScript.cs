@@ -716,6 +716,7 @@ namespace FiveM.Client
         [Tick]
         public async Task Recoil()
         {
+            await Delay(500);
             if (IsPedShooting(PlayerPedId()) && !IsPedDoingDriveby(PlayerPedId()))
             {
                 uint weapon = 0;
@@ -724,7 +725,7 @@ namespace FiveM.Client
                     int ammo = 0;
                     if (GetAmmoInClip(PlayerPedId(), weapon, ref ammo))
                     {
-                        if (G_Gun.Recoils.TryGetValue(weapon, out double recoil))
+                        if (G_Gun.Recoils.TryGetValue(weapon, out float recoil))
                         {
                             float tv = 0;
                             do
@@ -748,7 +749,6 @@ namespace FiveM.Client
                 DisableControlAction(1, 142, true);
 
             }
-            await Delay(500);
         }
 
         [Command("forcevehicle")]

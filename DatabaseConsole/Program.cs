@@ -2,6 +2,9 @@
 using Shared.Models.Database;
 using System.ComponentModel;
 
+
+Console.WriteLine($"{Convert.ToUInt32("DC0F817884CDD856", 16)}");
+
 using var context = new Context();
 
 var account = context.Account
