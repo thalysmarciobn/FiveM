@@ -83,54 +83,57 @@ namespace FiveM.Client
             ClearOverrideWeather();
             ClearWeatherTypePersist();
 
-            TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>((arg) =>
+
+            Task.Factory.StartNew(() =>
             {
-                var data = JsonConvert.DeserializeObject<ServerTimeSync>(arg);
-
-                if (G_World.Weather != data.Weather)
-                    G_World.Weather = data.Weather;
-
-                if (G_World.RainLevel != data.RainLevel)
-                    G_World.RainLevel = data.RainLevel;
-
-                if (G_World.WindSpeed != data.WindSpeed)
-                    G_World.WindSpeed = data.WindSpeed;
-
-                if (G_World.WindDirection != data.WindDirection)
-                    G_World.WindDirection = data.WindDirection;
-
-                G_World.LastRealTime = DateTime.UtcNow;
-                G_World.LastServerTime = new DateTime(data.Ticks);
-                G_World.HasTime = true;
-
-                G_World.Update = true;
-            }));
-
-            TriggerServerEvent(EventName.Server.GetBlips, new Action<string>((arg) =>
-            {
-                var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<long, BlipModel>>>(arg);
-
-                foreach (var blip in data)
+                TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>((arg) =>
                 {
-                    var id = blip.Key;
-                    var model = blip.Value;
+                    var data = JsonConvert.DeserializeObject<ServerTimeSync>(arg);
 
-                    var blipId = AddBlipForCoord(model.X, model.Y, model.Z);
+                    if (G_World.Weather != data.Weather)
+                        G_World.Weather = data.Weather;
 
-                    SetBlipSprite(blipId, model.BlipId);
-                    SetBlipDisplay(blipId, model.DisplayId);
-                    SetBlipScale(blipId, model.Scale);
-                    SetBlipColour(blipId, model.Color);
-                    SetBlipAsShortRange(blipId, model.ShortRange);
-                    SetBlipPriority(blipId, (int) id);
+                    if (G_World.RainLevel != data.RainLevel)
+                        G_World.RainLevel = data.RainLevel;
 
-                    BeginTextCommandSetBlipName("STRING");
-                    AddTextComponentString(model.Title);
-                    EndTextCommandSetBlipName(blipId);
+                    if (G_World.WindSpeed != data.WindSpeed)
+                        G_World.WindSpeed = data.WindSpeed;
 
-                    Blips.Add(id, blipId);
-                }
-            }));
+                    if (G_World.WindDirection != data.WindDirection)
+                        G_World.WindDirection = data.WindDirection;
+
+                    G_World.LastRealTime = DateTime.UtcNow;
+                    G_World.LastServerTime = new DateTime(data.Ticks);
+                    G_World.HasTime = true;
+
+                    G_World.Update = true;
+                }));
+                TriggerServerEvent(EventName.Server.GetBlips, new Action<string>((arg) =>
+                {
+                    var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<long, BlipModel>>>(arg);
+
+                    foreach (var blip in data)
+                    {
+                        var id = blip.Key;
+                        var model = blip.Value;
+
+                        var blipId = AddBlipForCoord(model.X, model.Y, model.Z);
+
+                        SetBlipSprite(blipId, model.BlipId);
+                        SetBlipDisplay(blipId, model.DisplayId);
+                        SetBlipScale(blipId, model.Scale);
+                        SetBlipColour(blipId, model.Color);
+                        SetBlipAsShortRange(blipId, model.ShortRange);
+                        SetBlipPriority(blipId, (int)id);
+
+                        BeginTextCommandSetBlipName("STRING");
+                        AddTextComponentString(model.Title);
+                        EndTextCommandSetBlipName(blipId);
+
+                        Blips.Add(id, blipId);
+                    }
+                }));
+            });
         }
 
         public void OnClientResourceStop(string resourceName)
@@ -355,7 +358,7 @@ namespace FiveM.Client
         {
             DoScreenFadeOut(500);
             while (IsScreenFadedOut())
-                await Delay(0);
+                await Delay(10);
 
             var account = JsonConvert.DeserializeObject<AccountModel>(json);
 
@@ -368,7 +371,7 @@ namespace FiveM.Client
 
                 var model = new Model("mp_m_freemode_01");
 
-                while (!await Game.Player.ChangeModel(model)) await Delay(0);
+                while (!await Game.Player.ChangeModel(model)) await Delay(10);
 
                 LoadScene(characterPosition.X, characterPosition.Y, characterPosition.Z);
                 SetPedDefaultComponentVariation(PlayerPedId());
@@ -381,7 +384,7 @@ namespace FiveM.Client
                 RemoveAllPedWeapons(PlayerPedId(), false);
                 ClearPlayerWantedLevel(PlayerId());
 
-                while (!HasCollisionLoadedAroundEntity(PlayerPedId())) await Delay(1);
+                while (!HasCollisionLoadedAroundEntity(PlayerPedId())) await Delay(10);
                 
                 var groundZ = 0f;
                 var ground = GetGroundZFor_3dCoord(characterPosition.X, characterPosition.Y, characterPosition.Z, ref groundZ, false);
@@ -404,12 +407,7 @@ namespace FiveM.Client
                 
                 SetNuiFocus(true, true);
                 
-                NuiHelper.SendMessage(new NuiMessage
-                {
-                    Action = "interface",
-                    Key = "creation",
-                    Params = new[] { "true", "0" }
-                });
+                NuiHelper.SendMessage("interface", "creation", new[] { "true", "0" });
                 
                 GameCamera.SetCamera(CameraType.Entity, 50f);
                 
@@ -494,27 +492,14 @@ namespace FiveM.Client
             character.Health = resCharacter.Health;
             character.MaxHealth = G_Character.MaxHealth;
             
-            // https://vespura.com/fivem/gta-stats/
-            
-            StatSetInt((uint)GetHashKey("MP0_WALLET_BALANCE"), resCharacter.MoneyBalance, true);
-            StatSetInt((uint)GetHashKey("BANK_BALANCE"), resCharacter.BankBalance, true);
-            
             ClearPedTasksImmediately(character.Handle);
-            
-            //RemoveAllPedWeapons(GetPlayerPed(-1), false);
-            character.Weapons.Drop();
             
             //ClearPlayerWantedLevel(PlayerId());
             player.WantedLevel = 0;
             
             SetNuiFocus(false, false);
 
-            NuiHelper.SendMessage(new NuiMessage
-            {
-                Action = "interface",
-                Key = "creation",
-                Params = new[] { "false", "0" }
-            });
+            NuiHelper.SendMessage("interface", "creation", new[] { "false", "0" });
         }
 
         [Command("test")]
@@ -556,20 +541,15 @@ namespace FiveM.Client
             if (!G_World.HasTime)
                 return;
 
-            NuiHelper.SendMessage(new NuiMessage
+            NuiHelper.SendMessage("interface", "world", new object[]
             {
-                Action = "interface",
-                Key = "world",
-                Params = new object[]
-                {
-                    G_World.Weather,
-                    G_World.RainLevel,
-                    G_World.WindSpeed,
-                    G_World.WindDirection,
-                    G_World.CurrentTime.Hours,
-                    G_World.CurrentTime.Minutes,
-                    G_World.CurrentTime.Seconds,
-                }
+                G_World.Weather,
+                G_World.RainLevel,
+                G_World.WindSpeed,
+                G_World.WindDirection,
+                G_World.CurrentTime.Hours,
+                G_World.CurrentTime.Minutes,
+                G_World.CurrentTime.Seconds,
             });
             await Delay(1000);
         }
@@ -778,15 +758,10 @@ namespace FiveM.Client
                     SetTimecycleModifier("default");
                     break;
             }
-            NuiHelper.SendMessage(new NuiMessage
+            NuiHelper.SendMessage("interface", "notification", new object[]
             {
-                Action = "interface",
-                Key = "notification",
-                Params = new object[]
-                {
-                    "info",
-                    active == "on" ? "Ciclo mudado para cinema." : "Ciclo definido como pardão."
-                }
+                "info",
+                active == "on" ? "Ciclo mudado para cinema." : "Ciclo definido como pardão."
             });
         }
     }

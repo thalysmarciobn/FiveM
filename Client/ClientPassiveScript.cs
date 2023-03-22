@@ -25,12 +25,15 @@ namespace Client
         {
             if (GetCurrentResourceName() != resourceName) return;
 
-            TriggerServerEvent(EventName.Server.GetPlayerDataList, new Action<string>(arg =>
+            Task.Factory.StartNew(() =>
             {
-                var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
-                foreach (var kvp in data)
-                    PlayerDataList.TryAdd(kvp.Key, kvp.Value);
-            }));
+                TriggerServerEvent(EventName.Server.GetPlayerDataList, new Action<string>(arg =>
+                {
+                    var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
+                    foreach (var kvp in data)
+                        PlayerDataList.TryAdd(kvp.Key, kvp.Value);
+                }));
+            });
         }
 
         private void UpdatePlayerDataList(string arg)
@@ -49,9 +52,6 @@ namespace Client
             var localPed = localPlayer.Character;
             var localVehicle = localPed?.CurrentVehicle;
             var localHooked = localVehicle?.GetHookedVehicle();
-
-            var peds = World.GetAllPeds();
-            var vehicles = World.GetAllVehicles();
 
             var localPassive = false;
 
@@ -95,7 +95,7 @@ namespace Client
                     }
                 }
 
-            foreach (var vehicle in vehicles)
+            foreach (var vehicle in World.GetAllVehicles())
             {
                 var alpha = localPassive && localVehicle?.Handle != vehicle.Handle ? 200 : 255;
                 vehicle.SetAlpha(alpha);
@@ -107,7 +107,7 @@ namespace Client
                 vehicle.SetEntityNoCollision(localHooked);
             }
 
-            foreach (var ped in peds)
+            foreach (var ped in World.GetAllPeds())
             {
                 const int passiveAlpha = 200;
                 const int activeAlpha = 255;

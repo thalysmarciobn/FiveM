@@ -33,14 +33,15 @@ namespace Server.Controller
                     if (account == null)
                         continue;
 
-                    GameInstance.Instance.AddPlayer(license, new GamePlayer(player, account));
-
-                    if (int.TryParse(player.Handle, out var playerServerId))
+                    if (GameInstance.Instance.AddPlayer(license, new GamePlayer(player, account)))
                     {
-                        GameInstance.Instance.SetPlayerData(playerServerId, new ServerPlayer
+                        if (int.TryParse(player.Handle, out var playerServerId))
                         {
-                            IsPassive = false
-                        });
+                            GameInstance.Instance.SetPlayerData(playerServerId, new ServerPlayer
+                            {
+                                IsPassive = false
+                            });
+                        }
                     }
                 }
             }

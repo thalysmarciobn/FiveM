@@ -36,37 +36,40 @@ namespace Client
         {
             if (GetCurrentResourceName() != resourceName) return;
 
-            TriggerServerEvent(EventName.Server.GetServiceVehicles, new Action<string>((arg) =>
+            Task.Factory.StartNew(() =>
             {
-                var vehicles = JsonConvert.DeserializeObject<ICollection<ServerVehicleService>>(arg);
-                foreach (var vehicle in vehicles)
+                TriggerServerEvent(EventName.Server.GetServiceVehicles, new Action<string>((arg) =>
                 {
-                    Prompts.Add(new Prompt(PromptService.ServiceCar, vehicle.Id, new PromptConfig
+                    var vehicles = JsonConvert.DeserializeObject<ICollection<ServerVehicleService>>(arg);
+                    foreach (var vehicle in vehicles)
                     {
-                        Key = (Control)vehicle.Key,
-                        KeyLabel = GetControlInstructionalButton(2, vehicle.Key, 1),
-                        TextLabel = vehicle.Title,
-                        Font = 0,
-                        Scale = 0.4f,
-                        Coords = new Vector3(vehicle.MarkX, vehicle.MarkY, vehicle.MarkZ),
-                        Origin = new Vector2(0, 0),
-                        Offset = new Vector3(0, 0, 0),
-                        Margin = 0.008f,
-                        Padding = 0.004f,
-                        TextOffset = 0,
-                        ButtonSize = 0.015f,
-                        BackgroundColor = new RGBAColor(0, 0, 0, 100),
-                        LabelColor = new RGBAColor(255, 255, 255, 255),
-                        ButtonColor = new RGBAColor(255, 255, 255, 255),
-                        KeyColor = new RGBAColor(0, 0, 0, 255),
-                        DrawDistance = 4.0f,
-                        InteractDistance = 2.0f
-                    }));
-                }
+                        Prompts.Add(new Prompt(PromptService.ServiceCar, vehicle.Id, new PromptConfig
+                        {
+                            Key = (Control)vehicle.Key,
+                            KeyLabel = GetControlInstructionalButton(2, vehicle.Key, 1),
+                            TextLabel = vehicle.Title,
+                            Font = 0,
+                            Scale = 0.4f,
+                            Coords = new Vector3(vehicle.MarkX, vehicle.MarkY, vehicle.MarkZ),
+                            Origin = new Vector2(0, 0),
+                            Offset = new Vector3(0, 0, 0),
+                            Margin = 0.008f,
+                            Padding = 0.004f,
+                            TextOffset = 0,
+                            ButtonSize = 0.015f,
+                            BackgroundColor = new RGBAColor(0, 0, 0, 100),
+                            LabelColor = new RGBAColor(255, 255, 255, 255),
+                            ButtonColor = new RGBAColor(255, 255, 255, 255),
+                            KeyColor = new RGBAColor(0, 0, 0, 255),
+                            DrawDistance = 4.0f,
+                            InteractDistance = 2.0f
+                        }));
+                    }
 
-                foreach (var prompt in Prompts)
-                    prompt.Update();
-            }));
+                    foreach (var prompt in Prompts)
+                        prompt.Update();
+                }));
+            });
         }
 
         private void OnClientResourceStop(string resourceName)
@@ -95,11 +98,13 @@ namespace Client
 
             if (GlobalVariables.CurrentPromptServiceVehicle != null)
             {
-                var blipId = GlobalVariables.CurrentPromptServiceVehicle.Blip;
-                var driverId = GlobalVariables.CurrentPromptServiceVehicle.DriverEntityId;
-                var vehicleId = GlobalVariables.CurrentPromptServiceVehicle.VehicleEntityId;
+                var currentPrompt = GlobalVariables.CurrentPromptServiceVehicle;
 
-                var distance = GetDistanceBetweenCoords(localPlayerCharacter.Position.X, localPlayerCharacter.Position.Y, localPlayerCharacter.Position.Z, GlobalVariables.CurrentPromptServiceVehicle.X, GlobalVariables.CurrentPromptServiceVehicle.Y, GlobalVariables.CurrentPromptServiceVehicle.Z, true);
+                var blipId = currentPrompt.Blip;
+                var driverId = currentPrompt.DriverEntityId;
+                var vehicleId = currentPrompt.VehicleEntityId;
+
+                var distance = GetDistanceBetweenCoords(localPlayerCharacter.Position.X, localPlayerCharacter.Position.Y, localPlayerCharacter.Position.Z, currentPrompt.X, currentPrompt.Y, currentPrompt.Z, true);
 
                 if (distance < 20.0f)
                     localPlayer.CanControlCharacter = true;
@@ -110,24 +115,24 @@ namespace Client
                     {
                         DeleteEntity(ref driverId);
                         while (DoesEntityExist(driverId))
-                            Wait(0);
+                            Wait(10);
 
                         RemoveBlip(ref blipId);
                         while (DoesBlipExist(blipId))
-                            Wait(0);
+                            Wait(10);
 
                         DeleteVehicle(ref vehicleId);
                         while (DoesEntityExist(vehicleId))
-                            Wait(0);
+                            Wait(10);
 
-                        ServicesInAction.Remove(GlobalVariables.CurrentPromptServiceVehicle.ValueId);
+                        ServicesInAction.Remove(currentPrompt.ValueId);
                         GlobalVariables.CurrentPromptServiceVehicle = null;
                         TriggerServerEvent(EventName.Server.SetPassive, false);
                     }
                 }
                 else
                 {
-                    ServicesInAction.Remove(GlobalVariables.CurrentPromptServiceVehicle.ValueId);
+                    ServicesInAction.Remove(currentPrompt.ValueId);
                     GlobalVariables.CurrentPromptServiceVehicle = null;
                     localPlayer.CanControlCharacter = true;
                     TriggerServerEvent(EventName.Server.SetPassive, false);
@@ -136,13 +141,13 @@ namespace Client
 
             foreach (var prompt in Prompts)
             {
-                var drawDistance = prompt.Config.DrawDistance;
-                var interactDistance = prompt.Config.InteractDistance;
                 var coords = prompt.Config.Coords;
+                var drawDistance = prompt.Config.DrawDistance;
 
                 var distance = GetDistanceBetweenCoords(localPlayerCharacter.Position.X, localPlayerCharacter.Position.Y, localPlayerCharacter.Position.Z, coords.X, coords.Y, coords.Z, true);
                 if (distance < drawDistance)
                 {
+                    var interactDistance = prompt.Config.InteractDistance;
                     if (distance < interactDistance)
                     {
                         if (IsControlJustPressed(0, (int)prompt.Config.Key))
@@ -209,12 +214,7 @@ namespace Client
                 SetNuiFocus(opened, opened);
                 SetNuiFocusKeepInput(opened);
 
-                NuiHelper.SendMessage(new NuiMessage
-                {
-                    Action = "interface",
-                    Key = "panel",
-                    Params = new[] { opened ? "true" : "false" }
-                });
+                NuiHelper.SendMessage("interface", "panel", new[] { opened ? "true" : "false" });
                 return Task.FromResult(0);
             }
 
@@ -233,7 +233,7 @@ namespace Client
 
                         DoScreenFadeOut(500);
                         while (IsScreenFadingOut())
-                            await Delay(0);
+                            await Delay(10);
 
                         while (!NetworkDoesEntityExistWithNetworkId(vehicle.NetworkId))
                             Wait(0);
@@ -277,7 +277,7 @@ namespace Client
 
                         DoScreenFadeIn(500);
                         while (IsScreenFadingIn())
-                            await Delay(0);
+                            await Delay(10);
 
                         var speed = 20f;
                         // https://vespura.com/fivem/drivingstyle/

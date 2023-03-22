@@ -208,7 +208,7 @@ namespace Server
                     var serverVehicleId = CreateVehicle(model, position.X, position.Y + 8.0f, position.Z + 0.5f, heading, true, false);
 
                     while (!DoesEntityExist(serverVehicleId))
-                        await Task.Delay(0);
+                        await Task.Delay(10);
 
                     var networkId = NetworkGetNetworkIdFromEntity(serverVehicleId);
 
@@ -243,7 +243,7 @@ namespace Server
                 var serverVehicleId = CreateVehicleServerSetter(model.Model, "automobile", model.SpawnX, model.SpawnY, model.SpawnZ, model.SpawnHeading);
 
                 while (!DoesEntityExist(serverVehicleId))
-                    await Task.Delay(0);
+                    await Task.Delay(10);
 
                 // 2 - trancado mas o npc abre a porta
                 // 3 - não da pra entrar
