@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DatabaseConsole.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20230318010640_init")]
+    [Migration("20230323210047_init")]
     partial class init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -715,7 +715,13 @@ namespace DatabaseConsole.Migrations
                     b.Property<int>("PearlColour")
                         .HasColumnType("int");
 
+                    b.Property<float>("PetrolTankHealth")
+                        .HasColumnType("float");
+
                     b.Property<int>("PrimaryColour")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoofLivery")
                         .HasColumnType("int");
 
                     b.Property<int>("SecondaryColour")

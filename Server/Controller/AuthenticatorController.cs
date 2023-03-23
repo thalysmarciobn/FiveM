@@ -95,7 +95,7 @@ namespace Server.Controller
                             var gameCharacterPosition = gameCharacter.Position;
                             var gameCharacterRotation = gameCharacter.Rotation;
 
-                            var dbCharacter = account.Character.FirstOrDefault();
+                            var dbCharacter = account.Character.FirstOrDefault(x => x.Id == account.CurrentCharacter);
 
                             if (dbCharacter == null)
                                 return;

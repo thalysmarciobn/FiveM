@@ -14,6 +14,8 @@ namespace Client
         {
             public const int MaxHealth = 500;
 
+            public static bool Entered = false;
+
             public static bool DisplayRadar = true; // initial as true
 
             public static PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }

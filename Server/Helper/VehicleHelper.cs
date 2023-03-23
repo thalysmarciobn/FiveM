@@ -14,6 +14,7 @@ namespace Server.Helper
                 CharacterId = character,
                 Model = model,
                 Livery = GetVehicleLivery(veh),
+                RoofLivery = GetVehicleRoofLivery(veh),
                 BodyHealth = GetVehicleBodyHealth(veh),
                 DirtLevel = GetVehicleDirtLevel(veh),
                 DoorLockStatus = GetVehicleDoorLockStatus(veh),
@@ -26,7 +27,8 @@ namespace Server.Helper
                 NumberPlateText = GetVehicleNumberPlateText(veh),
                 NumberPlateTextIndex = GetVehicleNumberPlateTextIndex(veh),
                 WheelType = GetVehicleWheelType(veh),
-                WindowTint = GetVehicleWindowTint(veh)
+                WindowTint = GetVehicleWindowTint(veh),
+                PetrolTankHealth = GetVehiclePetrolTankHealth(veh)
             };
 
             var dashboardColor = data.DashboardColor;

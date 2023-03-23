@@ -233,18 +233,20 @@ namespace Server
 
                     var networkId = NetworkGetNetworkIdFromEntity(serverVehicleId);
 
+                    var data = VehicleHelper.VehicleToData(model, gamePlayer.Account.CurrentCharacter,
+                        serverVehicleId);
+
                     var serverVehicle = new ServerVehicle
                     {
                         ServerId = serverVehicleId,
-                        NetworkId = networkId
+                        NetworkId = networkId,
+                        Data = data
                     };
 
                     var json = JsonHelper.SerializeObject(serverVehicle);
 
                     using (var context = DatabaseContextManager.Context)
                     {
-                        var data = VehicleHelper.VehicleToData(model, gamePlayer.Account.CurrentCharacter,
-                            serverVehicleId);
                         context.Vehicles.Add(data);
                         context.SaveChanges();
                     }

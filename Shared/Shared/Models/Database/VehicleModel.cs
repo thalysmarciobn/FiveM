@@ -6,6 +6,7 @@
         public long CharacterId { get; set; }
         public uint Model { get; set; }
         public int Livery { get; set; }
+        public int RoofLivery { get; set; }
         public float BodyHealth { get; set; }
         public int DashboardColor { get; set; }
         public float DirtLevel { get; set; }
@@ -23,6 +24,7 @@
         public int NumberPlateTextIndex { get; set; }
         public int WheelType { get; set; }
         public int WindowTint { get; set; }
+        public float PetrolTankHealth { get; set; }
         public int PrimaryColour { get; set; }
         public int SecondaryColour { get; set; }
         public int PearlColour { get; set; }

@@ -11,6 +11,7 @@ using Shared.Helper;
 using Shared.Models.Database;
 using Shared.Models.Server;
 using static CitizenFX.Core.Native.API;
+using static CitizenFX.Core.UI.Screen;
 using static Client.GameCamera;
 using static Client.GlobalVariables;
 
@@ -413,7 +414,7 @@ namespace FiveM.Client
             }
             else
             {
-                var resCharacter = account.Character.SingleOrDefault(x => x.Slot == 0);
+                var resCharacter = account.Character.SingleOrDefault(x => x.Id == account.CurrentCharacter);
                 await EnterCharacter(resCharacter);
             }
 
@@ -435,18 +436,16 @@ namespace FiveM.Client
             {
                 var data = JsonHelper.DeserializeObject<AccountCharacterModel>(json);
 
-                DeleteCamera();
-
                 await EnterCharacter(data);
-
-                RenderScriptCams(false, false, 0, true, true);
             }));
         }
 
         private async Task EnterCharacter(AccountCharacterModel resCharacter)
         {
+            if (G_Character.Entered)
+                return;
+
             var player = Game.Player;
-            var character = player.Character;
 
             var resCharacterPosition = resCharacter.Position;
             var resCharacterRotation = resCharacter.Rotation;
@@ -476,31 +475,43 @@ namespace FiveM.Client
             var ground = GetGroundZFor_3dCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z,
                 ref groundZ, false);
 
-            character.Position = new Vector3
+            player.Character.Position = new Vector3
             {
                 X = resCharacterPosition.X,
                 Y = resCharacterPosition.Y,
-                Z = resCharacterPosition.Z
+                Z = ground ? groundZ : resCharacterPosition.Z
             };
 
-            character.Rotation = new Vector3
+            player.Character.Rotation = new Vector3
             {
                 X = resCharacterRotation.X,
                 Y = resCharacterRotation.Y,
                 Z = resCharacterRotation.Z
             };
-            character.Heading = resCharacter.Heading;
+            player.Character.Heading = resCharacter.Heading;
 
-            character.Armor = resCharacter.Armor;
-            character.Health = resCharacter.Health;
-            character.MaxHealth = G_Character.MaxHealth;
+            player.Character.Armor = resCharacter.Armor;
+            player.Character.Health = resCharacter.Health;
+            player.Character.MaxHealth = G_Character.MaxHealth;
 
             //ClearPlayerWantedLevel(PlayerId());
             player.WantedLevel = 0;
 
+            player.CanControlCharacter = true;
+
+            player.Character.IsCollisionEnabled = true;
+            player.Character.IsPositionFrozen = false;
+            player.Character.IsInvincible = false;
+
+            G_Character.Entered = true;
+
             SetNuiFocus(false, false);
 
             NuiHelper.SendMessage("interface", "creation", new[] { "false", "0" });
+
+            DeleteCamera();
+
+            RenderScriptCams(false, false, 0, true, true);
         }
 
         [Command("test")]

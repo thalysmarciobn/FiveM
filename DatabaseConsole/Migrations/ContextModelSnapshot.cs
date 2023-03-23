@@ -713,7 +713,13 @@ namespace DatabaseConsole.Migrations
                     b.Property<int>("PearlColour")
                         .HasColumnType("int");
 
+                    b.Property<float>("PetrolTankHealth")
+                        .HasColumnType("float");
+
                     b.Property<int>("PrimaryColour")
+                        .HasColumnType("int");
+
+                    b.Property<int>("RoofLivery")
                         .HasColumnType("int");
 
                     b.Property<int>("SecondaryColour")

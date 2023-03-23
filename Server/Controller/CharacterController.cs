@@ -521,23 +521,33 @@ namespace Server.Controller
 
                     using (var context = DatabaseContextManager.Context)
                     {
-                        try
+                        using (var transaction = context.Database.BeginTransaction())
                         {
-                            account.Character.Add(createCharacter);
+                            try
+                            {
+                                account.Character.Add(createCharacter);
+                                context.Update(account);
 
-                            context.Update(account);
+                                if (context.SaveChanges() > 0)
+                                {
 
-                            account.CurrentCharacter = createCharacter.Id;
+                                    account.CurrentCharacter = createCharacter.Id;
 
-                            context.SaveChanges();
+                                    context.Update(account);
+                                    context.SaveChanges();
+                                }
+                                networkCallback.Invoke((int)RegisterCharacterEnum.Success);
 
-                            networkCallback.Invoke((int)RegisterCharacterEnum.Success);
-                        }
-                        catch
-                        {
-                            account.Character.Remove(createCharacter);
+                                transaction.Commit();
+                            }
+                            catch
+                            {
+                                transaction.Rollback();
 
-                            networkCallback.Invoke((int)RegisterCharacterEnum.Fail);
+                                account.Character.Remove(createCharacter);
+
+                                networkCallback.Invoke((int)RegisterCharacterEnum.Fail);
+                            }
                         }
                     }
                 }
