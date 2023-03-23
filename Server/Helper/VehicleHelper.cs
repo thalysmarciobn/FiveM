@@ -1,13 +1,8 @@
 ﻿using CitizenFX.Core;
 using Shared.Models.Database;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using static CitizenFX.Core.Native.API;
 
-namespace Client.Helper
+namespace Server.Helper
 {
     public static class VehicleHelper
     {
@@ -31,7 +26,7 @@ namespace Client.Helper
                 NumberPlateText = GetVehicleNumberPlateText(veh),
                 NumberPlateTextIndex = GetVehicleNumberPlateTextIndex(veh),
                 WheelType = GetVehicleWheelType(veh),
-                WindowTint = GetVehicleWindowTint(veh),
+                WindowTint = GetVehicleWindowTint(veh)
             };
 
             var dashboardColor = data.DashboardColor;
@@ -62,14 +57,16 @@ namespace Client.Helper
             var customPrimaryColourB = data.CustomPrimaryColourB;
 
             if (GetIsVehiclePrimaryColourCustom(veh))
-                GetVehicleCustomPrimaryColour(veh, ref customPrimaryColourR, ref customPrimaryColourG, ref customPrimaryColourB);
+                GetVehicleCustomPrimaryColour(veh, ref customPrimaryColourR, ref customPrimaryColourG,
+                    ref customPrimaryColourB);
 
             var customSecondaryColourR = data.CustomSecondaryColourR;
             var customSecondaryColourG = data.CustomSecondaryColourG;
             var customSecondaryColourB = data.CustomSecondaryColourB;
 
             if (GetIsVehicleSecondaryColourCustom(veh))
-                GetVehicleCustomSecondaryColour(veh, ref customSecondaryColourR, ref customSecondaryColourG, ref customSecondaryColourB);
+                GetVehicleCustomSecondaryColour(veh, ref customSecondaryColourR, ref customSecondaryColourG,
+                    ref customSecondaryColourB);
 
             var tyreSmokeColorR = data.TyreSmokeColorR;
             var tyreSmokeColorG = data.TyreSmokeColorG;

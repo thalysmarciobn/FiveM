@@ -1,8 +1,4 @@
-﻿using Shared.Enumerations;
-using Shared.Models.Database;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Shared.Models.Database;
 
 namespace Shared.Models.Server
 {

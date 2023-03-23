@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Server.Configurations
+﻿namespace Server.Configurations
 {
     public class ServerSettings
     {
         public Database Database { get; set; }
     }
+
     public class Database
     {
         public string Server { get; set; }

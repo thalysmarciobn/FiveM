@@ -1,8 +1,7 @@
-﻿using Shared.Enumerations;
-using Shared.Models.Database;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
+using Shared.Enumerations;
+using Shared.Models.Database;
 
 namespace Shared.Helper
 {
@@ -24,6 +23,7 @@ namespace Shared.Helper
                             Scale = 0
                         });
                     }
+
                     break;
                 case nameof(AccountCharacterPedComponentModel):
                     foreach (ComponentVariationEnum enumId in Enum.GetValues(typeof(ComponentVariationEnum)))
@@ -37,6 +37,7 @@ namespace Shared.Helper
                             PalleteId = 0
                         });
                     }
+
                     break;
                 case nameof(AccountCharacterPedPropModel):
                     foreach (PropVariationEnum enumId in Enum.GetValues(typeof(PropVariationEnum)))
@@ -51,6 +52,7 @@ namespace Shared.Helper
                             Attach = false
                         });
                     }
+
                     break;
                 case nameof(AccountCharacterPedHeadOverlayModel):
                     foreach (OverlayEnum enumId in Enum.GetValues(typeof(OverlayEnum)))
@@ -58,11 +60,13 @@ namespace Shared.Helper
                         var input = models as List<AccountCharacterPedHeadOverlayModel>;
                         input.Add(new AccountCharacterPedHeadOverlayModel
                         {
-                            OverlayId = enumId,
+                            OverlayId = enumId
                         });
                     }
+
                     break;
             }
+
             return models;
         }
     }

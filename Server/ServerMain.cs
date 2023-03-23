@@ -1,46 +1,23 @@
-﻿using CitizenFX.Core;
-using FiveM.Server.Database;
-using FluentScheduler;
-using Server.Configurations;
-using Server.Core.Game;
-using Server.Instances;
-using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Dynamic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization;
-using YamlDotNet.Core;
-using Microsoft.EntityFrameworkCore.Storage;
-using Server.Database;
-using System.Collections.Immutable;
-using Server.Controller;
-using Server.Core.Server;
-using System.ComponentModel;
-using static CitizenFX.Core.Native.API;
 using System.Threading.Tasks;
-using System.Runtime.CompilerServices;
-using Microsoft.EntityFrameworkCore;
-using Server.Extensions;
-using Newtonsoft.Json;
-using Shared.Models.Database;
-using CitizenFX.Core.Native;
-using Shared.Models.Server;
-using System.Threading;
-using System.Dynamic;
-using Shared.Enumerations;
+using CitizenFX.Core;
+using Server.Configurations;
+using Server.Controller;
+using Server.Database;
+using Server.Helper;
+using Server.Instances;
 using Shared.Helper;
-using Client.Helper;
+using Shared.Models.Server;
+using static CitizenFX.Core.Native.API;
 
 namespace Server
 {
     public class ServerMain : BaseScript
     {
-        private ServerController ServerController { get; }
-        private AuthenticatorController AuthenticatorController { get; }
-        private CharacterController CharacterController { get; }
-        private TimeSyncController TimeSyncController { get; }
         public ServerMain()
         {
             ServerController = new ServerController();
@@ -88,15 +65,40 @@ namespace Server
             //}).Start();
         }
 
+        private ServerController ServerController { get; }
+        private AuthenticatorController AuthenticatorController { get; }
+        private CharacterController CharacterController { get; }
+        private TimeSyncController TimeSyncController { get; }
+
+        [Command("project_players")]
+        public void ProjectPlayers()
+        {
+            Debug.WriteLine($"Players Connected: {GameInstance.Instance.PlayerCount} / {Players.Count()}");
+        }
+
+        [Command("weather")]
+        public void Weather(int src, List<object> args, string raw)
+        {
+            TimeSyncController.Update(int.Parse(args[0].ToString()));
+            var date = TimeSyncController.CurrentDate;
+            Debug.WriteLine(
+                $"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
+        }
+
         #region Connection
 
         [EventHandler(EventName.External.Server.PlayerConnecting)]
-        private void PlayerConnecting([FromSource] Player player, string playerName, dynamic kickCallback, dynamic deferrals) =>
+        private void PlayerConnecting([FromSource] Player player, string playerName, dynamic kickCallback,
+            dynamic deferrals)
+        {
             AuthenticatorController.PlayerConnecting(player, playerName, kickCallback, deferrals);
+        }
 
         [EventHandler(EventName.External.Server.PlayerDropped)]
-        private void OnPlayerDropped([FromSource] Player player, string reason) =>
+        private void OnPlayerDropped([FromSource] Player player, string reason)
+        {
             AuthenticatorController.OnPlayerDropped(player, reason);
+        }
 
         #endregion
 
@@ -137,59 +139,79 @@ namespace Server
                 Debug.WriteLine($"[PROJECT][{playerServerId}] Passive updated: {isPassive}");
                 serverPlayer.IsPassive = isPassive;
             }
+
             var data = JsonHelper.SerializeObject(GameInstance.Instance.GetPlayerDataList);
             foreach (var entity in Players)
                 entity.TriggerEvent(EventName.Client.UpdatePlayerDataList, data);
         }
 
         [EventHandler(EventName.Server.GetPassive)]
-        public void GetPassive(int playerServerId, NetworkCallbackDelegate networkCallback) =>
+        public void GetPassive(int playerServerId, NetworkCallbackDelegate networkCallback)
+        {
             networkCallback.Invoke(GameInstance.Instance.GetPlayerIsPassive(playerServerId));
+        }
 
         [EventHandler(EventName.Server.GetPlayerDataList)]
-        public void GetPlayerDataList(NetworkCallbackDelegate networkCallback) =>
+        public void GetPlayerDataList(NetworkCallbackDelegate networkCallback)
+        {
             networkCallback.Invoke(JsonHelper.SerializeObject(GameInstance.Instance.GetPlayerDataList));
+        }
 
         #endregion
 
         #region Map
+
         [EventHandler(EventName.Server.GetBlips)]
-        public void GetBlips(NetworkCallbackDelegate networkCallback) =>
+        public void GetBlips(NetworkCallbackDelegate networkCallback)
+        {
             networkCallback.Invoke(JsonHelper.SerializeObject(GameInstance.Instance.GetBlipList));
+        }
 
         [EventHandler(EventName.Server.GetTimeSync)]
-        public void GetTimeSync(NetworkCallbackDelegate networkCallback) =>
+        public void GetTimeSync(NetworkCallbackDelegate networkCallback)
+        {
             networkCallback.Invoke(JsonHelper.SerializeObject(new ServerTimeSync
             {
                 Weather = (uint)TimeSyncController.CurrentWeather,
                 RainLevel = TimeSyncController.RainLevel,
                 WindSpeed = TimeSyncController.WindSpeed,
                 WindDirection = TimeSyncController.WindDirection,
-                Ticks = TimeSyncController.CurrentDate.Ticks,
+                Ticks = TimeSyncController.CurrentDate.Ticks
             }));
+        }
+
         #endregion
 
         #region Character
 
         [EventHandler(EventName.Server.AccountRequest)]
-        public void AccountRequest([FromSource] Player player) =>
+        public void AccountRequest([FromSource] Player player)
+        {
             CharacterController.AccountRequest(player);
+        }
 
         [EventHandler(EventName.Server.CharacterRequest)]
-        public void CharacterRequest([FromSource] Player player, int slot, NetworkCallbackDelegate networkCallback) =>
+        public void CharacterRequest([FromSource] Player player, int slot, NetworkCallbackDelegate networkCallback)
+        {
             CharacterController.CharacterRequest(player, slot, networkCallback);
+        }
 
         [EventHandler(EventName.Server.RegisterCharacter)]
-        public void RegisterCharacter([FromSource] Player player, string name, string lastName, int age, int slot, ExpandoObject appearance, NetworkCallbackDelegate networkCallback) =>
+        public void RegisterCharacter([FromSource] Player player, string name, string lastName, int age, int slot,
+            ExpandoObject appearance, NetworkCallbackDelegate networkCallback)
+        {
             CharacterController.RegisterCharacter(player, name, lastName, age, slot, appearance, networkCallback);
+        }
 
         #endregion
 
         #region Vehicles
 
         [EventHandler(EventName.Server.GetServiceVehicles)]
-        public void GetServiceVehicles(NetworkCallbackDelegate networkCallback) =>
+        public void GetServiceVehicles(NetworkCallbackDelegate networkCallback)
+        {
             networkCallback.Invoke(JsonHelper.SerializeObject(GameInstance.Instance.GetVehicles));
+        }
 
         [EventHandler(EventName.Server.ForceVehicle)]
         public async void ForceVehicle([FromSource] Player player, uint model, NetworkCallbackDelegate networkCallback)
@@ -200,12 +222,11 @@ namespace Server
             var position = player.Character.Position;
 
             if (GameInstance.Instance.GetPlayer(license, out var gamePlayer))
-            {
-
                 if (VehicleDataHelper.GetVehicleType(model, out var type))
                 {
                     Debug.WriteLine($"{model}  {type}  {position.X}  {position.Y}  {position.Z}");
-                    var serverVehicleId = CreateVehicle(model, position.X, position.Y + 8.0f, position.Z + 0.5f, heading, true, false);
+                    var serverVehicleId = CreateVehicle(model, position.X, position.Y + 8.0f, position.Z + 0.5f,
+                        heading, true, false);
 
                     while (!DoesEntityExist(serverVehicleId))
                         await Task.Delay(10);
@@ -215,32 +236,34 @@ namespace Server
                     var serverVehicle = new ServerVehicle
                     {
                         ServerId = serverVehicleId,
-                        NetworkId = networkId,
+                        NetworkId = networkId
                     };
 
                     var json = JsonHelper.SerializeObject(serverVehicle);
 
                     using (var context = DatabaseContextManager.Context)
                     {
-                        var data = VehicleHelper.VehicleToData(model, gamePlayer.Account.CurrentCharacter, serverVehicleId);
+                        var data = VehicleHelper.VehicleToData(model, gamePlayer.Account.CurrentCharacter,
+                            serverVehicleId);
                         context.Vehicles.Add(data);
                         context.SaveChanges();
                     }
 
                     await networkCallback.Invoke(json);
                 }
-            }
         }
 
         [EventHandler(EventName.Server.SpawnVehicleService)]
-        public async void SpawnVehicleService([FromSource] Player player, int serviceId, NetworkCallbackDelegate networkCallback)
+        public async void SpawnVehicleService([FromSource] Player player, int serviceId,
+            NetworkCallbackDelegate networkCallback)
         {
             if (GameInstance.Instance.GetVehicle(serviceId, out var model))
             {
                 //if (GameInstance.Instance.ContainsSpawnVehicle(model.Id))
                 //    return;
 
-                var serverVehicleId = CreateVehicleServerSetter(model.Model, "automobile", model.SpawnX, model.SpawnY, model.SpawnZ, model.SpawnHeading);
+                var serverVehicleId = CreateVehicleServerSetter(model.Model, "automobile", model.SpawnX, model.SpawnY,
+                    model.SpawnZ, model.SpawnHeading);
 
                 while (!DoesEntityExist(serverVehicleId))
                     await Task.Delay(10);
@@ -269,17 +292,5 @@ namespace Server
         }
 
         #endregion
-
-        [Command("project_players")]
-        public void ProjectPlayers() => 
-            Debug.WriteLine($"Players Connected: {GameInstance.Instance.PlayerCount} / {Players.Count()}");
-
-        [Command("weather")]
-        public void Weather(int src, List<object> args, string raw)
-        {
-            TimeSyncController.Update(int.Parse(args[0].ToString()));
-            var date = TimeSyncController.CurrentDate;
-            Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
-        }
     }
 }

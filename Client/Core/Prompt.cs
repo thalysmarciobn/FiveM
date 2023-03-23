@@ -1,28 +1,32 @@
-﻿using CitizenFX.Core;
-using CitizenFX.Core.Native;
-using CitizenFX.Core.UI;
-using Mono.CSharp;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
+using CitizenFX.Core;
 using static CitizenFX.Core.Native.API;
 
 namespace Client.Core
 {
     public class Prompt
     {
-        public PromptService Service { get; private set; }
+        public PromptBackground Background = new PromptBackground();
+
+        public PromptButton Button = new PromptButton();
+        public PromptFX FX = new PromptFX();
+
+        public Prompt(PromptService service, long valueId, PromptConfig config)
+        {
+            Service = service;
+            ValueId = valueId;
+            Config = config;
+        }
+
+        public PromptService Service { get; }
         public long ValueId { get; set; }
         public float KeyTextWidth { get; private set; }
         public float LabelTextWidth { get; private set; }
         public float TextHeight { get; private set; }
-        public PromptConfig Config { get; private set; }
+        public PromptConfig Config { get; }
         private Vector2 BoxPadding { get; set; }
         private float MinWidth { get; set; }
-        private float MaxWidth{ get; set; }
+        private float MaxWidth { get; set; }
         public bool CanInteract { get; set; }
         public bool IsPressed { get; set; }
         public bool IsDrawPressed { get; set; }
@@ -30,21 +34,10 @@ namespace Client.Core
         public int SW { get; private set; }
         public int SH { get; private set; }
 
-        public PromptButton Button = new PromptButton();
-        public PromptBackground Background = new PromptBackground();
-        public PromptFX FX = new PromptFX();
-
-        public Prompt (PromptService service, long valueId, PromptConfig config)
-        {
-            Service = service;
-            ValueId = valueId;
-            Config = config;
-        }
-
         public void Update()
         {
-            int sw = 0;
-            int sh = 0;
+            var sw = 0;
+            var sh = 0;
             // Dimensions
             GetActiveScreenResolution(ref sw, ref sh);
 
@@ -65,8 +58,8 @@ namespace Client.Core
             //
 
             // Buttons
-            Button.W = (Math.Max(Config.ButtonSize, KeyTextWidth) * sw) / sw;
-            Button.H = (Config.ButtonSize * sw) / sh;
+            Button.W = Math.Max(Config.ButtonSize, KeyTextWidth) * sw / sw;
+            Button.H = Config.ButtonSize * sw / sh;
             Button.BC = Config.ButtonColor;
             Button.FC = Config.KeyColor;
 
@@ -77,26 +70,26 @@ namespace Client.Core
 
             BoxPadding = new Vector2
             {
-                X = (Config.Padding * sw) / sw,
-                Y = (Config.Padding * sw) / sh
+                X = Config.Padding * sw / sw,
+                Y = Config.Padding * sw / sh
             };
 
             // Background
-            MinWidth = Button.W + (BoxPadding.X * 2);
-            MaxWidth = LabelTextWidth + Button.W + (BoxPadding.X * 3) + (Config.Margin * 2);
+            MinWidth = Button.W + BoxPadding.X * 2;
+            MaxWidth = LabelTextWidth + Button.W + BoxPadding.X * 3 + Config.Margin * 2;
 
             Background.W = MaxWidth;
-            Background.H = Button.H + (BoxPadding.Y * 2);
+            Background.H = Button.H + BoxPadding.Y * 2;
             Background.BC = Config.BackgroundColor;
             Background.FC = Config.LabelColor;
 
-            Button.X = Config.Origin.X - (Background.W / 2) + (Button.W / 2) + BoxPadding.X;
-            Button.Y = Config.Origin.Y - (Background.H / 2) + (Button.H / 2) + BoxPadding.Y;
+            Button.X = Config.Origin.X - Background.W / 2 + Button.W / 2 + BoxPadding.X;
+            Button.Y = Config.Origin.Y - Background.H / 2 + Button.H / 2 + BoxPadding.Y;
 
             Button.TextX = Button.X;
             Button.TextY = Button.Y - TextHeight + Config.TextOffset;
 
-            Background.TextX = Button.X + (Button.W / 2) + Config.Margin + BoxPadding.X;
+            Background.TextX = Button.X + Button.W / 2 + Config.Margin + BoxPadding.X;
             Background.TextY = Button.Y - TextHeight + Config.TextOffset;
 
             Background.W = MinWidth;
@@ -129,15 +122,15 @@ namespace Client.Core
             }
 
             Button.TextX = Button.X;
-            Button.X = Config.Origin.X - (Background.W / 2) + (Button.W / 2) + BoxPadding.X;
+            Button.X = Config.Origin.X - Background.W / 2 + Button.W / 2 + BoxPadding.X;
 
             RenderElement(Config.TextLabel, background, false);
             RenderElement(Config.KeyLabel, button);
 
             if (IsDrawPressed)
             {
-                FX.W = FX.W + (0.0005f * SW) / SW;
-                FX.H = FX.H + (0.0005f * SW) / SH;
+                FX.W = FX.W + 0.0005f * SW / SW;
+                FX.H = FX.H + 0.0005f * SW / SH;
 
                 FX.A = FX.A - 18;
 
@@ -179,6 +172,7 @@ namespace Client.Core
             return EndTextCommandGetWidth(true);
         }
     }
+
     public class PromptConfig
     {
         public Control Key { get; set; }
@@ -200,6 +194,7 @@ namespace Client.Core
         public float DrawDistance { get; set; }
         public float InteractDistance { get; set; }
     }
+
     public interface IBox
     {
         float X { get; set; }
@@ -235,6 +230,7 @@ namespace Client.Core
         public RGBAColor BC { get; set; }
         public RGBAColor FC { get; set; }
     }
+
     public class PromptFX
     {
         public float W { get; set; }

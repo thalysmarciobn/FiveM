@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Shared.Models.Database
+﻿namespace Shared.Models.Database
 {
     public class AccountCharacterRotationModel
     {

@@ -5,16 +5,23 @@ using static CitizenFX.Core.Native.API;
 
 namespace Client
 {
-    public enum CameraType
-    {
-        Entity,
-        Face,
-        Hair,
-        Shoes
-    }
 
     public static class GameCamera
     {
+        public enum CameraType
+        {
+            Entity,
+            Face,
+            Hair,
+            Shoes
+        }
+
+        private class CameraData
+        {
+            public Vector3 Coords { get; set; }
+            public Vector3 Points { get; set; }
+        }
+
         private static readonly Dictionary<CameraType, CameraData> Cameras = new Dictionary<CameraType, CameraData>
         {
             {
@@ -89,12 +96,6 @@ namespace Client
             }
 
             PlaySoundFrontend(-1, "Zoom_Out", "DLC_HEIST_PLANNING_BOARD_SOUNDS", true);
-        }
-
-        private class CameraData
-        {
-            public Vector3 Coords { get; set; }
-            public Vector3 Points { get; set; }
         }
     }
 }

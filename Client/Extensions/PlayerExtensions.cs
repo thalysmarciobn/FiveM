@@ -1,10 +1,7 @@
-﻿using CitizenFX.Core;
-using CitizenFX.Core.Native;
+﻿using System.Collections.Generic;
+using CitizenFX.Core;
 using Shared.Models.Database;
-using System.Collections.Generic;
 using static CitizenFX.Core.Native.API;
-using static Client.Extensions.PlayerExtensions;
-using static Client.GlobalVariables;
 
 namespace Client.Extensions
 {
@@ -32,17 +29,17 @@ namespace Client.Extensions
                 return null;
 
             // Start by trying to get the vehicle attached as a trailer
-            int trailer = 0;
+            var trailer = 0;
             if (GetVehicleTrailerVehicle(vehicle.Handle, ref trailer))
                 return Entity.FromHandle(trailer) as Vehicle;
 
             // Try to get a hooked cargobob vehicle and return it if there is somehing
-            Vehicle cargobobHook = Entity.FromHandle(GetVehicleAttachedToCargobob(vehicle.Handle)) as Vehicle;
+            var cargobobHook = Entity.FromHandle(GetVehicleAttachedToCargobob(vehicle.Handle)) as Vehicle;
             if (cargobobHook != null && cargobobHook.Exists())
                 return cargobobHook;
 
             // Then, try to get it as a tow truck and return it if it does
-            Vehicle towHooked = Entity.FromHandle(GetEntityAttachedToTowTruck(vehicle.Handle)) as Vehicle;
+            var towHooked = Entity.FromHandle(GetEntityAttachedToTowTruck(vehicle.Handle)) as Vehicle;
             if (towHooked != null && towHooked.Exists())
                 return towHooked;
             return null;
@@ -64,7 +61,8 @@ namespace Client.Extensions
         public static void SetPedHeadBlendDatas(this Player player, AccountCharacterPedHeadDataModel model)
         {
             var ped = player.Character.Handle;
-            SetPedHeadBlendData(ped, model.ShapeFirstID, model.ShapeSecondID, model.ShapeThirdID, model.SkinFirstID, model.SkinSecondID, model.SkinThirdID, model.ShapeMix, model.SkinMix, model.ThirdMix, model.IsParent);
+            SetPedHeadBlendData(ped, model.ShapeFirstID, model.ShapeSecondID, model.ShapeThirdID, model.SkinFirstID,
+                model.SkinSecondID, model.SkinThirdID, model.ShapeMix, model.SkinMix, model.ThirdMix, model.IsParent);
         }
 
         public static void SetHairColor(this Player player, AccountCharacterPedHeadModel model)
@@ -79,39 +77,44 @@ namespace Client.Extensions
             SetPedEyeColor(ped, model.EyeColorId);
         }
 
-        public static void SetPedHeadOverlays(this Player player, ICollection<AccountCharacterPedHeadOverlayModel> model)
+        public static void SetPedHeadOverlays(this Player player,
+            ICollection<AccountCharacterPedHeadOverlayModel> model)
         {
             var ped = player.Character.Handle;
             foreach (var overlay in model)
                 SetPedHeadOverlay(ped, (int)overlay.OverlayId, overlay.Index, overlay.Opacity);
         }
 
-        public static void SetPedHeadOverlayColors(this Player player, ICollection<AccountCharacterPedHeadOverlayColorModel> model)
+        public static void SetPedHeadOverlayColors(this Player player,
+            ICollection<AccountCharacterPedHeadOverlayColorModel> model)
         {
             var ped = player.Character.Handle;
             foreach (var overlay in model)
-                SetPedHeadOverlayColor(ped, (int)overlay.OverlayId, overlay.ColorType, overlay.ColorId, overlay.SecondColorId);
+                SetPedHeadOverlayColor(ped, (int)overlay.OverlayId, overlay.ColorType, overlay.ColorId,
+                    overlay.SecondColorId);
         }
 
         public static void SetPedFaceFeatures(this Player player, ICollection<AccountCharacterPedFaceModel> shapes)
         {
             var ped = player.Character.Handle;
             foreach (var shape in shapes)
-                SetPedFaceFeature(ped, (int) shape.Index, shape.Scale);
+                SetPedFaceFeature(ped, (int)shape.Index, shape.Scale);
         }
 
-        public static void SetComponentVariation(this Player player, ICollection<AccountCharacterPedComponentModel> components)
+        public static void SetComponentVariation(this Player player,
+            ICollection<AccountCharacterPedComponentModel> components)
         {
             var ped = player.Character.Handle;
             foreach (var component in components)
-                SetPedComponentVariation(ped, (int)component.ComponentId, component.DrawableId, component.TextureId, component.PalleteId);
+                SetPedComponentVariation(ped, (int)component.ComponentId, component.DrawableId, component.TextureId,
+                    component.PalleteId);
         }
 
         public static void SetPropIndex(this Player player, ICollection<AccountCharacterPedPropModel> props)
         {
             var ped = player.Character.Handle;
             foreach (var prop in props)
-                SetPedPropIndex(ped, (int)prop.ComponentId, prop.DrawableId, prop.TextureId, prop.Attach);
+                SetPedPropIndex(ped, prop.ComponentId, prop.DrawableId, prop.TextureId, prop.Attach);
         }
 
         public static void Freeze(this Player player, bool freeze = true)
@@ -126,7 +129,10 @@ namespace Client.Extensions
                 ClearPedTasksImmediately(player.Handle);
         }
 
-        public static void Unfreeze(this Player player) => player.Freeze(false);
+        public static void Unfreeze(this Player player)
+        {
+            player.Freeze(false);
+        }
 
         public static void Spawn(this Player player, Vector3 position)
         {
@@ -144,6 +150,5 @@ namespace Client.Extensions
 
             player.Unfreeze();
         }
-
     }
 }

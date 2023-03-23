@@ -1,21 +1,12 @@
-﻿using CitizenFX.Core;
-using CitizenFX.Core.Native;
-using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Linq;
+using CitizenFX.Core;
 using Server.Core;
 using Server.Core.Game;
-using Server.Core.Server;
 using Server.Database;
 using Server.Extensions;
 using Server.Instances;
 using Shared.Models.Database;
-using Shared.Models.Server;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using static CitizenFX.Core.Native.API;
 
 namespace Server.Controller
@@ -32,14 +23,14 @@ namespace Server.Controller
             {
                 try
                 {
-                    deferrals.update($"Carregando dados...");
-            
+                    deferrals.update("Carregando dados...");
+
                     if (context.Account.Any(m => m.License == license))
                     {
                         Debug.WriteLine($"Logging account: {playerName}");
 
                         var account = context.GetAccount(license);
-            
+
                         var gamePlayer = new GamePlayer(player, account);
 
                         if (GameInstance.Instance.AddPlayer(license, gamePlayer))
@@ -49,7 +40,7 @@ namespace Server.Controller
                     {
                         Debug.WriteLine($"Creating account for: {playerName}");
 
-                        var account = new AccountModel()
+                        var account = new AccountModel
                         {
                             License = license,
                             CurrentCharacter = 0,
@@ -58,9 +49,9 @@ namespace Server.Controller
                             WhiteListed = true
                         };
                         context.Account.Add(account);
-            
+
                         context.SaveChanges();
-            
+
                         var gamePlayer = new GamePlayer(player, account);
 
                         if (GameInstance.Instance.AddPlayer(license, gamePlayer))
@@ -69,7 +60,8 @@ namespace Server.Controller
                 }
                 catch (Exception ex)
                 {
-                    deferrals.done($"Houve um problema no registro \"{license}\", tente novamente ou entre em contato com a equipe.");
+                    deferrals.done(
+                        $"Houve um problema no registro \"{license}\", tente novamente ou entre em contato com a equipe.");
                     Debug.WriteLine(ex.ToString());
                 }
             }
@@ -87,20 +79,22 @@ namespace Server.Controller
 
             if (GameInstance.Instance.RemovePlayer(license, out var gamePlayer))
             {
-                Debug.WriteLine($"[{gamePlayer.Account.Id}] Player {gamePlayer.Player.Name} dropped for reason: {reason}");
-            
+                Debug.WriteLine(
+                    $"[{gamePlayer.Account.Id}] Player {gamePlayer.Player.Name} dropped for reason: {reason}");
+
                 using (var context = DatabaseContextManager.Context)
                 {
                     using (var transaction = context.Database.BeginTransaction())
                     {
-                        try {
+                        try
+                        {
                             var account = gamePlayer.Account;
-            
+
                             var gameCharacter = player.Character;
 
                             var gameCharacterPosition = gameCharacter.Position;
                             var gameCharacterRotation = gameCharacter.Rotation;
-            
+
                             var dbCharacter = account.Character.FirstOrDefault();
 
                             if (dbCharacter == null)
@@ -108,7 +102,7 @@ namespace Server.Controller
 
                             var dbCharacterPosition = dbCharacter.Position;
                             var dbCharacterRotation = dbCharacter.Rotation;
-                            
+
                             dbCharacter.Heading = gameCharacter.Heading;
                             dbCharacter.Armor = GetPedArmour(gameCharacter.Handle);
                             dbCharacter.Health = GetEntityHealth(gameCharacter.Handle);
@@ -116,14 +110,14 @@ namespace Server.Controller
                             dbCharacterPosition.X = gameCharacterPosition.X;
                             dbCharacterPosition.Y = gameCharacterPosition.Y;
                             dbCharacterPosition.Z = gameCharacterPosition.Z;
-            
+
                             dbCharacterRotation.X = gameCharacterRotation.X;
                             dbCharacterRotation.Y = gameCharacterRotation.Y;
                             dbCharacterRotation.Z = gameCharacterRotation.Z;
-            
+
                             context.Update(account);
                             context.SaveChanges();
-            
+
                             transaction.Commit();
                         }
                         catch

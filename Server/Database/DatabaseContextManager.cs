@@ -1,7 +1,4 @@
 ﻿using FiveM.Server.Database;
-using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace Server.Database
 {
@@ -11,7 +8,10 @@ namespace Server.Database
 
         public static FiveMContext Context => new FiveMContext(_connectionString);
 
-        public static void Build(Configurations.Database database) =>
-            _connectionString = $"server={database.Server};database={database.Schema};uid={database.Login};password={database.Password};";
+        public static void Build(Configurations.Database database)
+        {
+            _connectionString =
+                $"server={database.Server};database={database.Schema};uid={database.Login};password={database.Password};";
+        }
     }
 }

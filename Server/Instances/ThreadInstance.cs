@@ -1,15 +1,15 @@
-﻿using CitizenFX.Core;
-using Server.Core;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading;
+using CitizenFX.Core;
+using Server.Core;
 
 namespace Server.Instances
 {
     public class ThreadInstance : AbstractInstance<ThreadInstance>
     {
         private readonly List<Thread> _threads = new List<Thread>();
+
         public Thread CreateThread(Action action)
         {
             var thread = new Thread(() => action()) { IsBackground = true };

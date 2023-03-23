@@ -1,11 +1,6 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using Shared.Enumerations;
-using Shared.Models.Database;
-using System;
-using System.Collections.Generic;
-using System.IO;
+﻿using System.IO;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace Shared.Helper
 {
@@ -13,7 +8,7 @@ namespace Shared.Helper
     {
         private static readonly JsonSerializerSettings _serializerSettings = new JsonSerializerSettings
         {
-            Formatting = Formatting.Indented,
+            Formatting = Formatting.Indented
         };
 
         public static string SerializeObject<T>(T obj)
@@ -24,12 +19,13 @@ namespace Shared.Helper
                 var serializer = JsonSerializer.Create(_serializerSettings);
                 serializer.Serialize(jsonWriter, obj);
             }
+
             return stringBuilder.ToString();
         }
 
-        public static T DeserializeObject<T>(string data)
+        public static T DeserializeObject<T>(string value)
         {
-            return (T) JsonConvert.DeserializeObject(data);
+            return JsonConvert.DeserializeObject<T>(value);
         }
     }
 }

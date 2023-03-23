@@ -1,64 +1,14 @@
-﻿using CitizenFX.Core;
-using Server.Core;
-using Server.Core.Server;
-using Shared.Enumerations;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
+using Server.Core;
+using Shared.Enumerations;
 
 namespace Server.Controller
 {
     public class TimeSyncController : AbstractController
     {
-        public static bool IsRunning { get; set; } = true;
-
-        public static DateTime CurrentDate => DateTime.Now;
-        public static long LastUpdate { get; set; }
-        public static long CanUpdate { get; set; }
-
         private static WeatherEnum _localWeatherType = WeatherEnum.Clouds;
-        public static WeatherEnum LastWeatherType { get; private set; }
-        public static WeatherEnum CurrentWeather
-        {
-            get => _localWeatherType;
-            private set
-            {
-                var date = CurrentDate;
-                var hours = date.Hour;
-                LastWeatherType = _localWeatherType;
-                LastUpdate = date.Ticks;
-                CanUpdate = CurrentDate.AddMinutes(5).Ticks;
-                if (hours < 6 && hours > 20 && value == WeatherEnum.ExtraSunny)
-                    _localWeatherType = WeatherEnum.Neutral;
-                else
-                    _localWeatherType = value;
-            }
-        }
-
-        public float WindSpeed
-        {
-            get
-            {
-                return WindSpeeds.TryGetValue(_localWeatherType, out var level) ? level : 0;
-            }
-        }
-
-        public float WindDirection { get; private set; }
-
-        public static float RainLevel
-        {
-            get
-            {
-                return RainLevels.TryGetValue(_localWeatherType, out var level) ? level : 0;
-            }
-        }
-
-        private struct Transition
-        {
-            public WeatherEnum To { get; set; }
-            public float Chance { get; set; }
-        }
 
         private static readonly Dictionary<WeatherEnum, float> WindSpeeds = new Dictionary<WeatherEnum, float>
         {
@@ -86,125 +36,126 @@ namespace Server.Controller
             { WeatherEnum.Halloween, 0.5f }
         };
 
-        private static Dictionary<WeatherEnum, List<Transition>> Transitions = new Dictionary<WeatherEnum, List<Transition>>
-        {
+        private static readonly Dictionary<WeatherEnum, List<Transition>> Transitions =
+            new Dictionary<WeatherEnum, List<Transition>>
             {
-                WeatherEnum.ExtraSunny, new List<Transition>
                 {
-                    { new Transition { To = WeatherEnum.Clear, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.Overcast, Chance = 50 } }
-                }
-            },
-            {
-                WeatherEnum.Clear, new List<Transition>
+                    WeatherEnum.ExtraSunny, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Clear, Chance = 50 },
+                        new Transition { To = WeatherEnum.Overcast, Chance = 50 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Foggy, Chance = 10 } },
-                    { new Transition { To = WeatherEnum.Clear, Chance = 10 } },
-                    { new Transition { To = WeatherEnum.Clouds, Chance = 25 } },
-                    { new Transition { To = WeatherEnum.Smog, Chance = 25 } },
-                    { new Transition { To = WeatherEnum.ExtraSunny, Chance = 50 } }
-                }
-            },
-            {
-                WeatherEnum.Clearing, new List<Transition>
+                    WeatherEnum.Clear, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Foggy, Chance = 10 },
+                        new Transition { To = WeatherEnum.Clear, Chance = 10 },
+                        new Transition { To = WeatherEnum.Clouds, Chance = 25 },
+                        new Transition { To = WeatherEnum.Smog, Chance = 25 },
+                        new Transition { To = WeatherEnum.ExtraSunny, Chance = 50 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Foggy, Chance = 10 } },
-                    { new Transition { To = WeatherEnum.Clouds, Chance = 25 } },
-                    { new Transition { To = WeatherEnum.Smog, Chance = 25 } },
-                    { new Transition { To = WeatherEnum.Clear, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.ExtraSunny, Chance = 50 } }
-                }
-            },
-            {
-                WeatherEnum.Overcast, new List<Transition>
+                    WeatherEnum.Clearing, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Foggy, Chance = 10 },
+                        new Transition { To = WeatherEnum.Clouds, Chance = 25 },
+                        new Transition { To = WeatherEnum.Smog, Chance = 25 },
+                        new Transition { To = WeatherEnum.Clear, Chance = 50 },
+                        new Transition { To = WeatherEnum.ExtraSunny, Chance = 50 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Raining, Chance = 10 } },
-                    { new Transition { To = WeatherEnum.ThunderStorm, Chance = 5 } },
-                    { new Transition { To = WeatherEnum.Clouds, Chance = 25 } },
-                    { new Transition { To = WeatherEnum.Smog, Chance = 25 } },
-                    { new Transition { To = WeatherEnum.Foggy, Chance = 25 } },
-                    { new Transition { To = WeatherEnum.Clear, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.ExtraSunny, Chance = 50 } }
-                }
-            },
-            {
-                WeatherEnum.Smog, new List<Transition>
+                    WeatherEnum.Overcast, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Raining, Chance = 10 },
+                        new Transition { To = WeatherEnum.ThunderStorm, Chance = 5 },
+                        new Transition { To = WeatherEnum.Clouds, Chance = 25 },
+                        new Transition { To = WeatherEnum.Smog, Chance = 25 },
+                        new Transition { To = WeatherEnum.Foggy, Chance = 25 },
+                        new Transition { To = WeatherEnum.Clear, Chance = 50 },
+                        new Transition { To = WeatherEnum.ExtraSunny, Chance = 50 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Clear, Chance = 100 } }
-                }
-            },
-            {
-                WeatherEnum.Foggy, new List<Transition>
+                    WeatherEnum.Smog, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Clear, Chance = 100 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Raining, Chance = 10 } },
-                    { new Transition { To = WeatherEnum.Clear, Chance = 100 } }
-                }
-            },
-            {
-                WeatherEnum.Clouds, new List<Transition>
+                    WeatherEnum.Foggy, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Raining, Chance = 10 },
+                        new Transition { To = WeatherEnum.Clear, Chance = 100 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Raining, Chance = 10 } },
-                    { new Transition { To = WeatherEnum.Clearing, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.Overcast, Chance = 50 } }
-                }
-            },
-            {
-                WeatherEnum.Raining, new List<Transition>
+                    WeatherEnum.Clouds, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Raining, Chance = 10 },
+                        new Transition { To = WeatherEnum.Clearing, Chance = 50 },
+                        new Transition { To = WeatherEnum.Overcast, Chance = 50 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Clearing, Chance = 100 } }
-                }
-            },
-            {
-                WeatherEnum.ThunderStorm, new List<Transition>
+                    WeatherEnum.Raining, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Clearing, Chance = 100 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Clearing, Chance = 100 } }
-                }
-            },
-            {
-                WeatherEnum.Snowing, new List<Transition>
+                    WeatherEnum.ThunderStorm, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Clearing, Chance = 100 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Clearing, Chance = 5 } },
-                    { new Transition { To = WeatherEnum.Overcast, Chance = 5 } },
-                    { new Transition { To = WeatherEnum.Foggy, Chance = 5 } },
-                    { new Transition { To = WeatherEnum.Clouds, Chance = 5 } },
-                    { new Transition { To = WeatherEnum.Christmas, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.Snowlight, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.Blizzard, Chance = 50 } }
-                }
-            },
-            {
-                WeatherEnum.Blizzard, new List<Transition>
+                    WeatherEnum.Snowing, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Clearing, Chance = 5 },
+                        new Transition { To = WeatherEnum.Overcast, Chance = 5 },
+                        new Transition { To = WeatherEnum.Foggy, Chance = 5 },
+                        new Transition { To = WeatherEnum.Clouds, Chance = 5 },
+                        new Transition { To = WeatherEnum.Christmas, Chance = 50 },
+                        new Transition { To = WeatherEnum.Snowlight, Chance = 50 },
+                        new Transition { To = WeatherEnum.Blizzard, Chance = 50 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Christmas, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.Snowlight, Chance = 50 } }
-                }
-            },
-            {
-                WeatherEnum.Snowlight, new List<Transition>
+                    WeatherEnum.Blizzard, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Christmas, Chance = 50 },
+                        new Transition { To = WeatherEnum.Snowlight, Chance = 50 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Snowing, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.Christmas, Chance = 50 } }
-                }
-            },
-            {
-                WeatherEnum.Christmas, new List<Transition>
+                    WeatherEnum.Snowlight, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Snowing, Chance = 50 },
+                        new Transition { To = WeatherEnum.Christmas, Chance = 50 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Snowing, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.Snowlight, Chance = 50 } },
-                    { new Transition { To = WeatherEnum.Blizzard, Chance = 50 } }
-                }
-            },
-            {
-                WeatherEnum.Halloween, new List<Transition>
+                    WeatherEnum.Christmas, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Snowing, Chance = 50 },
+                        new Transition { To = WeatherEnum.Snowlight, Chance = 50 },
+                        new Transition { To = WeatherEnum.Blizzard, Chance = 50 }
+                    }
+                },
                 {
-                    { new Transition { To = WeatherEnum.Clearing, Chance = 100 } }
+                    WeatherEnum.Halloween, new List<Transition>
+                    {
+                        new Transition { To = WeatherEnum.Clearing, Chance = 100 }
+                    }
                 }
-            }
-        };
+            };
 
         private static readonly Random Random = new Random();
 
-        private static readonly WeatherEnum[] Available = new[]
+        private static readonly WeatherEnum[] Available =
         {
             WeatherEnum.Clear,
             WeatherEnum.ExtraSunny,
@@ -214,13 +165,43 @@ namespace Server.Controller
             WeatherEnum.Clearing
         };
 
-        private static Dictionary<WeatherEnum, List<Transition>> AvaiableTransation = new Dictionary<WeatherEnum, List<Transition>>();
+        private static readonly Dictionary<WeatherEnum, List<Transition>> AvaiableTransation =
+            new Dictionary<WeatherEnum, List<Transition>>();
+
+        public static bool IsRunning { get; set; } = true;
+
+        public static DateTime CurrentDate => DateTime.Now;
+        public static long LastUpdate { get; set; }
+        public static long CanUpdate { get; set; }
+        public static WeatherEnum LastWeatherType { get; private set; }
+
+        public static WeatherEnum CurrentWeather
+        {
+            get => _localWeatherType;
+            private set
+            {
+                var date = CurrentDate;
+                var hours = date.Hour;
+                LastWeatherType = _localWeatherType;
+                LastUpdate = date.Ticks;
+                CanUpdate = CurrentDate.AddMinutes(5).Ticks;
+                if (hours < 6 && hours > 20 && value == WeatherEnum.ExtraSunny)
+                    _localWeatherType = WeatherEnum.Neutral;
+                else
+                    _localWeatherType = value;
+            }
+        }
+
+        public float WindSpeed => WindSpeeds.TryGetValue(_localWeatherType, out var level) ? level : 0;
+
+        public float WindDirection { get; private set; }
+
+        public static float RainLevel => RainLevels.TryGetValue(_localWeatherType, out var level) ? level : 0;
 
         public void Initialize()
         {
             CurrentWeather = WeatherEnum.ExtraSunny;
             foreach (var transition in Transitions)
-            {
                 if (Available.Contains(transition.Key))
                 {
                     var avaiableTransation = new List<Transition>();
@@ -229,7 +210,6 @@ namespace Server.Controller
                             avaiableTransation.Add(transition2);
                     AvaiableTransation.Add(transition.Key, avaiableTransation);
                 }
-            }
         }
 
         public void Next()
@@ -253,13 +233,21 @@ namespace Server.Controller
                     CurrentWeather = element.To;
                 }
                 else
+                {
                     Next();
+                }
             }
         }
 
         public void Update(int weather)
         {
             CurrentWeather = (WeatherEnum)weather;
+        }
+
+        private struct Transition
+        {
+            public WeatherEnum To { get; set; }
+            public float Chance { get; set; }
         }
     }
 }

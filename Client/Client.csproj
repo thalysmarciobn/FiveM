@@ -1,18 +1,18 @@
 <Project Sdk="CitizenFX.Sdk.Client/0.2.3">
     <ItemGroup>
-        <Compile Include="../Shared/**/*.cs" Version="1.0.0" />
+        <Compile Include="../Shared/**/*.cs" Version="1.0.0"/>
     </ItemGroup>
-	<ItemGroup>
-		<Reference Include="JetBrains.Annotations, Version=2021.2.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
-			<HintPath>..\packages\JetBrains.Annotations.2021.2.0\lib\net20\JetBrains.Annotations.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-		<Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-			<HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
-			<Private>False</Private>
-		</Reference>
-	</ItemGroup>
-	<Target Name="CopyLinkedContentFiles" BeforeTargets="Build">
-		<Copy SourceFiles="..\packages\Newtonsoft.Json.12.0.2\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.dll" DestinationFiles="..\ClientLib\Newtonsoft.Json.dll" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
-	</Target>
+    <ItemGroup>
+        <Reference Include="JetBrains.Annotations, Version=2021.2.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
+            <HintPath>..\packages\JetBrains.Annotations.2021.2.0\lib\net20\JetBrains.Annotations.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+        <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+            <HintPath>..\packages\Newtonsoft.Json.12.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+            <Private>False</Private>
+        </Reference>
+    </ItemGroup>
+    <Target Name="CopyLinkedContentFiles" BeforeTargets="Build">
+        <Copy SourceFiles="..\packages\Newtonsoft.Json.12.0.2\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.dll" DestinationFiles="..\ClientLib\Newtonsoft.Json.dll" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true"/>
+    </Target>
 </Project>

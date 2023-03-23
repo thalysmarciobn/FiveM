@@ -1,21 +1,13 @@
-﻿using CitizenFX.Core;
+﻿using System.Collections.Generic;
+using System.Linq;
+using CitizenFX.Core;
 using CitizenFX.Core.Native;
-using Microsoft.EntityFrameworkCore;
 using Server.Core;
 using Server.Core.Game;
-using Server.Core.Server;
 using Server.Database;
 using Server.Extensions;
 using Server.Instances;
-using Shared.Models.Database;
 using Shared.Models.Server;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Server.Controller
 {
@@ -34,17 +26,14 @@ namespace Server.Controller
                         continue;
 
                     if (GameInstance.Instance.AddPlayer(license, new GamePlayer(player, account)))
-                    {
                         if (int.TryParse(player.Handle, out var playerServerId))
-                        {
                             GameInstance.Instance.SetPlayerData(playerServerId, new ServerPlayer
                             {
                                 IsPassive = false
                             });
-                        }
-                    }
                 }
             }
+
             Debug.WriteLine($"[ServerController] Players registered: {GameInstance.Instance.PlayerCount}");
             Debug.WriteLine($"[ServerController] Player Data registered: {GameInstance.Instance.PlayerDataCount}");
         }
@@ -56,6 +45,7 @@ namespace Server.Controller
                 foreach (var vehicle in context.ServerVehicleService.ToList())
                     GameInstance.Instance.AddVehicle(vehicle.Id, vehicle);
             }
+
             Debug.WriteLine($"[ServerController] Vehicles registered: {GameInstance.Instance.VehicleCount}");
         }
 
@@ -66,19 +56,18 @@ namespace Server.Controller
                 foreach (var blip in context.Blip.ToList())
                     GameInstance.Instance.AddBlip(blip.Id, blip);
             }
+
             Debug.WriteLine($"[ServerController] Blips registered: {GameInstance.Instance.BlipCount}");
         }
 
         public void RemoveSpawnVehicles()
         {
             foreach (var vehicle in GameInstance.Instance.GetSpawnVehicles)
-            {
                 if (API.DoesEntityExist(vehicle.ServerId))
                 {
                     API.DeleteEntity(vehicle.ServerId);
                     Debug.WriteLine($"[ServerController][{vehicle.ServerId}] vehicle removed.");
                 }
-            }
         }
     }
 }

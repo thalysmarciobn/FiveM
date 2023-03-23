@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Shared.Enumerations
+﻿namespace Shared.Enumerations
 {
-    public enum RegisterCharacterEnum : int
+    public enum RegisterCharacterEnum
     {
         Fail = -1,
         Success,

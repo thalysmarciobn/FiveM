@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
 using Client.Extensions;
-using Newtonsoft.Json;
 using Shared.Helper;
 using Shared.Models.Server;
 using static CitizenFX.Core.Native.API;
@@ -20,7 +20,8 @@ namespace Client
             EventHandlers[EventName.Client.UpdatePlayerDataList] += new Action<string>(UpdatePlayerDataList);
         }
 
-        private ConcurrentDictionary<int, ServerPlayer> PlayerDataList { get; } = new ConcurrentDictionary<int, ServerPlayer>();
+        private ConcurrentDictionary<int, ServerPlayer> PlayerDataList { get; } =
+            new ConcurrentDictionary<int, ServerPlayer>();
 
         public void OnClientResourceStart(string resourceName)
         {
@@ -97,10 +98,16 @@ namespace Client
 
             foreach (var vehicle in World.GetAllVehicles())
             {
-                var alpha = localPassive && localVehicle?.Handle != vehicle.Handle ? 200 : 255;
+                const int passiveAlpha = 200;
+                const int activeAlpha = 255;
+                var alpha = localPassive ? passiveAlpha : activeAlpha;
+
+                if (localVehicle?.Handle == vehicle.Handle)
+                    alpha = activeAlpha;
+
                 vehicle.SetAlpha(alpha);
 
-                if (!localPassive || localVehicle?.Handle == vehicle.Handle) continue;
+                if (!localPassive && localVehicle?.Handle != vehicle.Handle) continue;
 
                 vehicle.SetEntityNoCollision(localPed);
                 vehicle.SetEntityNoCollision(localVehicle);
@@ -111,14 +118,14 @@ namespace Client
             {
                 const int passiveAlpha = 200;
                 const int activeAlpha = 255;
-                int alpha = localPassive ? passiveAlpha : activeAlpha;
+                var alpha = localPassive ? passiveAlpha : activeAlpha;
 
-                if (localVehicle?.Handle != ped.CurrentVehicle?.Handle)
-                    alpha = passiveAlpha;
+                if (localVehicle?.Handle == ped.CurrentVehicle?.Handle)
+                    alpha = activeAlpha;
 
                 ped.SetAlpha(alpha);
 
-                if (!localPassive || localVehicle?.Handle == ped.CurrentVehicle?.Handle) continue;
+                if (!localPassive && localVehicle?.Handle != ped.CurrentVehicle?.Handle) continue;
 
                 ped.SetEntityNoCollision(localPed);
                 ped.SetEntityNoCollision(localVehicle);

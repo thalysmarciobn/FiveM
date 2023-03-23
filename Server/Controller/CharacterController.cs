@@ -1,26 +1,15 @@
-﻿using CitizenFX.Core;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using Newtonsoft.Json;
+﻿using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Linq;
+using CitizenFX.Core;
 using Server.Core;
-using Server.Core.Game;
 using Server.Core.NUI;
 using Server.Database;
-using Server.Extensions;
 using Server.Instances;
 using Shared.Enumerations;
 using Shared.Helper;
 using Shared.Models.Database;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Dynamic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using YamlDotNet.Core.Tokens;
 
 namespace Server.Controller
 {
@@ -30,7 +19,7 @@ namespace Server.Controller
         {
             var license = player.Identifiers["license"];
 
-            if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
+            if (GameInstance.Instance.GetPlayer(license, out var gamePlayer))
             {
                 var account = gamePlayer.Account;
 
@@ -44,7 +33,7 @@ namespace Server.Controller
         {
             var license = player.Identifiers["license"];
 
-            if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
+            if (GameInstance.Instance.GetPlayer(license, out var gamePlayer))
             {
                 var account = gamePlayer.Account;
 
@@ -56,17 +45,20 @@ namespace Server.Controller
             }
         }
 
-        public void RegisterCharacter(Player player, string name, string lastName, int age, int slot, ExpandoObject appearance, NetworkCallbackDelegate networkCallback)
+        public void RegisterCharacter(Player player, string name, string lastName, int age, int slot,
+            ExpandoObject appearance, NetworkCallbackDelegate networkCallback)
         {
             Debug.WriteLine($" {name}  {lastName}  {age} {appearance.Count()} ");
             if (age < 18)
+            {
                 networkCallback.Invoke((int)RegisterCharacterEnum.InvalidAge);
+            }
 
             else
             {
                 var license = player.Identifiers["license"];
 
-                if (GameInstance.Instance.GetPlayer(license, out GamePlayer gamePlayer))
+                if (GameInstance.Instance.GetPlayer(license, out var gamePlayer))
                 {
                     var account = gamePlayer.Account;
 
@@ -106,7 +98,7 @@ namespace Server.Controller
                         PedHead = new AccountCharacterPedHeadModel
                         {
                             HairColorId = data.Hair.Color,
-                            HairHighlightColor = data.Hair.Highlight,
+                            HairHighlightColor = data.Hair.Highlight
                         },
                         PedHeadData = new AccountCharacterPedHeadDataModel
                         {
@@ -115,7 +107,7 @@ namespace Server.Controller
                             SkinFirstID = data.HeadBlend.SkinFirst,
                             SkinSecondID = data.HeadBlend.SkinSecond,
                             ShapeMix = data.HeadBlend.ShapeMix,
-                            SkinMix = data.HeadBlend.SkinMix,
+                            SkinMix = data.HeadBlend.SkinMix
                         },
                         PedFace = new List<AccountCharacterPedFaceModel>
                         {
@@ -305,7 +297,7 @@ namespace Server.Controller
                                 DrawableId = data.Components.Torso2.DrawableId,
                                 TextureId = data.Components.Torso2.TextureId,
                                 PalleteId = data.Components.Torso2.PalleteId
-                            },
+                            }
                         },
                         PedProp = new List<AccountCharacterPedPropModel>
                         {
@@ -429,7 +421,7 @@ namespace Server.Controller
                                 OverlayId = OverlayEnum.AddBodyBlemishes,
                                 Index = data.HeadOverlays.AddBodyBlemishes.Overlay,
                                 Opacity = data.HeadOverlays.AddBodyBlemishes.Opacity
-                            },
+                            }
                         },
                         PedHeadOverlayColor = new List<AccountCharacterPedHeadOverlayColorModel>
                         {
@@ -523,8 +515,8 @@ namespace Server.Controller
                                 ColorType = data.HeadOverlayColors.AddBodyBlemishes.ColorType,
                                 ColorId = data.HeadOverlayColors.AddBodyBlemishes.ColorId,
                                 SecondColorId = data.HeadOverlayColors.AddBodyBlemishes.SecondColorId
-                            },
-                        },
+                            }
+                        }
                     };
 
                     using (var context = DatabaseContextManager.Context)

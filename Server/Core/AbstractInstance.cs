@@ -1,9 +1,4 @@
-﻿using CitizenFX.Core;
-using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Server.Core
+﻿namespace Server.Core
 {
     public abstract class AbstractInstance<T> where T : new()
     {
