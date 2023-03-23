@@ -34,7 +34,7 @@ namespace Server.Controller
             {
                 var account = gamePlayer.Account;
 
-                var json = JsonConvert.SerializeObject(account);
+                var json = JsonHelper.SerializeObject(account);
 
                 TriggerClientEvent(gamePlayer.Player, EventName.Client.InitAccount, json);
             }
@@ -51,7 +51,7 @@ namespace Server.Controller
                 if (account.Character.Any(x => x.Slot == slot))
                 {
                     var character = account.Character.SingleOrDefault(x => x.Slot == slot);
-                    callbackDelegate.Invoke(JsonConvert.SerializeObject(character));
+                    callbackDelegate.Invoke(JsonHelper.SerializeObject(character));
                 }
             }
         }
@@ -76,8 +76,8 @@ namespace Server.Controller
                         return;
                     }
 
-                    var json = JsonConvert.SerializeObject(appearance);
-                    var data = JsonConvert.DeserializeObject<NUIRegisterCharacter>(json);
+                    var json = JsonHelper.SerializeObject(appearance);
+                    var data = JsonHelper.DeserializeObject<NUIRegisterCharacter>(json);
 
                     var createCharacter = new AccountCharacterModel
                     {

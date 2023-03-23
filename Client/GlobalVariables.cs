@@ -18,68 +18,11 @@ namespace Client
             public const int MaxHealth = 500;
 
             public static bool DisplayRadar = false;
+
+            public static PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }
         }
 
-        public static class G_Gun
-        {
-            public static Dictionary<uint, float> Recoils = new Dictionary<uint, float>()
-            {
-                { (uint)WeaponHash.Pistol, 0.4f },
-                { (uint)WeaponHash.PistolMk2, 0.4f },
-                { (uint)WeaponHash.CombatPistol, 0.3f },
-                { (uint)WeaponHash.APPistol, 0.4f },
-                { 2578377531, 0.6f },
-                { 324215364, 0.5f },
-                { 736523883, 0.2f },
-                { 2024373456, 0.1f },
-                { 4024951519, 0.6f },
-                { 3220176749, 0.8f },
-                { 961495388, 0.2f },
-                { 2210333304, 0.8f },
-                { 4208062921, 0.1f },
-                { 2937143193, 0.1f },
-                { 2634544996, 0.1f },
-                { 2144741730, 0.1f },
-                { 3686625920, 0.1f },
-                { 487013001, 0.4f },
-                { 1432025498, 0.35f },
-                { 2017895192, 0.7f },
-                { 3800352039, 0.4f },
-                { 2640438543, 0.2f },
-                { 911657153, 0.9f },
-                { 177293209, 0.6f },
-                { 856002082, 1.2f },
-                { 2726580491, 1.0f },
-                { 1305664598, 1.0f },
-                { 2982836145, 0.0f },
-                { 1752584910, 0.0f },
-                { 1119849093, 0.01f },
-                { 3218215474, 0.4f },
-                { 1627465347, 0.6f },
-                { 3231910285, 0.2f },
-                { 3523564046, 0.5f },
-                { 2132975508, 0.2f },
-                { 137902532, 0.4f },
-                { 2828843422, 0.7f },
-                { 984333226, 0.2f },
-                { 3342088282, 0.3f },
-                { 1785463520, 0.25f },
-                { 1672152130, 0f },
-                { 1198879012, 0.9f },
-                { 171789620, 0.1f },
-                { 3696079510, 0.9f },
-                { 1834241177, 2.4f },
-                { 3675956304, 0.3f },
-                { 3249783761, 0.6f },
-                { 4019527611, 0.7f },
-                { 1649403952, 0.3f },
-                { 317205821, 0.2f },
-                { 125959754, 0.5f },
-                { 3173288789, 0.1f }
-            };
-        }
-
-        public static class Key
+        public static class G_Key
         {
             public const int OpenPanel = 344; // F11
         }
@@ -192,8 +135,6 @@ namespace Client
                 }
             }
         }
-
-        public static PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }
 
         public static class Creation
         {

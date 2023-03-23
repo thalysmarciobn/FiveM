@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CitizenFX.Core;
 using Client.Extensions;
 using Newtonsoft.Json;
+using Shared.Helper;
 using Shared.Models.Server;
 using static CitizenFX.Core.Native.API;
 
@@ -29,7 +30,7 @@ namespace Client
             {
                 TriggerServerEvent(EventName.Server.GetPlayerDataList, new Action<string>(arg =>
                 {
-                    var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
+                    var data = JsonHelper.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
                     foreach (var kvp in data)
                         PlayerDataList.TryAdd(kvp.Key, kvp.Value);
                 }));
@@ -38,8 +39,7 @@ namespace Client
 
         private void UpdatePlayerDataList(string arg)
         {
-            Debug.WriteLine(arg);
-            var data = JsonConvert.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
+            var data = JsonHelper.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
             foreach (var kvp in data)
                 PlayerDataList.AddOrUpdate(kvp.Key, kvp.Value, (key, oldValue) => kvp.Value);
         }

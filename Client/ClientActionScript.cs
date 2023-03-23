@@ -7,6 +7,7 @@ using Client.Helper;
 using Mono.CSharp;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Shared.Helper;
 using Shared.Models.Database;
 using Shared.Models.Server;
 using System;
@@ -16,6 +17,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using static CitizenFX.Core.Native.API;
+using static Client.GlobalVariables;
 
 namespace Client
 {
@@ -40,7 +42,7 @@ namespace Client
             {
                 TriggerServerEvent(EventName.Server.GetServiceVehicles, new Action<string>((arg) =>
                 {
-                    var vehicles = JsonConvert.DeserializeObject<ICollection<ServerVehicleService>>(arg);
+                    var vehicles = JsonHelper.DeserializeObject<ICollection<ServerVehicleService>>(arg);
                     foreach (var vehicle in vehicles)
                     {
                         Prompts.Add(new Prompt(PromptService.ServiceCar, vehicle.Id, new PromptConfig
@@ -76,10 +78,10 @@ namespace Client
         {
             if (GetCurrentResourceName() != resourceName) return;
 
-            if (GlobalVariables.CurrentPromptServiceVehicle != null)
+            if (G_Character.CurrentPromptServiceVehicle != null)
             {
-                var driverId = GlobalVariables.CurrentPromptServiceVehicle.DriverEntityId;
-                var vehicleId = GlobalVariables.CurrentPromptServiceVehicle.VehicleEntityId;
+                var driverId = G_Character.CurrentPromptServiceVehicle.DriverEntityId;
+                var vehicleId = G_Character.CurrentPromptServiceVehicle.VehicleEntityId;
 
                 if (DoesEntityExist(driverId))
                     DeleteEntity(ref driverId);
@@ -96,9 +98,9 @@ namespace Client
             var localPlayerPed = Game.PlayerPed;
             var localPlayerCharacter = localPlayer.Character;
 
-            if (GlobalVariables.CurrentPromptServiceVehicle != null)
+            if (G_Character.CurrentPromptServiceVehicle != null)
             {
-                var currentPrompt = GlobalVariables.CurrentPromptServiceVehicle;
+                var currentPrompt = G_Character.CurrentPromptServiceVehicle;
 
                 var blipId = currentPrompt.Blip;
                 var driverId = currentPrompt.DriverEntityId;
@@ -126,14 +128,14 @@ namespace Client
                             Wait(10);
 
                         ServicesInAction.Remove(currentPrompt.ValueId);
-                        GlobalVariables.CurrentPromptServiceVehicle = null;
+                        G_Character.CurrentPromptServiceVehicle = null;
                         TriggerServerEvent(EventName.Server.SetPassive, false);
                     }
                 }
                 else
                 {
                     ServicesInAction.Remove(currentPrompt.ValueId);
-                    GlobalVariables.CurrentPromptServiceVehicle = null;
+                    G_Character.CurrentPromptServiceVehicle = null;
                     localPlayer.CanControlCharacter = true;
                     TriggerServerEvent(EventName.Server.SetPassive, false);
                 }
@@ -189,7 +191,7 @@ namespace Client
         [Tick]
         public Task OnFrame()
         {
-            if (GlobalVariables.G_Hud.PanelOpened)
+            if (G_Hud.PanelOpened)
             {
                 DisableControlAction(0, 2, true);
                 DisableControlAction(0, 1, true);
@@ -205,11 +207,11 @@ namespace Client
             var localPlayer = Game.Player;
             var localPlayerPed = Game.PlayerPed;
 
-            if (IsControlJustPressed(0, GlobalVariables.Key.OpenPanel))
+            if (IsControlJustPressed(0, G_Key.OpenPanel))
             {
-                GlobalVariables.G_Hud.PanelOpened = !GlobalVariables.G_Hud.PanelOpened;
+                G_Hud.PanelOpened = !G_Hud.PanelOpened;
 
-                var opened = GlobalVariables.G_Hud.PanelOpened;
+                var opened = G_Hud.PanelOpened;
 
                 SetNuiFocus(opened, opened);
                 SetNuiFocusKeepInput(opened);
@@ -229,7 +231,7 @@ namespace Client
                 if (serviceType == PromptService.ServiceCar)
                     TriggerServerEvent(EventName.Server.SpawnVehicleService, serviceId, new Action<string>(async (arg) =>
                     {
-                        var vehicle = JsonConvert.DeserializeObject<SpawnServerVehicle>(arg);
+                        var vehicle = JsonHelper.DeserializeObject<SpawnServerVehicle>(arg);
 
                         DoScreenFadeOut(500);
                         while (IsScreenFadingOut())
@@ -294,13 +296,14 @@ namespace Client
                         _ = Task.Factory.StartNew(async () =>
                         {
                             await Delay(5000);
-                            
-                            TaskVehicleDriveToCoordLongrange(driver, vehicleEntity, vehicle.Model.DriveToX, vehicle.Model.DriveToY, vehicle.Model.DriveToZ, speed, drivingStyle, stopRange);
+
+                            if (IsPedInVehicle(localPlayerPed.Handle, vehicleEntity, false))
+                                TaskVehicleDriveToCoordLongrange(driver, vehicleEntity, vehicle.Model.DriveToX, vehicle.Model.DriveToY, vehicle.Model.DriveToZ, speed, drivingStyle, stopRange);
                         });
                         
                         Screen.ShowNotification(vehicle.Model.Title, true);
 
-                        GlobalVariables.CurrentPromptServiceVehicle = new PromptServiceVehicle
+                        G_Character.CurrentPromptServiceVehicle = new PromptServiceVehicle
                         {
                             Blip = blip,
                             ValueId = service.Value.ValueId,

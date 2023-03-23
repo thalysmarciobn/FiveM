@@ -2,6 +2,7 @@
 using CitizenFX.Core.Native;
 using Client.Core;
 using Newtonsoft.Json;
+using Shared.Helper;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,10 +23,7 @@ namespace Client.Helper
                 Params = parameters
             })
             {
-                SendNuiMessage(JsonConvert.SerializeObject(message, new JsonSerializerSettings
-                {
-                    Formatting = Formatting.Indented
-                }));
+                SendNuiMessage(JsonHelper.SerializeObject(message));
             }
         }
     }

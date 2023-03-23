@@ -137,7 +137,7 @@ namespace Server
                 Debug.WriteLine($"[PROJECT][{playerServerId}] Passive updated: {isPassive}");
                 serverPlayer.IsPassive = isPassive;
             }
-            var data = JsonConvert.SerializeObject(GameInstance.Instance.GetPlayerDataList);
+            var data = JsonHelper.SerializeObject(GameInstance.Instance.GetPlayerDataList);
             foreach (var entity in Players)
                 entity.TriggerEvent(EventName.Client.UpdatePlayerDataList, data);
         }
@@ -148,18 +148,18 @@ namespace Server
 
         [EventHandler(EventName.Server.GetPlayerDataList)]
         public void GetPlayerDataList(NetworkCallbackDelegate networkCallback) =>
-            networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetPlayerDataList));
+            networkCallback.Invoke(JsonHelper.SerializeObject(GameInstance.Instance.GetPlayerDataList));
 
         #endregion
 
         #region Map
         [EventHandler(EventName.Server.GetBlips)]
         public void GetBlips(NetworkCallbackDelegate networkCallback) =>
-            networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetBlipList));
+            networkCallback.Invoke(JsonHelper.SerializeObject(GameInstance.Instance.GetBlipList));
 
         [EventHandler(EventName.Server.GetTimeSync)]
         public void GetTimeSync(NetworkCallbackDelegate networkCallback) =>
-            networkCallback.Invoke(JsonConvert.SerializeObject(new ServerTimeSync
+            networkCallback.Invoke(JsonHelper.SerializeObject(new ServerTimeSync
             {
                 Weather = (uint)TimeSyncController.CurrentWeather,
                 RainLevel = TimeSyncController.RainLevel,
@@ -189,7 +189,7 @@ namespace Server
 
         [EventHandler(EventName.Server.GetServiceVehicles)]
         public void GetServiceVehicles(NetworkCallbackDelegate networkCallback) =>
-            networkCallback.Invoke(JsonConvert.SerializeObject(GameInstance.Instance.GetVehicles));
+            networkCallback.Invoke(JsonHelper.SerializeObject(GameInstance.Instance.GetVehicles));
 
         [EventHandler(EventName.Server.ForceVehicle)]
         public async void ForceVehicle([FromSource] Player player, uint model, NetworkCallbackDelegate networkCallback)
@@ -218,7 +218,7 @@ namespace Server
                         NetworkId = networkId,
                     };
 
-                    var json = JsonConvert.SerializeObject(serverVehicle);
+                    var json = JsonHelper.SerializeObject(serverVehicle);
 
                     using (var context = DatabaseContextManager.Context)
                     {
@@ -260,7 +260,7 @@ namespace Server
                     Model = model
                 };
 
-                var json = JsonConvert.SerializeObject(spawnServer);
+                var json = JsonHelper.SerializeObject(spawnServer);
 
                 GameInstance.Instance.AddSpawnVehicle(model.Id, spawnServer);
 
