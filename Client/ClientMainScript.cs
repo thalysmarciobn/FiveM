@@ -558,6 +558,7 @@ namespace FiveM.Client
                 G_World.CurrentTime.Minutes,
                 G_World.CurrentTime.Seconds
             });
+
             await Delay(1000);
         }
 
@@ -570,7 +571,7 @@ namespace FiveM.Client
             NetworkOverrideClockTime(G_World.CurrentTime.Hours, G_World.CurrentTime.Minutes,
                 G_World.CurrentTime.Seconds);
 
-            await Delay(10);
+            await Delay(50);
         }
 
         [Command("forcevehicle")]

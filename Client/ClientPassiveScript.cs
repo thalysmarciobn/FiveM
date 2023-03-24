@@ -96,7 +96,8 @@ namespace Client
                     }
                 }
 
-            foreach (var vehicle in World.GetAllVehicles())
+            var vehicles = World.GetAllVehicles();
+            foreach (var vehicle in vehicles)
             {
                 const int passiveAlpha = 200;
                 const int activeAlpha = 255;
@@ -114,7 +115,8 @@ namespace Client
                 vehicle.SetEntityNoCollision(localHooked);
             }
 
-            foreach (var ped in World.GetAllPeds())
+            var peds = World.GetAllPeds();
+            foreach (var ped in peds)
             {
                 const int passiveAlpha = 200;
                 const int activeAlpha = 255;
