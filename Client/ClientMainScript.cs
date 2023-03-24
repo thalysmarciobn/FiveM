@@ -348,6 +348,8 @@ namespace FiveM.Client
                         player.Character.IsCollisionEnabled = true;
                         player.Character.IsPositionFrozen = false;
                         player.Character.IsInvincible = false;
+
+                        player.CanControlCharacter = true;
                     }
 
                     cb(new { status = serverStatus });
@@ -395,11 +397,11 @@ namespace FiveM.Client
                     Z = ground ? groundZ : characterPosition.Z
                 };
 
-                player.CanControlCharacter = false;
-
                 player.Character.IsCollisionEnabled = false;
                 player.Character.IsPositionFrozen = true;
                 player.Character.IsInvincible = true;
+
+                player.CanControlCharacter = false;
 
                 player.Character.Heading = heading;
                 player.Character.Rotation = Creation.Rotation;
@@ -417,9 +419,6 @@ namespace FiveM.Client
                 var resCharacter = account.Character.SingleOrDefault(x => x.Id == account.CurrentCharacter);
                 await EnterCharacter(resCharacter);
             }
-
-            SetCanAttackFriendly(PlayerPedId(), S_FriendlyFire, false);
-            NetworkSetFriendlyFireOption(S_FriendlyFire);
 
             ClearPlayerWantedLevel(PlayerId());
             SetMaxWantedLevel(0);
@@ -494,14 +493,8 @@ namespace FiveM.Client
             player.Character.Health = resCharacter.Health;
             player.Character.MaxHealth = G_Character.MaxHealth;
 
-            //ClearPlayerWantedLevel(PlayerId());
-            player.WantedLevel = 0;
-
-            player.CanControlCharacter = true;
-
-            player.Character.IsCollisionEnabled = true;
-            player.Character.IsPositionFrozen = false;
-            player.Character.IsInvincible = false;
+            if (resCharacter.Health == 0)
+                player.Character.Kill();
 
             G_Character.Entered = true;
 
@@ -566,31 +559,6 @@ namespace FiveM.Client
                 G_World.CurrentTime.Seconds
             });
             await Delay(1000);
-        }
-
-        [Tick]
-        public async Task OnFrame()
-        {
-            var character = Game.Player.Character;
-            var isInVehicle = character.IsInVehicle();
-
-            if (isInVehicle)
-            {
-                var vehicle = character.CurrentVehicle;
-                if (vehicle != null)
-                {
-                    var seatDriver = vehicle.GetPedOnSeat(VehicleSeat.Driver);
-                    G_Character.DisplayRadar = seatDriver == character;
-                    DisplayRadar(G_Character.DisplayRadar);
-                }
-            }
-            else if (G_Character.DisplayRadar)
-            {
-                G_Character.DisplayRadar = false;
-                DisplayRadar(false);
-            }
-
-            await Delay(100);
         }
 
         [Tick]

@@ -8,15 +8,11 @@ namespace Client
     {
         public static readonly bool S_Debug = true;
 
-        public static readonly bool S_FriendlyFire = true;
-
         public static class G_Character
         {
             public const int MaxHealth = 500;
 
             public static bool Entered = false;
-
-            public static bool DisplayRadar = true; // initial as true
 
             public static PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }
         }
