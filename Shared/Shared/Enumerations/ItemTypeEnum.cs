@@ -1,6 +1,6 @@
 ﻿namespace Shared.Enumerations
 {
-    public enum ItemCharacterEnum
+    public enum ItemTypeEnum
     {
         Weapon,
         Ammo,

@@ -16,6 +16,33 @@ namespace DatabaseConsole.Migrations
                 .HasAnnotation("ProductVersion", "3.1.32")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterItemModel", b =>
+                {
+                    b.Property<long>("Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("CharacterId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("Deleted")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("Equipped")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<long>("ItemId")
+                        .HasColumnType("bigint");
+
+                    b.Property<DateTime>("Time")
+                        .HasColumnType("datetime(6)");
+
+                    b.HasKey("Id", "CharacterId");
+
+                    b.HasIndex("CharacterId");
+
+                    b.ToTable("account_character_item");
+                });
+
             modelBuilder.Entity("Shared.Models.Database.AccountCharacterModel", b =>
                 {
                     b.Property<long>("Id")
@@ -749,6 +776,15 @@ namespace DatabaseConsole.Migrations
                         .IsUnique();
 
                     b.ToTable("vehicle");
+                });
+
+            modelBuilder.Entity("Shared.Models.Database.AccountCharacterItemModel", b =>
+                {
+                    b.HasOne("Shared.Models.Database.AccountCharacterModel", null)
+                        .WithMany("Items")
+                        .HasForeignKey("CharacterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Shared.Models.Database.AccountCharacterModel", b =>

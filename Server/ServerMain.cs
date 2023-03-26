@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Dynamic;
 using System.IO;
@@ -24,6 +25,7 @@ namespace Server
             AuthenticatorController = new AuthenticatorController();
             CharacterController = new CharacterController();
             TimeSyncController = new TimeSyncController();
+            ItemController = new ItemController();
             Debug.WriteLine("[PROJECT] ServerMain Started.");
             var directory = Directory.GetCurrentDirectory();
             var location = $"{directory}/server.yml";
@@ -63,12 +65,15 @@ namespace Server
             //        Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
             //    }
             //}).Start();
+
+            Exports.Add("addItem", new Action<long, int>(ItemController.AddItem));
         }
 
         private ServerController ServerController { get; }
         private AuthenticatorController AuthenticatorController { get; }
         private CharacterController CharacterController { get; }
         private TimeSyncController TimeSyncController { get; }
+        private ItemController ItemController { get; }
 
         [Command("project_players")]
         public void ProjectPlayers()

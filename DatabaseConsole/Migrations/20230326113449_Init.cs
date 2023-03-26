@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace DatabaseConsole.Migrations
 {
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -145,6 +145,28 @@ namespace DatabaseConsole.Migrations
                         name: "FK_account_character_account_AccountId",
                         column: x => x.AccountId,
                         principalTable: "account",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "account_character_item",
+                columns: table => new
+                {
+                    Id = table.Column<long>(nullable: false),
+                    CharacterId = table.Column<long>(nullable: false),
+                    ItemId = table.Column<long>(nullable: false),
+                    Equipped = table.Column<bool>(nullable: false),
+                    Deleted = table.Column<bool>(nullable: false),
+                    Time = table.Column<DateTime>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_account_character_item", x => new { x.Id, x.CharacterId });
+                    table.ForeignKey(
+                        name: "FK_account_character_item_account_character_CharacterId",
+                        column: x => x.CharacterId,
+                        principalTable: "account_character",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -387,6 +409,11 @@ namespace DatabaseConsole.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_account_character_item_CharacterId",
+                table: "account_character_item",
+                column: "CharacterId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_vehicle_Id_CharacterId",
                 table: "vehicle",
                 columns: new[] { "Id", "CharacterId" },
@@ -395,6 +422,9 @@ namespace DatabaseConsole.Migrations
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "account_character_item");
+
             migrationBuilder.DropTable(
                 name: "account_character_ped_component");
 
