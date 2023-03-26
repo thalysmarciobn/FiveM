@@ -27,5 +27,6 @@ namespace Shared.Models.Database
         public ICollection<AccountCharacterPedPropModel> PedProp { get; set; }
         public ICollection<AccountCharacterPedHeadOverlayModel> PedHeadOverlay { get; set; }
         public ICollection<AccountCharacterPedHeadOverlayColorModel> PedHeadOverlayColor { get; set; }
+        public ICollection<AccountCharacterItemModel> Items { get; set; }
     }
 }

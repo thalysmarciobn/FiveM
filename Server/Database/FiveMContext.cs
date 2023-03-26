@@ -23,6 +23,7 @@ namespace FiveM.Server.Database
         public DbSet<AccountCharacterPedHeadModel> AccountCharacterAppearance { get; set; }
         public DbSet<AccountCharacterPedHeadOverlayModel> AccountCharacterPedHeadOverlay { get; set; }
         public DbSet<AccountCharacterPedHeadOverlayColorModel> AccountCharacterPedHeadOverlayColor { get; set; }
+        public DbSet<AccountCharacterItemModel> AccountCharacterItem { get; set; }
         public DbSet<BlipModel> Blip { get; set; }
         public DbSet<ServerVehicleService> ServerVehicleService { get; set; }
         public DbSet<VehicleModel> Vehicles { get; set; }
@@ -83,6 +84,8 @@ namespace FiveM.Server.Database
                 e.HasMany(m => m.PedHeadOverlay).WithOne().HasForeignKey(m => m.CharacterId)
                     .OnDelete(DeleteBehavior.Cascade);
                 e.HasMany(m => m.PedHeadOverlayColor).WithOne().HasForeignKey(m => m.CharacterId)
+                    .OnDelete(DeleteBehavior.Cascade);
+                e.HasMany(m => m.Items).WithOne().HasForeignKey(m => m.CharacterId)
                     .OnDelete(DeleteBehavior.Cascade);
 
                 // e.HasData(new AccountCharacterModel
@@ -225,6 +228,12 @@ namespace FiveM.Server.Database
             {
                 e.ToTable("account_character_ped_head_overlay_color");
                 e.HasKey(m => new { m.CharacterId, m.OverlayId });
+            });
+
+            modelBuilder.Entity<AccountCharacterItemModel>(e =>
+            {
+                e.ToTable("account_character_item");
+                e.HasKey(m => new { m.Id, m.CharacterId });
             });
 
             modelBuilder.Entity<ServerVehicleService>(e =>

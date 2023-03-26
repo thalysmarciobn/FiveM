@@ -19,6 +19,7 @@ namespace Server.Extensions
                 .Include(m => m.Character).ThenInclude(m => m.PedProp)
                 .Include(m => m.Character).ThenInclude(m => m.PedHeadOverlay)
                 .Include(m => m.Character).ThenInclude(m => m.PedHeadOverlayColor)
+                .Include(m => m.Character).ThenInclude(m => m.Items)
                 .FirstOrDefault(x => x.License == license);
         }
     }
