@@ -1,6 +1,6 @@
 <Project Sdk="CitizenFX.Sdk.Client/0.2.3">
     <ItemGroup>
-        <Compile Include="../Shared/**/*.cs" Version="1.0.0"/>
+        <Compile Include="../Shared/**/*.cs" Version="1.0.0" />
     </ItemGroup>
     <ItemGroup>
         <Reference Include="JetBrains.Annotations, Version=2021.2.0.0, Culture=neutral, PublicKeyToken=1010a0d8d6380325, processorArchitecture=MSIL">
@@ -13,6 +13,6 @@
         </Reference>
     </ItemGroup>
     <Target Name="CopyLinkedContentFiles" BeforeTargets="Build">
-        <Copy SourceFiles="..\packages\Newtonsoft.Json.12.0.2\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.dll" DestinationFiles="..\ClientLib\Newtonsoft.Json.dll" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true"/>
+        <Copy SourceFiles="..\packages\Newtonsoft.Json.12.0.2\lib\portable-net40+sl5+win8+wp8+wpa81\Newtonsoft.Json.dll" DestinationFiles="..\ClientLib\Newtonsoft.Json.dll" SkipUnchangedFiles="true" OverwriteReadOnlyFiles="true" />
     </Target>
 </Project>

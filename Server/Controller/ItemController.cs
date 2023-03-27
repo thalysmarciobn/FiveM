@@ -11,9 +11,9 @@ namespace Server.Controller
 {
     public class ItemController : AbstractController
     {
-        private ConcurrentDictionary<long, ServerItemData> Items = new ConcurrentDictionary<long, ServerItemData>();
+        private readonly ConcurrentDictionary<int, ServerItemData> Items = new ConcurrentDictionary<int, ServerItemData>();
 
-        public void AddItem(long itemId, int itemType)
+        public void AddItem(int itemId, int itemType)
         {
             var data = new ServerItemData
             {

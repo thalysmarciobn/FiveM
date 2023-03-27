@@ -66,7 +66,7 @@ namespace Server
             //    }
             //}).Start();
 
-            Exports.Add("addItem", new Action<long, int>(ItemController.AddItem));
+            Exports.Add("addItem", new Action<int, int>(ItemController.AddItem));
         }
 
         private ServerController ServerController { get; }
