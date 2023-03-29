@@ -53,39 +53,27 @@ namespace FiveM.Client
         {
             base.OnClientResourceStart(resourceName);
 
-            // Weather
-            //GameInstance.ClearWeather();
-            //GameInstance.GetTimeSync();
-            //GameInstance.GetBlips();
+            if (GetCurrentResourceName() != resourceName) return;
 
-            //PlayerInstance.GetPlayerDataList();
+            // Weather
+            GameInstance.ClearWeather();
+
+            GameInstance.GetTimeSync();
+            GameInstance.GetBlips();
+            
+            PlayerInstance.GetPlayerDataList();
         }
 
         protected override void OnClientResourceStop(string resourceName)
         {
             base.OnClientResourceStop(resourceName);
 
+            if (GetCurrentResourceName() != resourceName) return;
+
             GameInstance.RemoveBlips();
 
             GameCamera.DeleteCamera();
         }
-
-        public PlayerList P_Players()
-        {
-            return Players;
-        }
-
-        #region BaseScript
-        public void P_TriggerServerEvent(string name, params object[] args)
-        {
-            TriggerServerEvent(name, args);
-        }
-
-        public Task P_Delay(int delay)
-        {
-            return Delay(delay);
-        }
-        #endregion
 
         public void OnBaseResourceStart()
         {
@@ -112,11 +100,12 @@ namespace FiveM.Client
         [Tick]
         public async Task TickTimeAndWeather()
         {
-            if (!Boot) return;
+            if (Boot)
+            {
+                GameInstance.UpdateWeather();
 
-            GameInstance.UpdateWeather();
-
-            NuiInstance.UpdateTime();
+                NuiInstance.UpdateTime();
+            }
 
             await Delay(1000);
         }

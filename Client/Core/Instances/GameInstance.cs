@@ -31,10 +31,11 @@ namespace Client.Core.Instances
 
         public void GetTimeSync()
         {
-            Script.P_TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>(arg =>
+            Script.TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>(arg =>
             {
                 using (var data = JsonHelper.DeserializeObject<ServerTimeSyncMessage>(arg))
                 {
+                    Debug.WriteLine(arg);
                     if (G_World.Weather != data.Weather)
                         G_World.Weather = data.Weather;
 
@@ -58,7 +59,7 @@ namespace Client.Core.Instances
 
         public void GetBlips()
         {
-            Script.P_TriggerServerEvent(EventName.Server.GetBlips, new Action<string>(arg =>
+            Script.TriggerServerEvent(EventName.Server.GetBlips, new Action<string>(arg =>
             {
                 using (var data = JsonHelper.DeserializeObject<BlipListMessage>(arg))
                 {
@@ -103,7 +104,7 @@ namespace Client.Core.Instances
             NetworkOverrideClockTime(G_World.CurrentTime.Hours, G_World.CurrentTime.Minutes,
                 G_World.CurrentTime.Seconds);
 
-            await Script.P_Delay(100);
+            await Script.Delay(100);
         }
 
         public void UpdateWeather()

@@ -32,7 +32,7 @@ namespace Client.Core.Instances
 
         public void GetPlayerDataList()
         {
-            Script.P_TriggerServerEvent(EventName.Server.GetPlayerDataList, new Action<string>(arg =>
+            Script.TriggerServerEvent(EventName.Server.GetPlayerDataList, new Action<string>(arg =>
             {
                 using (var data = JsonHelper.DeserializeObject<PlayerDataListMessage>(arg))
                 {
@@ -55,7 +55,7 @@ namespace Client.Core.Instances
         {
             DoScreenFadeOut(500);
             while (IsScreenFadedOut())
-                await Script.P_Delay(10);
+                await Script.Delay(10);
 
             var account = JsonHelper.DeserializeObject<AccountModel>(json);
 
@@ -66,7 +66,7 @@ namespace Client.Core.Instances
                 var characterPosition = Creation.Position;
                 var heading = Creation.Heading;
 
-                while (!await Game.Player.ChangeModel(PedHash.FreemodeMale01)) await Script.P_Delay(10);
+                while (!await Game.Player.ChangeModel(PedHash.FreemodeMale01)) await Script.Delay(10);
 
                 LoadScene(characterPosition.X, characterPosition.Y, characterPosition.Z);
                 SetPedDefaultComponentVariation(PlayerPedId());
@@ -79,7 +79,7 @@ namespace Client.Core.Instances
                     true, true);
                 ClearPedTasksImmediately(PlayerPedId());
 
-                while (!HasCollisionLoadedAroundEntity(PlayerPedId())) await Script.P_Delay(10);
+                while (!HasCollisionLoadedAroundEntity(PlayerPedId())) await Script.Delay(10);
 
                 var groundZ = 0f;
                 var ground = GetGroundZFor_3dCoord(characterPosition.X, characterPosition.Y, characterPosition.Z,
@@ -121,12 +121,12 @@ namespace Client.Core.Instances
             ShutdownLoadingScreen();
 
             DoScreenFadeIn(500);
-            while (IsScreenFadingIn()) await Script.P_Delay(1);
+            while (IsScreenFadingIn()) await Script.Delay(1);
         }
 
         public void CharacterRequest(int slot)
         {
-            Script.P_TriggerServerEvent(EventName.Server.CharacterRequest, slot, new Action<string>(async json =>
+            Script.TriggerServerEvent(EventName.Server.CharacterRequest, slot, new Action<string>(async json =>
             {
                 var data = JsonHelper.DeserializeObject<AccountCharacterModel>(json);
 
@@ -147,7 +147,7 @@ namespace Client.Core.Instances
             LoadScene(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
             RequestCollisionAtCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
 
-            while (!await Game.Player.ChangeModel(new Model(resCharacter.Model))) await Script.P_Delay(10);
+            while (!await Game.Player.ChangeModel(new Model(resCharacter.Model))) await Script.Delay(10);
 
             player.SetEyeColor(resCharacter);
             player.SetHairColor(resCharacter.PedHead);
@@ -161,7 +161,7 @@ namespace Client.Core.Instances
             player.SetPedHeadOverlays(resCharacter.PedHeadOverlay);
             player.SetPedHeadOverlayColors(resCharacter.PedHeadOverlayColor);
 
-            while (!HasCollisionLoadedAroundEntity(PlayerPedId())) await Script.P_Delay(10);
+            while (!HasCollisionLoadedAroundEntity(PlayerPedId())) await Script.Delay(10);
 
             //SetEntityCoordsNoOffset(GetPlayerPed(-1), vector3.X, vector3.Y, vector3.Z, false, false, false); ;
             //NetworkResurrectLocalPlayer(vector3.X, vector3.Y, vector3.Z, heading, true, true);
@@ -215,7 +215,7 @@ namespace Client.Core.Instances
             if (PlayerDataList.TryGetValue(localPlayer.ServerId, out var isLocalPassive))
                 localPassive = isLocalPassive.IsPassive;
 
-            foreach (var player in Script.P_Players())
+            foreach (var player in Script.PlayerList())
                 if (PlayerDataList.ContainsKey(player.ServerId))
                 {
                     var data = PlayerDataList[player.ServerId];
