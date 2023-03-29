@@ -15,6 +15,7 @@ namespace FiveM.Client
 {
     public class ClientMainScript : BaseScriptAbstract
     {
+        private bool Boot { get; }
         private PlayerInstance PlayerInstance { get; }
         private NuiInstance NuiInstance { get; }
         private GameInstance GameInstance { get; }
@@ -29,7 +30,6 @@ namespace FiveM.Client
 
             Debug.WriteLine("[PROJECT] Script: CharacterScript");
             RegisterHandler(EventName.External.BaseEvents.OnBaseResourceStart, new Action(OnBaseResourceStart));
-            //EventHandlers["onClientResourceStart"] += new Action(OnBaseResourceStart);
             RegisterHandler(EventName.Client.InitAccount, new Action<string>(PlayerInstance.InitAccount));
             RegisterHandler(EventName.Client.UpdatePlayerDataList, new Action<string>(PlayerInstance.UpdatePlayerDataList));
 
@@ -45,6 +45,8 @@ namespace FiveM.Client
             RegisterNui("setPedEyeColor", new Action<int, CallbackDelegate>(NuiInstance.NUISetPedEyeColor));
             RegisterNui("setPedHairColor", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUISetPedHairColor));
             RegisterNui("registerCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUIRegisterCharacter));
+
+            Boot = true;
         }
 
         protected override void OnClientResourceStart(string resourceName)
@@ -52,11 +54,11 @@ namespace FiveM.Client
             base.OnClientResourceStart(resourceName);
 
             // Weather
-            GameInstance.ClearWeather();
-            GameInstance.GetTimeSync();
-            GameInstance.GetBlips();
+            //GameInstance.ClearWeather();
+            //GameInstance.GetTimeSync();
+            //GameInstance.GetBlips();
 
-            PlayerInstance.GetPlayerDataList();
+            //PlayerInstance.GetPlayerDataList();
         }
 
         protected override void OnClientResourceStop(string resourceName)
@@ -94,19 +96,25 @@ namespace FiveM.Client
         [Tick]
         public async Task TickPlayerData()
         {
+            if (!Boot) return;
+
             await PlayerInstance.TickPlayerData();
         }
 
         [Tick]
         public async Task TickOverrideClockTime()
         {
+            if (!Boot) return;
+
             await GameInstance.TickOverrideClockTime();
         }
 
         [Tick]
         public async Task TickTimeAndWeather()
         {
-            GameInstance.UpdateWeather(); ;
+            if (!Boot) return;
+
+            GameInstance.UpdateWeather();
 
             NuiInstance.UpdateTime();
 
