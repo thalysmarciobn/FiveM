@@ -75,9 +75,9 @@ namespace FiveM.Client
             GameCamera.DeleteCamera();
         }
 
-        public void OnBaseResourceStart()
+        public static void OnBaseResourceStart()
         {
-            TriggerServerEvent(EventName.Server.AccountRequest);
+            BaseScript.TriggerServerEvent(EventName.Server.AccountRequest);
         }
 
         #region Ticks

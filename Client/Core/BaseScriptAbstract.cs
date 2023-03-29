@@ -7,15 +7,10 @@ namespace Client.Core
 {
     public abstract class BaseScriptAbstract : BaseScript
     {
-        private Delegate OnClientResourceStartDelegate { get; }
-        private Delegate OnClientResourceStopDelegate { get; }
-
         public BaseScriptAbstract()
         {
-            OnClientResourceStartDelegate = new Action<string>(OnClientResourceStart);
-            OnClientResourceStopDelegate = new Action<string>(OnClientResourceStop);
-            RegisterHandler(EventName.External.Client.OnClientResourceStart, OnClientResourceStartDelegate);
-            RegisterHandler(EventName.External.Client.OnClientResourceStop, OnClientResourceStopDelegate);
+            RegisterHandler(EventName.External.Client.OnClientResourceStart, new Action<string>(OnClientResourceStart));
+            RegisterHandler(EventName.External.Client.OnClientResourceStop, new Action<string>(OnClientResourceStop));
         }
 
         protected virtual void OnClientResourceStart(string resourceName)
@@ -31,15 +26,21 @@ namespace Client.Core
             EventHandlers[key] += @delegate;
         }
 
-        protected void UnregisterHandler(string key, Delegate @delegate)
+        protected void UnregisterHandler(string key)
         {
-            EventHandlers[key] -= @delegate;
+            if (!EventHandlers.ContainsKey(key)) return;
+            EventHandlers.Remove(key);
         }
 
         protected void RegisterNui(string key, Delegate @delegate)
         {
             RegisterNuiCallbackType(key);
             EventHandlers[$"__cfx_nui:{key}"] += @delegate;
+        }
+
+        protected void UnregisterNui(string key)
+        {
+            UnregisterHandler($"__cfx_nui:{key}");
         }
 
         public new void TriggerServerEvent(string name, params object[] args)
