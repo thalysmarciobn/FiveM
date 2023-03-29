@@ -19,6 +19,11 @@ namespace Server
 {
     public class ServerMain : BaseScript
     {
+        private ServerController ServerController { get; }
+        private AuthenticatorController AuthenticatorController { get; }
+        private CharacterController CharacterController { get; }
+        private TimeSyncController TimeSyncController { get; }
+        private ItemController ItemController { get; }
         public ServerMain()
         {
             ServerController = new ServerController();
@@ -68,12 +73,6 @@ namespace Server
 
             Exports.Add("addItem", new Action<int, int>(ItemController.AddItem));
         }
-
-        private ServerController ServerController { get; }
-        private AuthenticatorController AuthenticatorController { get; }
-        private CharacterController CharacterController { get; }
-        private TimeSyncController TimeSyncController { get; }
-        private ItemController ItemController { get; }
 
         [Command("project_players")]
         public void ProjectPlayers()
