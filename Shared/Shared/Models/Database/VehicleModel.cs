@@ -1,4 +1,8 @@
-﻿namespace Shared.Models.Database
+﻿using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
+namespace Shared.Models.Database
 {
     public class VehicleModel
     {
@@ -38,5 +42,6 @@
         public int TyreSmokeColorR { get; set; }
         public int TyreSmokeColorG { get; set; }
         public int TyreSmokeColorB { get; set; }
+        public ICollection<VehicleModModel> Mods { get; set; }
     }
 }

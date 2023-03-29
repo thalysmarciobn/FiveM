@@ -7,31 +7,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*"/>
-        <PackageReference Include="FluentScheduler" Version="5.5.1"/>
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.2"/>
+        <PackageReference Include="CitizenFX.Core.Server" Version="1.0.*" />
+        <PackageReference Include="FluentScheduler" Version="5.5.1" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
 
-        <Compile Include="../Shared/**/*.cs" Version="1.0.0"/>
+        <Compile Include="../Shared/**/*.cs" Version="1.0.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <Compile Remove="..\Shared\Shared\Helper\CharacterHelper.cs"/>
-        <Compile Remove="..\Shared\Shared\Models\Database\VehicleExtraTurnedModel.cs"/>
-        <Compile Remove="..\Shared\Shared\Models\Database\VehicleModModel.cs"/>
-        <Compile Remove="..\Shared\Shared\Models\Database\VehicleNeonLightModel.cs"/>
-        <Compile Remove="..\Shared\Shared\Models\Game\VehicleService.cs"/>
-        <Compile Remove="..\Shared\Shared\Models\Server\VehicleData.cs"/>
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="3.1.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0"/>
-        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.2"/>
-        <PackageReference Include="YamlDotNet" Version="13.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="3.1.0" />
+        <PackageReference Include="Pomelo.EntityFrameworkCore.MySql" Version="3.1.2" />
+        <PackageReference Include="YamlDotNet" Version="13.0.0" />
     </ItemGroup>
 </Project>
   

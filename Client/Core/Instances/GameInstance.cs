@@ -2,6 +2,7 @@
 using FiveM.Client;
 using Shared.Helper;
 using Shared.Models.Database;
+using Shared.Models.Messages;
 using Shared.Models.Server;
 using System;
 using System.Collections.Generic;
@@ -32,25 +33,26 @@ namespace Client.Core.Instances
         {
             Script.P_TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>(arg =>
             {
-                var data = JsonHelper.DeserializeObject<ServerTimeSync>(arg);
+                using (var data = JsonHelper.DeserializeObject<ServerTimeSyncMessage>(arg))
+                {
+                    if (G_World.Weather != data.Weather)
+                        G_World.Weather = data.Weather;
 
-                if (G_World.Weather != data.Weather)
-                    G_World.Weather = data.Weather;
+                    if (G_World.RainLevel != data.RainLevel)
+                        G_World.RainLevel = data.RainLevel;
 
-                if (G_World.RainLevel != data.RainLevel)
-                    G_World.RainLevel = data.RainLevel;
+                    if (G_World.WindSpeed != data.WindSpeed)
+                        G_World.WindSpeed = data.WindSpeed;
 
-                if (G_World.WindSpeed != data.WindSpeed)
-                    G_World.WindSpeed = data.WindSpeed;
+                    if (G_World.WindDirection != data.WindDirection)
+                        G_World.WindDirection = data.WindDirection;
 
-                if (G_World.WindDirection != data.WindDirection)
-                    G_World.WindDirection = data.WindDirection;
+                    G_World.LastRealTime = DateTime.UtcNow;
+                    G_World.LastServerTime = new DateTime(data.Ticks);
+                    G_World.HasTime = true;
 
-                G_World.LastRealTime = DateTime.UtcNow;
-                G_World.LastServerTime = new DateTime(data.Ticks);
-                G_World.HasTime = true;
-
-                G_World.Update = true;
+                    G_World.Update = true;
+                }
             }));
         }
 
@@ -58,26 +60,28 @@ namespace Client.Core.Instances
         {
             Script.P_TriggerServerEvent(EventName.Server.GetBlips, new Action<string>(arg =>
             {
-                var data = JsonHelper.DeserializeObject<ICollection<KeyValuePair<long, BlipModel>>>(arg);
-
-                foreach (var blip in data)
+                using (var data = JsonHelper.DeserializeObject<BlipListMessage>(arg))
                 {
-                    var id = blip.Key;
-                    var model = blip.Value;
 
-                    var blipId = AddBlipForCoord(model.X, model.Y, model.Z);
+                    foreach (var blip in data.List)
+                    {
+                        var id = blip.Key;
+                        var model = blip.Value;
 
-                    SetBlipSprite(blipId, model.BlipId);
-                    SetBlipDisplay(blipId, model.DisplayId);
-                    SetBlipScale(blipId, model.Scale);
-                    SetBlipColour(blipId, model.Color);
-                    SetBlipAsShortRange(blipId, model.ShortRange);
+                        var blipId = AddBlipForCoord(model.X, model.Y, model.Z);
 
-                    BeginTextCommandSetBlipName("STRING");
-                    AddTextComponentString(model.Title);
-                    EndTextCommandSetBlipName(blipId);
+                        SetBlipSprite(blipId, model.BlipId);
+                        SetBlipDisplay(blipId, model.DisplayId);
+                        SetBlipScale(blipId, model.Scale);
+                        SetBlipColour(blipId, model.Color);
+                        SetBlipAsShortRange(blipId, model.ShortRange);
 
-                    Blips.Add(id, blipId);
+                        BeginTextCommandSetBlipName("STRING");
+                        AddTextComponentString(model.Title);
+                        EndTextCommandSetBlipName(blipId);
+
+                        Blips.Add(id, blipId);
+                    }
                 }
             }));
         }

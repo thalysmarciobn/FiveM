@@ -17,9 +17,9 @@
         Engine          = 11,       // -1,0,1,2,3
         Breaks          = 12,       // -1, 0, 1, 2
         Transmission    = 13,       // -1,0,1,2
-        Horns           = 14,       // 0 - 57 [ default: -1 to 34 ]
+        Horns           = 14,       // 0 - 57           [ default: -1 to 34 ]
         Suspension      = 15,       // -1,0,1,2,3
-        Armor           = 16,       // -1,0,1,2,3,4 [ no armour, 20%, 40%, 60%, 80%, 100% ]
+        Armor           = 16,       // -1,0,1,2,3,4     [ no armour, 20%, 40%, 60%, 80%, 100% ]
         Turbo           = 18,       // -1,0
         Xenon           = 22,       // -1,0
         FrontWheels     = 23,
@@ -32,11 +32,11 @@
         ShiftLever      = 34,
         Plaques         = 35,
         Hydraulics      = 38,
-        Boost           = 40,       // -1,0,1,2,3 [ none, 20%, 60%, 100%, ram ]
-        WindowTypes     = 46,       // -1,0,1,2 [ none, light smokeglas, dark smokeglas, limousine ]
+        Boost           = 40,       // -1,0,1,2,3       [ none, 20%, 60%, 100%, ram ]
+        WindowTypes     = 46,       // -1,0,1,2         [ none, light smokeglas, dark smokeglas, limousine ]
         WindowTint      = 55,
         Livery          = 48,
-        Plate           = 53,       // 0,1,2,3,4,5 [ blue on white2, blue on white3, yellow on blue, yellow on black, .., .. ]
+        Plate           = 53,       // 0,1,2,3,4,5      [ blue on white2, blue on white3, yellow on blue, yellow on black, .., .. ]
         Colour1         = 66,       // 0 - 159
         Colour2         = 67        // 0 - 159
     }

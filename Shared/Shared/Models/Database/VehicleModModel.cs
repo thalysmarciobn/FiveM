@@ -2,8 +2,8 @@
 {
     public class VehicleModModel
     {
-        public long CharacterId { get; set; }
+        public long VehicleId { get; set; }
+        public int Type { get; set; }
         public int Index { get; set; }
-        public bool Enable { get; set; }
     }
 }

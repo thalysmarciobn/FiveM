@@ -50,6 +50,7 @@ public static class EventName
         public const string GetServiceVehicles = "getServiceVehicles";
         public const string SpawnVehicleService = "spawnVehicleService";
         public const string ForceVehicle = "forceVehicle";
+        public const string GetVehicleData = "getVehicleData";
 
         #endregion
 

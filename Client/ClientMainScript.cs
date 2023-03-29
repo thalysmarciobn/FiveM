@@ -6,6 +6,8 @@ using Client;
 using Client.Core;
 using Client.Core.Instances;
 using Client.Helper;
+using Shared.Helper;
+using Shared.Models.Server;
 using static CitizenFX.Core.Native.API;
 using static Client.GlobalVariables;
 
@@ -120,7 +122,11 @@ namespace FiveM.Client
 
             var id = (uint)model.Hash;
 
-            TriggerServerEvent(EventName.Server.ForceVehicle, id, new Action<string>(arg => { Debug.WriteLine(arg); }));
+            TriggerServerEvent(EventName.Server.ForceVehicle, id, new Action<string>(arg => {
+
+                var vehicle = JsonHelper.DeserializeObject<ServerVehicle>(arg);
+                Debug.WriteLine(arg);
+            }));
         }
 
         [Command("fps")]

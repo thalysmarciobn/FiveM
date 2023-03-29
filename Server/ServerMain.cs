@@ -12,6 +12,8 @@ using Server.Database;
 using Server.Helper;
 using Server.Instances;
 using Shared.Helper;
+using Shared.Models.Message;
+using Shared.Models.Messages;
 using Shared.Models.Server;
 using static CitizenFX.Core.Native.API;
 
@@ -144,9 +146,14 @@ namespace Server
                 serverPlayer.IsPassive = isPassive;
             }
 
-            var data = JsonHelper.SerializeObject(GameInstance.Instance.GetPlayerDataList);
-            foreach (var entity in Players)
-                entity.TriggerEvent(EventName.Client.UpdatePlayerDataList, data);
+            using (var message = new PlayerDataListMessage
+            {
+                List = GameInstance.Instance.GetPlayerDataList
+            })
+            {
+                foreach (var entity in Players)
+                    entity.TriggerEvent(EventName.Client.UpdatePlayerDataList, JsonHelper.SerializeObject(message));
+            }
         }
 
         [EventHandler(EventName.Server.GetPassive)]
@@ -158,7 +165,13 @@ namespace Server
         [EventHandler(EventName.Server.GetPlayerDataList)]
         public void GetPlayerDataList(NetworkCallbackDelegate networkCallback)
         {
-            networkCallback.Invoke(JsonHelper.SerializeObject(GameInstance.Instance.GetPlayerDataList));
+            using (var message = new PlayerDataListMessage
+            {
+                List = GameInstance.Instance.GetPlayerDataList
+            })
+            {
+                networkCallback.Invoke(JsonHelper.SerializeObject(message));
+            }
         }
 
         #endregion
@@ -168,20 +181,29 @@ namespace Server
         [EventHandler(EventName.Server.GetBlips)]
         public void GetBlips(NetworkCallbackDelegate networkCallback)
         {
-            networkCallback.Invoke(JsonHelper.SerializeObject(GameInstance.Instance.GetBlipList));
+            using (var message = new BlipListMessage
+            {
+                List = GameInstance.Instance.GetBlipList
+            })
+            {
+                networkCallback.Invoke(JsonHelper.SerializeObject(message));
+            }
         }
 
         [EventHandler(EventName.Server.GetTimeSync)]
         public void GetTimeSync(NetworkCallbackDelegate networkCallback)
         {
-            networkCallback.Invoke(JsonHelper.SerializeObject(new ServerTimeSync
+            using (var message = new ServerTimeSyncMessage
             {
                 Weather = (uint)TimeSyncController.CurrentWeather,
                 RainLevel = TimeSyncController.RainLevel,
                 WindSpeed = TimeSyncController.WindSpeed,
                 WindDirection = TimeSyncController.WindDirection,
                 Ticks = TimeSyncController.CurrentDate.Ticks
-            }));
+            })
+            {
+                networkCallback.Invoke(JsonHelper.SerializeObject(message));
+            }
         }
 
         #endregion
@@ -215,6 +237,21 @@ namespace Server
         public void GetServiceVehicles(NetworkCallbackDelegate networkCallback)
         {
             networkCallback.Invoke(JsonHelper.SerializeObject(GameInstance.Instance.GetVehicles));
+        }
+
+        [EventHandler(EventName.Server.GetVehicleData)]
+        public void GetVehicleData([FromSource] Player player, int vehicleId, NetworkCallbackDelegate networkCallback)
+        {
+            using (var context = DatabaseContextManager.Context)
+            {
+                var vehicle = context.Vehicles.FirstOrDefault(x => x.Id == vehicleId);
+                using (var message = new VehicleDataMessage())
+                {
+                    message.Status = vehicle == null ? 0 : 1;
+                    message.Model = vehicle;
+                    networkCallback.Invoke(JsonHelper.SerializeObject(message));
+                }
+            }
         }
 
         [EventHandler(EventName.Server.ForceVehicle)]

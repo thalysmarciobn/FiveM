@@ -27,6 +27,7 @@ namespace FiveM.Server.Database
         public DbSet<BlipModel> Blip { get; set; }
         public DbSet<ServerVehicleService> ServerVehicleService { get; set; }
         public DbSet<VehicleModel> Vehicles { get; set; }
+        public DbSet<VehicleModModel> VehicleMods { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -489,17 +490,17 @@ namespace FiveM.Server.Database
 
                 e.HasIndex(m => new { m.Id, m.CharacterId }).IsUnique();
 
-                // e.HasData(new AccountCharacterModel
-                // {
-                //     Id = 1,
-                //     AccountId = 1,
-                //     Name = "Admin",
-                //     Surname = "Thalys",
-                //     DateCreated = DateTime.Now,
-                //     Gender = 0,
-                //     Armor = 0,
-                //     Model = "mp_m_freemode_01"
-                // });
+                e.HasMany(m => m.Mods).WithOne().HasForeignKey(m => m.VehicleId)
+                    .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<VehicleModModel>(e =>
+            {
+                e.ToTable("vehicle_mod");
+
+                e.HasKey(m => m.VehicleId);
+
+                e.HasIndex(m => m.VehicleId).IsUnique();
             });
         }
     }

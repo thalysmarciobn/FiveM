@@ -10,6 +10,7 @@ using FiveM.Client;
 using Shared.Enumerations;
 using Shared.Helper;
 using Shared.Models.Database;
+using Shared.Models.Messages;
 using Shared.Models.Server;
 using static CitizenFX.Core.Native.API;
 using static CitizenFX.Core.UI.Screen;
@@ -33,17 +34,21 @@ namespace Client.Core.Instances
         {
             Script.P_TriggerServerEvent(EventName.Server.GetPlayerDataList, new Action<string>(arg =>
             {
-                var data = JsonHelper.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
-                foreach (var kvp in data)
-                    PlayerDataList.TryAdd(kvp.Key, kvp.Value);
+                using (var data = JsonHelper.DeserializeObject<PlayerDataListMessage>(arg))
+                {
+                    foreach (var kvp in data.List)
+                        PlayerDataList.TryAdd(kvp.Key, kvp.Value);
+                }
             }));
         }
 
         public void UpdatePlayerDataList(string arg)
         {
-            var data = JsonHelper.DeserializeObject<ICollection<KeyValuePair<int, ServerPlayer>>>(arg);
-            foreach (var kvp in data)
-                PlayerDataList.AddOrUpdate(kvp.Key, kvp.Value, (key, oldValue) => kvp.Value);
+            using (var data = JsonHelper.DeserializeObject<PlayerDataListMessage>(arg))
+            {
+                foreach (var kvp in data.List)
+                    PlayerDataList.AddOrUpdate(kvp.Key, kvp.Value, (key, oldValue) => kvp.Value);
+            }
         }
 
         public async void InitAccount(string json)

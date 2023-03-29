@@ -1,5 +1,6 @@
 ﻿using CitizenFX.Core;
 using Shared.Models.Database;
+using System.Collections.Generic;
 using static CitizenFX.Core.Native.API;
 
 namespace Server.Helper
@@ -8,7 +9,6 @@ namespace Server.Helper
     {
         public static VehicleModel VehicleToData(uint model, long character, int veh)
         {
-            Debug.WriteLine($"{GetVehicleBodyHealth(veh)} aaaa");
             var data = new VehicleModel
             {
                 CharacterId = character,
@@ -28,7 +28,8 @@ namespace Server.Helper
                 NumberPlateTextIndex = GetVehicleNumberPlateTextIndex(veh),
                 WheelType = GetVehicleWheelType(veh),
                 WindowTint = GetVehicleWindowTint(veh),
-                PetrolTankHealth = GetVehiclePetrolTankHealth(veh)
+                PetrolTankHealth = GetVehiclePetrolTankHealth(veh),
+                Mods = new List<VehicleModModel>()
             };
 
             var dashboardColor = data.DashboardColor;
