@@ -12,15 +12,13 @@ using static Client.GlobalVariables;
 
 namespace Client.Core.Instances
 {
-    public class GameInstance : IInstance
+    public class GameInstance : AbstractInstance<GameInstance>
     {
-        public ClientMainScript Script { get; }
-
         private readonly Dictionary<long, int> Blips = new Dictionary<long, int>();
 
-        public GameInstance(ClientMainScript script)
+        public void OnBaseResourceStart()
         {
-            Script = script;
+            BaseScript.TriggerServerEvent(EventName.Server.AccountRequest);
         }
 
         public void ClearWeather()
@@ -31,7 +29,7 @@ namespace Client.Core.Instances
 
         public void GetTimeSync()
         {
-            Script.TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>(arg =>
+            BaseScript.TriggerServerEvent(EventName.Server.GetTimeSync, new Action<string>(arg =>
             {
                 using (var data = JsonHelper.DeserializeObject<ServerTimeSyncMessage>(arg))
                 {
@@ -59,7 +57,7 @@ namespace Client.Core.Instances
 
         public void GetBlips()
         {
-            Script.TriggerServerEvent(EventName.Server.GetBlips, new Action<string>(arg =>
+            BaseScript.TriggerServerEvent(EventName.Server.GetBlips, new Action<string>(arg =>
             {
                 using (var data = JsonHelper.DeserializeObject<BlipListMessage>(arg))
                 {
@@ -104,7 +102,7 @@ namespace Client.Core.Instances
             NetworkOverrideClockTime(G_World.CurrentTime.Hours, G_World.CurrentTime.Minutes,
                 G_World.CurrentTime.Seconds);
 
-            await Script.Delay(100);
+            await BaseScript.Delay(100);
         }
 
         public void UpdateWeather()

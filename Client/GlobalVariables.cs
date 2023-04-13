@@ -1,30 +1,38 @@
 ﻿using System;
+using System.Collections.Generic;
 using CitizenFX.Core;
-using Client.Core;
+using Client.Core.Prompts;
 
 namespace Client
 {
     public class GlobalVariables
     {
-        public static readonly bool S_Debug = true;
+        public static bool CDebug => true;
 
         public static class G_Character
         {
-            public const int MaxHealth = 500;
+            public static int MaxHealth     => 500;
 
-            public static bool Entered = false;
+            public static bool Entered      => false;
 
             public static PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }
         }
 
         public static class G_Key
         {
-            public const int OpenPanel = 344; // F11
+            public const int OpenPanel              = 344; // F11
+            public const int OpenInventory          = 289; // F2
         }
 
         public static class G_Hud
         {
-            public static bool PanelOpened = false;
+            public static bool PanelOpened          => false;
+            public static bool IventoryOpened       => false;
+
+            public static List<int> DisableKeys     => new List<int>()
+            {
+                1, 2, 24, 25, 30, 31, 32, 34, 35, 36, 37
+            };
         }
 
         public static class G_World
@@ -33,81 +41,81 @@ namespace Client
             public static DateTime LastRealTime { get; set; }
             public static DateTime LastServerTime { get; set; }
 
-            private static double _timeElapsed => DateTime.UtcNow.Subtract(LastRealTime).TotalMilliseconds;
+            private static double TimeElapsed       => DateTime.UtcNow.Subtract(LastRealTime).TotalMilliseconds;
 
-            public static DateTime CurrentDate => LastServerTime.AddMilliseconds(_timeElapsed);
+            public static DateTime CurrentDate      => LastServerTime.AddMilliseconds(TimeElapsed);
 
-            public static TimeSpan CurrentTime => CurrentDate.TimeOfDay;
+            public static TimeSpan CurrentTime      => CurrentDate.TimeOfDay;
 
-            private static uint _weather { get; set; }
-            private static float _rainLevel { get; set; }
-            private static float _windSpeed { get; set; }
-            private static float _windDirection { get; set; }
-            private static bool _canUpdate { get; set; }
+            private static bool LocCanUpdate { get; set; }
+            private static uint LocWeather { get; set; }
+            private static float LocRainLevel { get; set; }
+            private static float LocWindSpeed { get; set; }
+            private static float LocaWindDirection { get; set; }
 
             public static bool Update
             {
                 get
                 {
-                    if (_canUpdate)
+                    if (LocCanUpdate)
                     {
-                        _canUpdate = false;
+                        LocCanUpdate = false;
                         return true;
                     }
 
                     return false;
                 }
-                set => _canUpdate = value;
+                set => LocCanUpdate = value;
             }
 
             public static uint LastWeather { get; private set; }
 
             public static uint Weather
             {
-                get => _weather;
+                get => LocWeather;
                 set
                 {
-                    LastWeather = _weather;
-                    _weather = value;
+                    LastWeather = LocWeather;
+                    LocWeather = value;
                 }
             }
 
             public static float RainLevel
             {
-                get => _rainLevel;
-                set => _rainLevel = value;
+                get => LocRainLevel;
+                set => LocRainLevel = value;
             }
 
             public static float WindSpeed
             {
-                get => _windSpeed;
-                set => _windSpeed = value;
+                get => LocWindSpeed;
+                set => LocWindSpeed = value;
             }
 
             public static float WindDirection
             {
-                get => _windDirection;
-                set => _windDirection = value;
+                get => LocaWindDirection;
+                set => LocaWindDirection = value;
             }
         }
 
         public static class Creation
         {
-            public static readonly Vector3 Position = new Vector3
+            public static Vector3 Position { get; } = new Vector3
             {
                 X = -1062.02f,
                 Y = -2711.85f,
                 Z = 0.83f
             };
 
-            public static readonly Vector3 Rotation = new Vector3
+            public static Vector3 Rotation { get; } = new Vector3
             {
                 X = 0,
                 Y = 0,
                 Z = -135.78f
             };
 
-            public static readonly float Heading = 226.2f;
+            public static float Heading => 226.2f;
         }
     }
 }

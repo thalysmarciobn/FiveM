@@ -5,6 +5,8 @@ using System.Threading.Tasks;
 using CitizenFX.Core;
 using CitizenFX.Core.UI;
 using Client.Core;
+using Client.Core.Color;
+using Client.Core.Prompts;
 using Client.Helper;
 using Shared.Helper;
 using Shared.Models.Database;
@@ -23,7 +25,7 @@ namespace Client
             EventHandlers[EventName.External.Client.OnClientResourceStop] += new Action<string>(OnClientResourceStop);
         }
 
-        private IList<Prompt> Prompts { get; } = new List<Prompt>();
+        private IReadOnlyCollection<Prompt> Prompts { get; set; }
         private Queue<long> ServicesToAction { get; } = new Queue<long>();
 
         private Dictionary<long, PromptServiceData> ServicesInAction { get; } =
@@ -35,9 +37,10 @@ namespace Client
 
             TriggerServerEvent(EventName.Server.GetServiceVehicles, new Action<string>(arg =>
             {
+                var collection = new List<Prompt>();
                 var vehicles = JsonHelper.DeserializeObject<ICollection<ServerVehicleService>>(arg);
                 foreach (var vehicle in vehicles)
-                    Prompts.Add(new Prompt(PromptService.ServiceCar, vehicle.Id, new PromptConfig
+                    collection.Add(new Prompt(PromptService.ServiceCar, vehicle.Id, new PromptConfig
                     {
                         Key = (Control)vehicle.Key,
                         KeyLabel = GetControlInstructionalButton(2, vehicle.Key, 1),
@@ -51,13 +54,15 @@ namespace Client
                         Padding = 0.004f,
                         TextOffset = 0,
                         ButtonSize = 0.015f,
-                        BackgroundColor = new RGBAColor(0, 0, 0, 100),
-                        LabelColor = new RGBAColor(255, 255, 255, 255),
-                        ButtonColor = new RGBAColor(255, 255, 255, 255),
-                        KeyColor = new RGBAColor(0, 0, 0, 255),
+                        BackgroundColor = new RGBA(0, 0, 0, 100),
+                        LabelColor = new RGBA(255, 255, 255, 255),
+                        ButtonColor = new RGBA(255, 255, 255, 255),
+                        KeyColor = new RGBA(0, 0, 0, 255),
                         DrawDistance = 4.0f,
                         InteractDistance = 2.0f
                     }));
+
+                Prompts = collection;
 
                 foreach (var prompt in Prompts)
                     prompt.Update();
@@ -186,12 +191,11 @@ namespace Client
         [Tick]
         public Task OnFrame()
         {
-            if (G_Hud.PanelOpened)
+            if (G_Hud.PanelOpened || G_Hud.IventoryOpened)
             {
-                DisableControlAction(0, 2, true);
-                DisableControlAction(0, 1, true);
-                DisableControlAction(0, 25, true);
-                DisableControlAction(0, 24, true);
+                G_Hud.DisableKeys.ForEach(key => {
+                    DisableControlAction(0, key, true);
+                });
             }
 
             return Task.FromResult(0);
@@ -213,6 +217,19 @@ namespace Client
                 SetNuiFocusKeepInput(opened);
 
                 NuiHelper.SendMessage("interface", "panel", new[] { opened ? "true" : "false" });
+                return Task.FromResult(0);
+            }
+
+            if (IsControlJustPressed(0, G_Key.OpenInventory))
+            {
+                G_Hud.IventoryOpened = !G_Hud.IventoryOpened;
+
+                var opened = G_Hud.IventoryOpened;
+
+                SetNuiFocus(opened, opened);
+                SetNuiFocusKeepInput(opened);
+
+                NuiHelper.SendMessage("interface", "inventory", new[] { opened ? "true" : "false" });
                 return Task.FromResult(0);
             }
 

@@ -1,4 +1,4 @@
-﻿namespace Client.Core
+﻿namespace Client.Core.Prompts
 {
     public class PromptServiceData
     {

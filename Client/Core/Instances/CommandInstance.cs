@@ -9,15 +9,8 @@ using static CitizenFX.Core.Native.API;
 
 namespace Client.Core.Instances
 {
-    internal class CommandInstance : IInstance
+    internal class CommandInstance : AbstractInstance<CommandInstance>
     {
-        public ClientMainScript Script { get; }
-
-        public CommandInstance(ClientMainScript script)
-        {
-            Script = script;
-        }
-
         public void Fps(string active)
         {
             switch (active)

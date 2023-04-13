@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Client.Core
+namespace Client.Core.Message
 {
     public class NuiMessage : IDisposable
     {

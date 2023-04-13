@@ -1,8 +1,9 @@
 ﻿using System;
 using CitizenFX.Core;
+using Client.Core.Color;
 using static CitizenFX.Core.Native.API;
 
-namespace Client.Core
+namespace Client.Core.Prompts
 {
     public class Prompt
     {
@@ -187,10 +188,10 @@ namespace Client.Core
         public float Padding { get; set; }
         public float TextOffset { get; set; }
         public float ButtonSize { get; set; }
-        public RGBAColor BackgroundColor { get; set; }
-        public RGBAColor LabelColor { get; set; }
-        public RGBAColor ButtonColor { get; set; }
-        public RGBAColor KeyColor { get; set; }
+        public RGBA BackgroundColor { get; set; }
+        public RGBA LabelColor { get; set; }
+        public RGBA ButtonColor { get; set; }
+        public RGBA KeyColor { get; set; }
         public float DrawDistance { get; set; }
         public float InteractDistance { get; set; }
     }
@@ -203,8 +204,8 @@ namespace Client.Core
         float H { get; set; }
         float TextX { get; set; }
         float TextY { get; set; }
-        RGBAColor BC { get; set; }
-        RGBAColor FC { get; set; }
+        RGBA BC { get; set; }
+        RGBA FC { get; set; }
     }
 
     public class PromptButton : IBox
@@ -215,8 +216,8 @@ namespace Client.Core
         public float H { get; set; }
         public float TextX { get; set; }
         public float TextY { get; set; }
-        public RGBAColor BC { get; set; }
-        public RGBAColor FC { get; set; }
+        public RGBA BC { get; set; }
+        public RGBA FC { get; set; }
     }
 
     public class PromptBackground : IBox
@@ -227,8 +228,8 @@ namespace Client.Core
         public float H { get; set; }
         public float TextX { get; set; }
         public float TextY { get; set; }
-        public RGBAColor BC { get; set; }
-        public RGBAColor FC { get; set; }
+        public RGBA BC { get; set; }
+        public RGBA FC { get; set; }
     }
 
     public class PromptFX

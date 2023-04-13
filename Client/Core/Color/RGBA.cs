@@ -1,8 +1,8 @@
-﻿namespace Client.Core
+﻿namespace Client.Core.Color
 {
-    public class RGBAColor
+    public class RGBA
     {
-        public RGBAColor(int r, int g, int b, int a)
+        public RGBA(int r, int g, int b, int a)
         {
             R = r;
             G = g;

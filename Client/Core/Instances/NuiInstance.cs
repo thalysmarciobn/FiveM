@@ -11,21 +11,14 @@ using static Client.GlobalVariables;
 
 namespace Client.Core.Instances
 {
-    public class NuiInstance : IInstance
+    public class NuiInstance : AbstractInstance<NuiInstance>
     {
-        public ClientMainScript Script { get; set; }
-
-        public NuiInstance(ClientMainScript script)
-        {
-            Script = script;
-        }
-
         public async void NUIChangeModel(string data, CallbackDelegate cb)
         {
             var player = Game.Player;
             var playerPed = Game.PlayerPed;
 
-            while (!await player.ChangeModel(data)) await Script.Delay(10);
+            while (!await player.ChangeModel(data)) await BaseScript.Delay(10);
 
             SetPedDefaultComponentVariation(playerPed.Handle);
             SetPedHeadBlendData(playerPed.Handle, 0, 0, 0, 0, 0, 0, 0f, 0f, 0f, false);
@@ -209,7 +202,7 @@ namespace Client.Core.Instances
             var slot = data.GetInt("slot");
             var appearance = data.GetObject("appearance");
 
-            Script.TriggerServerEvent(EventName.Server.RegisterCharacter, name, lastName, age, slot, appearance,
+            BaseScript.TriggerServerEvent(EventName.Server.RegisterCharacter, name, lastName, age, slot, appearance,
                 new Action<int>(serverStatus =>
                 {
                     var player = Game.Player;

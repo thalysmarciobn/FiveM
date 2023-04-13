@@ -67,7 +67,7 @@ namespace FiveM.Server.Database
 
                 e.HasKey(m => m.Id);
 
-                e.HasIndex(m => new { m.Id, m.AccountId, m.Slot }).IsUnique();
+                e.HasIndex(m => new { m.AccountId, m.Slot }).IsUnique();
 
                 e.HasOne(m => m.Position).WithOne().HasForeignKey<AccountCharacterPositionModel>(m => m.CharacterId)
                     .OnDelete(DeleteBehavior.Cascade);
@@ -235,6 +235,8 @@ namespace FiveM.Server.Database
             {
                 e.ToTable("account_character_item");
                 e.HasKey(m => new { m.Id, m.CharacterId });
+
+                e.HasIndex(m => new { m.CharacterId, m.Slot }).IsUnique();
             });
 
             modelBuilder.Entity<ServerVehicleService>(e =>

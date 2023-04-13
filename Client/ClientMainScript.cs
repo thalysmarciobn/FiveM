@@ -15,38 +15,25 @@ namespace FiveM.Client
 {
     public class ClientMainScript : BaseScriptAbstract
     {
-        private bool Boot { get; }
-        private PlayerInstance PlayerInstance { get; }
-        private NuiInstance NuiInstance { get; }
-        private GameInstance GameInstance { get; }
-        private CommandInstance CommandInstance { get; }
 
         public ClientMainScript()
         {
-            PlayerInstance  = new PlayerInstance(this);
-            NuiInstance = new NuiInstance(this);
-            GameInstance = new GameInstance(this);
-            CommandInstance = new CommandInstance(this);
+            RegisterHandler(EventName.External.BaseEvents.OnBaseResourceStart, new Action(GameInstance.Instance.OnBaseResourceStart));
+            RegisterHandler(EventName.Client.InitAccount, new Action<string>(PlayerInstance.Instance.InitAccount));
+            RegisterHandler(EventName.Client.UpdatePlayerDataList, new Action<string>(PlayerInstance.Instance.UpdatePlayerDataList));
 
-            Debug.WriteLine("[PROJECT] Script: CharacterScript");
-            RegisterHandler(EventName.External.BaseEvents.OnBaseResourceStart, new Action(OnBaseResourceStart));
-            RegisterHandler(EventName.Client.InitAccount, new Action<string>(PlayerInstance.InitAccount));
-            RegisterHandler(EventName.Client.UpdatePlayerDataList, new Action<string>(PlayerInstance.UpdatePlayerDataList));
-
-            RegisterNui("characterRequest", new Action<int>(PlayerInstance.CharacterRequest));
-            RegisterNui("changeModel", new Action<string, CallbackDelegate>(NuiInstance.NUIChangeModel));
-            RegisterNui("setCamera", new Action<string, CallbackDelegate>(NuiInstance.NUIChangeCamera));
-            RegisterNui("setPedHeadBlend", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUISetPedHeadBlend));
-            RegisterNui("setPedFaceFeatures", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUISetPedFaceFeatures));
-            RegisterNui("setPedProps", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUISetPedProps));
-            RegisterNui("setPedHeadOverlay", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUISetPedHeadOverlay));
-            RegisterNui("setPedHeadOverlayColor", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUISetPedHeadOverlayColor));
-            RegisterNui("setPedComponentVariation", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUISetPedComponentVariation));
-            RegisterNui("setPedEyeColor", new Action<int, CallbackDelegate>(NuiInstance.NUISetPedEyeColor));
-            RegisterNui("setPedHairColor", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUISetPedHairColor));
-            RegisterNui("registerCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.NUIRegisterCharacter));
-
-            Boot = true;
+            RegisterNui("characterRequest", new Action<int>(PlayerInstance.Instance.CharacterRequest));
+            RegisterNui("changeModel", new Action<string, CallbackDelegate>(NuiInstance.Instance.NUIChangeModel));
+            RegisterNui("setCamera", new Action<string, CallbackDelegate>(NuiInstance.Instance.NUIChangeCamera));
+            RegisterNui("setPedHeadBlend", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.Instance.NUISetPedHeadBlend));
+            RegisterNui("setPedFaceFeatures", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.Instance.NUISetPedFaceFeatures));
+            RegisterNui("setPedProps", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.Instance.NUISetPedProps));
+            RegisterNui("setPedHeadOverlay", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.Instance.NUISetPedHeadOverlay));
+            RegisterNui("setPedHeadOverlayColor", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.Instance.NUISetPedHeadOverlayColor));
+            RegisterNui("setPedComponentVariation", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.Instance.NUISetPedComponentVariation));
+            RegisterNui("setPedEyeColor", new Action<int, CallbackDelegate>(NuiInstance.Instance.NUISetPedEyeColor));
+            RegisterNui("setPedHairColor", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.Instance.NUISetPedHairColor));
+            RegisterNui("registerCharacter", new Action<IDictionary<string, object>, CallbackDelegate>(NuiInstance.Instance.NUIRegisterCharacter));
         }
 
         protected override void OnClientResourceStart(string resourceName)
@@ -55,13 +42,13 @@ namespace FiveM.Client
 
             if (GetCurrentResourceName() != resourceName) return;
 
-            // Weather
-            GameInstance.ClearWeather();
+            PlayerInstance.Instance?.GetPlayerDataList();
 
-            GameInstance.GetTimeSync();
-            GameInstance.GetBlips();
-            
-            PlayerInstance.GetPlayerDataList();
+            // Weather
+            GameInstance.Instance?.ClearWeather();
+
+            GameInstance.Instance?.GetTimeSync();
+            GameInstance.Instance?.GetBlips();
         }
 
         protected override void OnClientResourceStop(string resourceName)
@@ -70,42 +57,30 @@ namespace FiveM.Client
 
             if (GetCurrentResourceName() != resourceName) return;
 
-            GameInstance.RemoveBlips();
+            GameInstance.Instance?.RemoveBlips();
 
             GameCamera.DeleteCamera();
-        }
-
-        public static void OnBaseResourceStart()
-        {
-            BaseScript.TriggerServerEvent(EventName.Server.AccountRequest);
         }
 
         #region Ticks
         [Tick]
         public async Task TickPlayerData()
         {
-            if (!Boot) return;
-
-            await PlayerInstance.TickPlayerData();
+            await PlayerInstance.Instance?.TickPlayerData(PlayerList.Players);
         }
 
         [Tick]
         public async Task TickOverrideClockTime()
         {
-            if (!Boot) return;
-
-            await GameInstance.TickOverrideClockTime();
+            await GameInstance.Instance?.TickOverrideClockTime();
         }
 
         [Tick]
         public async Task TickTimeAndWeather()
         {
-            if (Boot)
-            {
-                GameInstance.UpdateWeather();
+            GameInstance.Instance?.UpdateWeather();
 
-                NuiInstance.UpdateTime();
-            }
+            NuiInstance.Instance?.UpdateTime();
 
             await Delay(1000);
         }
@@ -130,7 +105,7 @@ namespace FiveM.Client
         public void Fps(int src, List<object> args, string raw)
         {
             var active = args[0].ToString();
-            CommandInstance.Fps(active);
+            CommandInstance.Instance.Fps(active);
         }
 
         [Command("test")]

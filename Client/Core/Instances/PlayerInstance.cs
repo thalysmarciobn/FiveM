@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using CitizenFX.Core;
+using CitizenFX.Core.UI;
 using Client.Extensions;
 using Client.Helper;
 using FiveM.Client;
@@ -19,20 +20,13 @@ using static Client.GlobalVariables;
 
 namespace Client.Core.Instances
 {
-    public class PlayerInstance : IInstance
+    public class PlayerInstance : AbstractInstance<PlayerInstance>
     {
-        public ClientMainScript Script { get; set; }
-
         private readonly ConcurrentDictionary<int, ServerPlayer> PlayerDataList = new ConcurrentDictionary<int, ServerPlayer>();
-
-        public PlayerInstance(ClientMainScript script)
-        {
-            Script = script;
-        }
 
         public void GetPlayerDataList()
         {
-            Script.TriggerServerEvent(EventName.Server.GetPlayerDataList, new Action<string>(arg =>
+            BaseScript.TriggerServerEvent(EventName.Server.GetPlayerDataList, new Action<string>(arg =>
             {
                 using (var data = JsonHelper.DeserializeObject<PlayerDataListMessage>(arg))
                 {
@@ -53,33 +47,37 @@ namespace Client.Core.Instances
 
         public async void InitAccount(string json)
         {
-            DoScreenFadeOut(500);
-            while (IsScreenFadedOut())
-                await Script.Delay(10);
+            var player = Game.Player;
+
+            var playerId = player.Handle;
+            var playerPedId = player.Character.Handle;
+
+            SwitchOutPlayer(PlayerPedId(), 1, 1);
+
+            //DoScreenFadeOut(500);
+            //while (IsScreenFadedOut()) await Script.Delay(10);
 
             var account = JsonHelper.DeserializeObject<AccountModel>(json);
-
-            var player = Game.Player;
 
             if (account.Character.Count <= 0)
             {
                 var characterPosition = Creation.Position;
                 var heading = Creation.Heading;
 
-                while (!await Game.Player.ChangeModel(PedHash.FreemodeMale01)) await Script.Delay(10);
+                while (!await player.ChangeModel(PedHash.FreemodeMale01)) await BaseScript.Delay(10);
 
                 LoadScene(characterPosition.X, characterPosition.Y, characterPosition.Z);
-                SetPedDefaultComponentVariation(PlayerPedId());
-                SetPedHeadBlendData(PlayerPedId(), 0, 0, 0, 0, 0, 0, 0f, 0f, 0f, false);
+                SetPedDefaultComponentVariation(playerPedId);
+                SetPedHeadBlendData(playerPedId, 0, 0, 0, 0, 0, 0, 0f, 0f, 0f, false);
                 RequestCollisionAtCoord(characterPosition.X, characterPosition.Y, characterPosition.Z);
 
-                SetEntityCoordsNoOffset(PlayerPedId(), characterPosition.X, characterPosition.Y, characterPosition.Z,
+                SetEntityCoordsNoOffset(playerPedId, characterPosition.X, characterPosition.Y, characterPosition.Z,
                     false, false, false);
                 NetworkResurrectLocalPlayer(characterPosition.X, characterPosition.Y, characterPosition.Z, heading,
                     true, true);
-                ClearPedTasksImmediately(PlayerPedId());
+                ClearPedTasksImmediately(playerPedId);
 
-                while (!HasCollisionLoadedAroundEntity(PlayerPedId())) await Script.Delay(10);
+                while (!HasCollisionLoadedAroundEntity(playerPedId)) await BaseScript.Delay(10);
 
                 var groundZ = 0f;
                 var ground = GetGroundZFor_3dCoord(characterPosition.X, characterPosition.Y, characterPosition.Z,
@@ -115,18 +113,25 @@ namespace Client.Core.Instances
                 await EnterCharacter(resCharacter);
             }
 
-            ClearPlayerWantedLevel(PlayerId());
+            ClearPlayerWantedLevel(playerId);
             SetMaxWantedLevel(0);
 
+            SendLoadingScreenMessage(JsonHelper.SerializeObject(new
+            {
+                eventName = "end"
+            }));
+            ShutdownLoadingScreenNui();
             ShutdownLoadingScreen();
 
+            SwitchInPlayer(PlayerPedId());
+
             DoScreenFadeIn(500);
-            while (IsScreenFadingIn()) await Script.Delay(1);
+            while (IsScreenFadingIn()) await BaseScript.Delay(1);
         }
 
         public void CharacterRequest(int slot)
         {
-            Script.TriggerServerEvent(EventName.Server.CharacterRequest, slot, new Action<string>(async json =>
+            BaseScript.TriggerServerEvent(EventName.Server.CharacterRequest, slot, new Action<string>(async json =>
             {
                 var data = JsonHelper.DeserializeObject<AccountCharacterModel>(json);
 
@@ -147,7 +152,7 @@ namespace Client.Core.Instances
             LoadScene(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
             RequestCollisionAtCoord(resCharacterPosition.X, resCharacterPosition.Y, resCharacterPosition.Z);
 
-            while (!await Game.Player.ChangeModel(new Model(resCharacter.Model))) await Script.Delay(10);
+            while (!await Game.Player.ChangeModel(new Model(resCharacter.Model))) await BaseScript.Delay(10);
 
             player.SetEyeColor(resCharacter);
             player.SetHairColor(resCharacter.PedHead);
@@ -161,7 +166,7 @@ namespace Client.Core.Instances
             player.SetPedHeadOverlays(resCharacter.PedHeadOverlay);
             player.SetPedHeadOverlayColors(resCharacter.PedHeadOverlayColor);
 
-            while (!HasCollisionLoadedAroundEntity(PlayerPedId())) await Script.Delay(10);
+            while (!HasCollisionLoadedAroundEntity(PlayerPedId())) await BaseScript.Delay(10);
 
             //SetEntityCoordsNoOffset(GetPlayerPed(-1), vector3.X, vector3.Y, vector3.Z, false, false, false); ;
             //NetworkResurrectLocalPlayer(vector3.X, vector3.Y, vector3.Z, heading, true, true);
@@ -196,13 +201,15 @@ namespace Client.Core.Instances
             SetNuiFocus(false, false);
 
             NuiHelper.SendMessage("interface", "creation", new[] { "false", "0" });
+            Debug.WriteLine(JsonHelper.SerializeObject(resCharacter.Items));
+            NuiHelper.SendMessage("store", "inventory", JsonHelper.SerializeObject(resCharacter.Items));
 
             DeleteCamera();
 
             RenderScriptCams(false, false, 0, true, true);
         }
 
-        public Task TickPlayerData()
+        public Task TickPlayerData(PlayerList playerList)
         {
             var localPlayer = Game.Player;
 
@@ -215,7 +222,7 @@ namespace Client.Core.Instances
             if (PlayerDataList.TryGetValue(localPlayer.ServerId, out var isLocalPassive))
                 localPassive = isLocalPassive.IsPassive;
 
-            foreach (var player in Script.PlayerList())
+            foreach (var player in playerList)
                 if (PlayerDataList.ContainsKey(player.ServerId))
                 {
                     var data = PlayerDataList[player.ServerId];
