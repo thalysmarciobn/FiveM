@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -28,8 +29,8 @@ namespace Client
         private IReadOnlyCollection<Prompt> Prompts { get; set; }
         private Queue<long> ServicesToAction { get; } = new Queue<long>();
 
-        private Dictionary<long, PromptServiceData> ServicesInAction { get; } =
-            new Dictionary<long, PromptServiceData>();
+        private ConcurrentDictionary<long, PromptServiceData> ServicesInAction { get; } =
+            new ConcurrentDictionary<long, PromptServiceData>();
 
         private void OnClientResourceStart(string resourceName)
         {
@@ -124,19 +125,22 @@ namespace Client
                         while (DoesEntityExist(vehicleId))
                             Wait(10);
 
-                        ServicesInAction.Remove(currentPrompt.ValueId);
-                        G_Character.CurrentPromptServiceVehicle = null;
                         TriggerServerEvent(EventName.Server.SetPassive, false);
+                        ServicesInAction.TryRemove(currentPrompt.ValueId, out var value);
+                        G_Character.CurrentPromptServiceVehicle = null;
                     }
                 }
                 else
                 {
-                    ServicesInAction.Remove(currentPrompt.ValueId);
-                    G_Character.CurrentPromptServiceVehicle = null;
                     localPlayer.CanControlCharacter = true;
                     TriggerServerEvent(EventName.Server.SetPassive, false);
+                    ServicesInAction.TryRemove(currentPrompt.ValueId, out var value);
+                    G_Character.CurrentPromptServiceVehicle = null;
                 }
             }
+
+            if (Prompts == null)
+                return Task.FromResult(0);
 
             foreach (var prompt in Prompts)
             {
@@ -176,26 +180,13 @@ namespace Client
                 if (prompt.IsPressed)
                     if (!ServicesInAction.ContainsKey(prompt.ValueId))
                     {
-                        ServicesInAction.Add(prompt.ValueId, new PromptServiceData
+                        if (ServicesInAction.TryAdd(prompt.ValueId, new PromptServiceData
                         {
                             ValueId = prompt.ValueId,
                             Service = prompt.Service
-                        });
-                        ServicesToAction.Enqueue(prompt.ValueId);
+                        }))
+                            ServicesToAction.Enqueue(prompt.ValueId);
                     }
-            }
-
-            return Task.FromResult(0);
-        }
-
-        [Tick]
-        public Task OnFrame()
-        {
-            if (G_Hud.PanelOpened || G_Hud.IventoryOpened)
-            {
-                G_Hud.DisableKeys.ForEach(key => {
-                    DisableControlAction(0, key, true);
-                });
             }
 
             return Task.FromResult(0);

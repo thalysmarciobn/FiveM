@@ -13,7 +13,7 @@ namespace Client
         {
             public static int MaxHealth     => 500;
 
-            public static bool Entered      => false;
+            public static bool Entered { get; set; } = false;
 
             public static PromptServiceVehicle CurrentPromptServiceVehicle { get; set; }
         }
@@ -26,10 +26,10 @@ namespace Client
 
         public static class G_Hud
         {
-            public static bool PanelOpened          => false;
-            public static bool IventoryOpened       => false;
+            public static bool PanelOpened { get; set; } = false;
+            public static bool IventoryOpened { get; set; } = false;
 
-            public static List<int> DisableKeys     => new List<int>()
+            public static List<int> DisableKeys { get; } = new List<int>()
             {
                 1, 2, 24, 25, 30, 31, 32, 34, 35, 36, 37
             };

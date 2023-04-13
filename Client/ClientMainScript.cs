@@ -63,6 +63,20 @@ namespace FiveM.Client
         }
 
         #region Ticks
+
+        [Tick]
+        public Task OnFrame()
+        {
+            if (G_Hud.PanelOpened || G_Hud.IventoryOpened)
+            {
+                G_Hud.DisableKeys.ForEach(key => {
+                    DisableControlAction(0, key, true);
+                });
+            }
+
+            return Task.FromResult(0);
+        }
+
         [Tick]
         public async Task TickPlayerData()
         {
