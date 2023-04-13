@@ -26,7 +26,7 @@ namespace Client
             EventHandlers[EventName.External.Client.OnClientResourceStop] += new Action<string>(OnClientResourceStop);
         }
 
-        private IReadOnlyCollection<Prompt> Prompts { get; set; }
+        private Prompt[] Prompts { get; set; }
         private Queue<long> ServicesToAction { get; } = new Queue<long>();
 
         private ConcurrentDictionary<long, PromptServiceData> ServicesInAction { get; } =
@@ -63,7 +63,7 @@ namespace Client
                         InteractDistance = 2.0f
                     }));
 
-                Prompts = collection;
+                Prompts = collection.ToArray();
 
                 foreach (var prompt in Prompts)
                     prompt.Update();

@@ -69,9 +69,8 @@ namespace FiveM.Client
         {
             if (G_Hud.PanelOpened || G_Hud.IventoryOpened)
             {
-                G_Hud.DisableKeys.ForEach(key => {
+                foreach (var key in G_Hud.DisableKeys)
                     DisableControlAction(0, key, true);
-                });
             }
 
             return Task.FromResult(0);

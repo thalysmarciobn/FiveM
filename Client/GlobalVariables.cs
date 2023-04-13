@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using CitizenFX.Core;
 using Client.Core.Prompts;
 
@@ -29,7 +30,7 @@ namespace Client
             public static bool PanelOpened { get; set; } = false;
             public static bool IventoryOpened { get; set; } = false;
 
-            public static List<int> DisableKeys { get; } = new List<int>()
+            public static int[] DisableKeys { get; } = new int[]
             {
                 1, 2, 24, 25, 30, 31, 32, 34, 35, 36, 37
             };
