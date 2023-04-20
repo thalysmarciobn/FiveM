@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Client.Core
+namespace Server.Core
 {
     public abstract class AbstractInstance<T> where T : new()
     {
