@@ -24,26 +24,11 @@ namespace Server
     {
         protected override void OnStart()
         {
+            //base.OnStart();
+
             Debug.WriteLine("[PROJECT] ServerMain Started.");
             
             DatabaseContextManager.Build(Settings.Database);
-
-            TimeSyncController.Initialize();
-
-            //ThreadInstance.Instance.CreateThread(async () =>
-            //{
-            //    while (TimeSyncController.IsRunning)
-            //    {
-            //        if (DateTime.Now.Ticks < TimeSyncController.CanUpdate)
-            //        {
-            //            await Task.Delay(100);
-            //            continue;
-            //        }
-            //        var date = TimeSyncController.CurrentDate;
-            //        TimeSyncController.Next();
-            //        Debug.WriteLine($"[PROJECT] Time: {date.Hour}:{date.Minute}:{date.Second}\n - Weather: {TimeSyncController.CurrentWeather}\n - Last Weather: {TimeSyncController.LastWeatherType}\n - Rain Level: {TimeSyncController.RainLevel}\n - Wind Speed: {TimeSyncController.WindSpeed}\n - Wind Direction: {TimeSyncController.WindDirection}");
-            //    }
-            //}).Start();
         }
 
         [Command("project_players")]

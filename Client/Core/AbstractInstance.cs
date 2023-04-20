@@ -8,11 +8,16 @@ namespace Client.Core
 {
     public abstract class AbstractInstance<T> where T : new()
     {
-        private static readonly Lazy<T> s_Instance = new Lazy<T>(() => new T());
+        private static T s_Instance { get; set; }
 
         public static T Instance
         {
-            get { return s_Instance.Value; }
+            get
+            {
+                if (s_Instance == null)
+                    s_Instance = new T();
+                return s_Instance;
+            }
         }
     }
 }
