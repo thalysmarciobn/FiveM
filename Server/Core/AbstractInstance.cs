@@ -1,17 +1,14 @@
-﻿namespace Server.Core
+﻿using System;
+
+namespace Client.Core
 {
     public abstract class AbstractInstance<T> where T : new()
     {
-        private static T s_Instance { get; set; }
+        private static readonly Lazy<T> s_Instance = new Lazy<T>(() => new T());
 
         public static T Instance
         {
-            get
-            {
-                if (s_Instance == null)
-                    s_Instance = new T();
-                return s_Instance;
-            }
+            get { return s_Instance.Value; }
         }
     }
 }

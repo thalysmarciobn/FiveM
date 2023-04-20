@@ -2,9 +2,6 @@
 using Shared.Models.Database;
 using System.ComponentModel;
 
-
-Console.WriteLine($"{Convert.ToUInt32("DC0F817884CDD856", 16)}");
-
 using var context = new Context();
 
 var account = context.Account
@@ -19,4 +16,5 @@ var account = context.Account
     .Single(x => x.License == "07041d870811cccd5a93a5a012970b341d168b9a");
 
 var character = account.Character.First();
+
 Console.WriteLine(character.Position.X);

@@ -79,7 +79,11 @@ namespace Client
 
             if (Camera != null)
             {
-                await Task.Factory.StartNew(() => SetCamActiveWithInterp(tmpCamera.Handle, Camera.Handle, 1000, 1, 1)).ContinueWith(async =>
+                await Task.Factory.StartNew(async () =>
+                {
+                    SetCamActiveWithInterp(tmpCamera.Handle, Camera.Handle, 1000, 1, 1);
+                    await BaseScript.Delay(10);
+                }).ContinueWith((_) =>
                 {
                     if (!Camera.IsInterpolating && tmpCamera.IsActive)
                     {

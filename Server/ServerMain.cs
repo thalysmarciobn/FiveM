@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using CitizenFX.Core;
 using Server.Configurations;
 using Server.Controller;
+using Server.Core;
 using Server.Database;
 using Server.Helper;
 using Server.Instances;
@@ -19,41 +20,13 @@ using static CitizenFX.Core.Native.API;
 
 namespace Server
 {
-    public class ServerMain : BaseScript
+    public class ServerMain : BaseServerScriptAbstract
     {
-        private ServerController ServerController { get; }
-        private AuthenticatorController AuthenticatorController { get; }
-        private CharacterController CharacterController { get; }
-        private TimeSyncController TimeSyncController { get; }
-        private ItemController ItemController { get; }
-        public ServerMain()
+        protected override void OnStart()
         {
-            ServerController = new ServerController();
-            AuthenticatorController = new AuthenticatorController();
-            CharacterController = new CharacterController();
-            TimeSyncController = new TimeSyncController();
-            ItemController = new ItemController();
             Debug.WriteLine("[PROJECT] ServerMain Started.");
-            var directory = Directory.GetCurrentDirectory();
-            var location = $"{directory}/server.yml";
-            if (!File.Exists(location))
-            {
-                File.WriteAllText(location, YamlInstance.Instance.SerializerBuilder.Serialize(new ServerSettings
-                {
-                    Database = new Configurations.Database
-                    {
-                        Server = "127.0.0.1",
-                        Schema = "fivem",
-                        Login = "root",
-                        Password = "123",
-                        Port = 3306
-                    }
-                }));
-            }
-
-            var configuration = File.ReadAllText(location);
-            var settings = YamlInstance.Instance.DeserializerBuilder.Deserialize<ServerSettings>(configuration);
-            DatabaseContextManager.Build(settings.Database);
+            
+            DatabaseContextManager.Build(Settings.Database);
 
             TimeSyncController.Initialize();
 
