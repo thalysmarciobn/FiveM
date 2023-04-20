@@ -1,8 +1,9 @@
 ﻿using Shared.Enumerations;
+using Shared.Interface;
 
 namespace Shared.Models.Database
 {
-    public class AccountCharacterPedComponentModel
+    public class AccountCharacterPedComponentModel : ICharacterComponent, ICharacterPedComponent
     {
         public long CharacterId { get; set; }
         public ComponentVariationEnum ComponentId { get; set; }

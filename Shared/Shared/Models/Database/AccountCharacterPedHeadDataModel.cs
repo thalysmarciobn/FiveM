@@ -1,6 +1,8 @@
-﻿namespace Shared.Models.Database
+﻿using Shared.Interface;
+
+namespace Shared.Models.Database
 {
-    public class AccountCharacterPedHeadDataModel
+    public class AccountCharacterPedHeadDataModel : ICharacterComponent
     {
         public long CharacterId { get; set; }
         public int ShapeFirstID { get; set; }

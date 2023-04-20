@@ -1,6 +1,8 @@
-﻿namespace Shared.Models.Database
+﻿using Shared.Interface;
+
+namespace Shared.Models.Database
 {
-    public class AccountCharacterRotationModel
+    public class AccountCharacterRotationModel : ICharacterComponent, ICoord
     {
         public long CharacterId { get; set; }
         public float X { get; set; }

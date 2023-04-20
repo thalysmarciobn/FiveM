@@ -1,6 +1,8 @@
-﻿namespace Shared.Models.Database
+﻿using Shared.Interface;
+
+namespace Shared.Models.Database
 {
-    public class BlipModel
+    public class BlipModel : ICoord
     {
         public long Id { get; set; }
         public int BlipId { get; set; }

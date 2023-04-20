@@ -1,10 +1,11 @@
 ﻿using Shared.Enumerations;
+using Shared.Interface;
 using System;
 using System.Collections.Generic;
 
 namespace Shared.Models.Database
 {
-    public class AccountCharacterItemModel
+    public class AccountCharacterItemModel : ICharacterComponent
     {
         public long Id { get; set; }
         public long CharacterId { get; set; }

@@ -1,6 +1,8 @@
-﻿namespace Shared.Models.Database
+﻿using Shared.Interface;
+
+namespace Shared.Models.Database
 {
-    public class AccountCharacterVehicleModel
+    public class AccountCharacterVehicleModel : ICharacterComponent
     {
         public long CharacterId { get; set; }
         public uint Model { get; set; }

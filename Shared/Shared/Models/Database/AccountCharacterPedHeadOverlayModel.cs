@@ -1,8 +1,9 @@
 ﻿using Shared.Enumerations;
+using Shared.Interface;
 
 namespace Shared.Models.Database
 {
-    public class AccountCharacterPedHeadOverlayModel
+    public class AccountCharacterPedHeadOverlayModel : ICharacterComponent
     {
         public long CharacterId { get; set; }
         public OverlayEnum OverlayId { get; set; }

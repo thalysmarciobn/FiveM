@@ -22,7 +22,7 @@ namespace Client.Core.Instances
 {
     public class PlayerInstance : AbstractInstance<PlayerInstance>
     {
-        private readonly ConcurrentDictionary<int, ServerPlayer> PlayerDataList = new ConcurrentDictionary<int, ServerPlayer>();
+        private readonly Dictionary<int, ServerPlayer> PlayerDataList = new Dictionary<int, ServerPlayer>();
 
         public void GetPlayerDataList()
         {
@@ -31,7 +31,7 @@ namespace Client.Core.Instances
                 using (var data = JsonHelper.DeserializeObject<PlayerDataListMessage>(arg))
                 {
                     foreach (var kvp in data.List)
-                        PlayerDataList.TryAdd(kvp.Key, kvp.Value);
+                        PlayerDataList[kvp.Key] = kvp.Value;
                 }
             }));
         }
@@ -41,7 +41,7 @@ namespace Client.Core.Instances
             using (var data = JsonHelper.DeserializeObject<PlayerDataListMessage>(arg))
             {
                 foreach (var kvp in data.List)
-                    PlayerDataList.AddOrUpdate(kvp.Key, kvp.Value, (key, oldValue) => kvp.Value);
+                    PlayerDataList[kvp.Key] = kvp.Value;
             }
         }
 

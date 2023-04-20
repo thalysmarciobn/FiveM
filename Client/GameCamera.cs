@@ -61,7 +61,7 @@ namespace Client
             Camera?.Delete();
         }
 
-        public static void SetCamera(CameraType cameraType, float fov, bool reverseCamera = false)
+        public static async void SetCamera(CameraType cameraType, float fov, bool reverseCamera = false)
         {
             if (Camera != null && Camera.IsInterpolating) return;
 
@@ -75,13 +75,12 @@ namespace Client
             var tmpCamera = World.CreateCamera(camCoords, GameplayCamera.Rotation, fov);
             PointCamAtCoord(tmpCamera.Handle, camPoints.X, camPoints.Y, camPoints.Z);
 
+            tmpCamera.IsActive = true;
+
             if (Camera != null)
             {
-                SetCamActiveWithInterp(tmpCamera.Handle, Camera.Handle, 1000, 1, 1);
-
-                Task.Factory.StartNew(async () =>
+                await Task.Factory.StartNew(() => SetCamActiveWithInterp(tmpCamera.Handle, Camera.Handle, 1000, 1, 1)).ContinueWith(async =>
                 {
-                    await BaseScript.Delay(1500);
                     if (!Camera.IsInterpolating && tmpCamera.IsActive)
                     {
                         Camera.Delete();
@@ -91,7 +90,6 @@ namespace Client
             }
             else
             {
-                tmpCamera.IsActive = true;
                 Camera = tmpCamera;
             }
 
