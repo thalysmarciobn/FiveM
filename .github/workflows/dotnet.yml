@@ -35,6 +35,8 @@ jobs:
         else
           echo "Nenhuma tag encontrada no repositório."
         fi
+      env:
+        ACTIONS_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
 
     - name: Criar Nova Tag
       id: create_tag
