@@ -8,6 +8,9 @@ on:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
+  release:
+    types:
+      - created
 
 jobs:
   build:
@@ -15,6 +18,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v3
-    - uses: actions/setup-dotnet@v3
-    - run: dotnet build ./Server/Server.csproj
+    - name: Checkout do Código
+      uses: actions/checkout@v2
+
+    - name: Configurar .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: 6.0.x
+
+    - name: Restaurar Dependências
+      run: dotnet restore ./Server/Server.csproj
+
+    - name: Compilar
+      run: dotnet build --configuration Release ./Server/Server.csproj
+
+    - name: Publicar Binários
+      run: dotnet publish --configuration Release --output ./Server/bin/Release
+
+    - name: Criar Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        files: ./Server/bin/Release/*
+
+    - name: Obter URL de Download do Release
+      run: echo "A URL do release do Server é ${{ steps.create_release.outputs.url }}"
