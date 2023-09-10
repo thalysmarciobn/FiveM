@@ -550,3 +550,62 @@ public void RegisterCharacter(Player player, string name, string lastName, int a
 
 ![alt text](https://raw.githubusercontent.com/thalysmarciobn/FiveM/main/hud1.png)
 ![alt text](https://raw.githubusercontent.com/thalysmarciobn/FiveM/main/hud2.png)
+![alt text](https://raw.githubusercontent.com/thalysmarciobn/FiveM/main/hud3.png)
+![alt text](https://raw.githubusercontent.com/thalysmarciobn/FiveM/main/hud4.png)
+
+```typescript
+import { ref } from "vue"
+import Hud from "./components/Hud.vue"
+import Creation from "./components/Creation.vue"
+import Panel from "./components/Panel.vue"
+
+import { useApp } from "./stores/useApp"
+import { useHud } from "./stores/useHud"
+import { useCreation } from "./stores/useCreation"
+import { usePanel } from "./stores/usePanel"
+
+import { useNotification } from "@kyvg/vue3-notification"
+
+const appStore        = useApp()
+const appHud          = useHud()
+const appCreation     = useCreation()
+const appPanel        = usePanel()
+
+const { notify }      = useNotification()
+
+window.addEventListener("message", (event) => {
+
+const action: string    = event.data.Action
+const key: string       = event.data.Key
+const params: any[]     = event.data.Params
+
+if (action === 'interface') {
+  switch (key) {
+    case 'notification':
+      const s_type: string    =  params[0] as string
+      const s_message: string =  params[1] as string
+      notify({
+        type: s_type,
+        text: s_message
+      })
+      break;
+    case 'world':
+      appHud.weather            = params[0] as number
+      appHud.rainLevel          = params[1] as number
+      appHud.windSpeed          = params[2] as number
+      appHud.windDirecion       = params[3] as number
+      appHud.hour               = params[4] as number
+      appHud.minute             = params[5] as number
+      appHud.second             = params[6] as number
+      break
+    case 'panel':
+      appPanel.display          = params[0] as string
+      break
+    case 'creation':
+      appCreation.display       = params[0] as string
+      appStore.charSlot         = params[1] as number
+      break
+  }
+}
+});
+```
