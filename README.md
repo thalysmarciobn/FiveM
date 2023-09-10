@@ -1,6 +1,13 @@
 # FiveM
 
-**Clima e Tempo**
+## 🛠️ Construído com
+
+* [FiveM](https://fivem.net) - Framework usado
+* [Json.NET](https://www.newtonsoft.com/json) - Framework de alte perfomance JSON
+
+## Sistemas
+
+### Clima e Tempo
 
 Sistema incompleto, o servidor terá que escolher um próximo tempo baseado ao anterior, condizendo com a lógica
 
@@ -33,9 +40,9 @@ public void Next()
 }
 ```
 
-**Exemplo de criação de personagem**
+### Criação de Personagem
 
-Client
+**Client**
 ```csharp
 BaseScript.TriggerServerEvent(EventName.Server.RegisterCharacter, name, lastName, age, slot, appearance,
     new Action<int>(serverStatus =>
@@ -54,8 +61,7 @@ BaseScript.TriggerServerEvent(EventName.Server.RegisterCharacter, name, lastName
         cb(new { status = serverStatus });
     }));
 ```
-
-Server
+**Server**
 ```csharp
 [EventHandler(EventName.Server.RegisterCharacter)]
 public void RegisterCharacter([FromSource] Player player, string name, string lastName, int age, int slot,
@@ -577,9 +583,9 @@ public void RegisterCharacter(Player player, string name, string lastName, int a
 ```
 
 
-# HUD
+## HUD
 
-**Exibição da crição da HUD em VueJS**
+### Exibição da crição da HUD em VueJS
 
 ![alt text](https://raw.githubusercontent.com/thalysmarciobn/FiveM/main/hud1.png)
 ![alt text](https://raw.githubusercontent.com/thalysmarciobn/FiveM/main/hud2.png)
