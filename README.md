@@ -3,7 +3,7 @@
 ## 🛠️ Construído com
 
 * [FiveM](https://fivem.net) - Framework usado
-* [Json.NET](https://www.newtonsoft.com/json) - Framework de alte perfomance JSON
+* [Json.NET](https://www.newtonsoft.com/json) - Framework de alta perfomance JSON
 
 ## Sistemas
 
