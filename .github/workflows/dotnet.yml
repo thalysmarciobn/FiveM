@@ -17,5 +17,4 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - uses: actions/setup-dotnet@v3
-    - run: dotnet build Server
-      working-directory: Server
+    - run: dotnet build ./Server/Server.csproj
