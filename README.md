@@ -1,8 +1,41 @@
 # FiveM
 
-Exemplo de criação de personagem 
+**Clima e Tempo**
 
-**Client**
+Sistema incompleto, o servidor terá que escolher um próximo tempo baseado ao anterior, condizendo com a lógica
+
+```csharp
+public void Next()
+{
+	if (AvaiableTransation.TryGetValue(CurrentWeather, out var transition))
+	{
+		var rand = Random.Next(0, 100);
+		WindDirection = Random.Next(0, 7);
+		var linq = transition.Where(x => x.Chance >= rand);
+		var count = linq.Count();
+		if (count == 1)
+		{
+			var currentTrasation = linq.First();
+			CurrentWeather = currentTrasation.To;
+		}
+		else if (count > 1)
+		{
+			var chance = Random.Next(0, count);
+			var list = linq.ToArray();
+			var element = list.ElementAt(chance);
+			CurrentWeather = element.To;
+		}
+		else
+		{
+			Next();
+		}
+	}
+}
+```
+
+**Exemplo de criação de personagem**
+
+Client
 ```csharp
 BaseScript.TriggerServerEvent(EventName.Server.RegisterCharacter, name, lastName, age, slot, appearance,
     new Action<int>(serverStatus =>
@@ -22,7 +55,7 @@ BaseScript.TriggerServerEvent(EventName.Server.RegisterCharacter, name, lastName
     }));
 ```
 
-**Server**
+Server
 ```csharp
 [EventHandler(EventName.Server.RegisterCharacter)]
 public void RegisterCharacter([FromSource] Player player, string name, string lastName, int age, int slot,
