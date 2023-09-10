@@ -1,22 +1,13 @@
-# This workflow will build a .NET project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
-
-name: .NET
+name: Criar Tag e Release Automático
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
-  release:
-    types:
-      - created
+    branches:
+      - main
 
 jobs:
-  build:
-
+  create-tag-and-release:
     runs-on: ubuntu-latest
-
     steps:
     - name: Checkout do Código
       uses: actions/checkout@v2
@@ -34,6 +25,23 @@ jobs:
 
     - name: Publicar Binários
       run: dotnet publish --configuration Release --output ./Server/bin/Release
+
+    - name: Obter a Última Tag
+      id: get_latest_tag
+      run: echo ::set-output name=tag::$(git describe --tags --abbrev=0)
+
+    - name: Criar Nova Tag
+      id: create_tag
+      run: git tag ${{ steps.get_latest_tag.outputs.tag }}-$(date +'%Y%m%d%H%M%S')
+      continue-on-error: true
+
+    - name: Empurrar Nova Tag
+      id: push_tag
+      run: |
+        if [ -n "$GITHUB_REF" ]; then
+          git push origin ${{ steps.create_tag.outputs.tag }}
+        fi
+      continue-on-error: true
 
     - name: Criar Release
       id: create_release
