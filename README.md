@@ -586,6 +586,21 @@ public void RegisterCharacter(Player player, string name, string lastName, int a
 ![alt text](https://raw.githubusercontent.com/thalysmarciobn/FiveM/main/hud3.png)
 ![alt text](https://raw.githubusercontent.com/thalysmarciobn/FiveM/main/hud4.png)
 
+**Client**
+```csharp
+NuiHelper.SendMessage("interface", "world", new object[]
+{
+	G_World.Weather,
+	G_World.RainLevel,
+	G_World.WindSpeed,
+	G_World.WindDirection,
+	G_World.CurrentTime.Hours,
+	G_World.CurrentTime.Minutes,
+	G_World.CurrentTime.Seconds
+});
+```
+
+**UI**
 ```typescript
 import { ref } from "vue"
 import Hud from "./components/Hud.vue"
