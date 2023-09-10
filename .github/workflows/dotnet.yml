@@ -1,4 +1,4 @@
-name: Criar Tag e Release Automático
+name: .NET
 
 on:
   push:
@@ -25,37 +25,3 @@ jobs:
 
     - name: Publicar Binários
       run: dotnet publish --configuration Release --output ./Server/bin/Release
-
-    - name: Obter a Última Tag
-      id: get_latest_tag
-      run: |
-        if [ -n "$(git tag -l)" ]; then
-          echo "Tags encontradas no repositório."
-          echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
-        else
-          echo "Nenhuma tag encontrada no repositório."
-        fi
-      env:
-        ACTIONS_TOKEN: ${{ secrets.ACTIONS_TOKEN }}
-
-    - name: Criar Nova Tag
-      id: create_tag
-      run: git tag ${{ steps.get_latest_tag.outputs.tag }}-$(date +'%Y%m%d%H%M%S')
-      continue-on-error: true
-
-    - name: Empurrar Nova Tag
-      id: push_tag
-      run: |
-        if [ -n "$GITHUB_REF" ]; then
-          git push origin ${{ steps.create_tag.outputs.tag }}
-        fi
-      continue-on-error: true
-
-    - name: Criar Release
-      id: create_release
-      uses: softprops/action-gh-release@v1
-      with:
-        files: ./Server/bin/Release/*
-
-    - name: Obter URL de Download do Release
-      run: echo "A URL do release do Server é ${{ steps.create_release.outputs.url }}"
