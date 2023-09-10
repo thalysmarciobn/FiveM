@@ -28,7 +28,13 @@ jobs:
 
     - name: Obter a Última Tag
       id: get_latest_tag
-      run: echo ::set-output name=tag::$(git describe --tags --abbrev=0)
+      run: |
+        if [ -n "$(git tag -l)" ]; then
+          echo "Tags encontradas no repositório."
+          echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+        else
+          echo "Nenhuma tag encontrada no repositório."
+        fi
 
     - name: Criar Nova Tag
       id: create_tag
