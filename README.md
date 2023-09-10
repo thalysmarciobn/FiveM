@@ -4,6 +4,9 @@
 
 * [FiveM](https://fivem.net) - Framework usado
 * [Json.NET](https://www.newtonsoft.com/json) - Framework de alta perfomance JSON
+* [EntityFrameworkCore](https://www.nuget.org/packages/Microsoft.EntityFrameworkCore) - Framework para simplificar acesso a bancos de dados relacionais no .NET
+* [YamlDotNet](https://www.nuget.org/packages/YamlDotNet) - Biblioteca para processar arquivos YAML
+
 
 ## Sistemas
 
