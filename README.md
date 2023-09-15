@@ -1,5 +1,7 @@
 # FiveM
 
+[![CodeFactor](https://www.codefactor.io/repository/github/thalysmarciobn/FiveM/badge/main)](https://www.codefactor.io/repository/github/thalysmarciobn/FiveM/overview/main)
+
 ## 🛠️ Construído com
 
 * [FiveM](https://fivem.net) - Framework usado
