@@ -1,5 +1,6 @@
 # FiveM
 
+[![.NET](https://github.com/thalysmarciobn/FiveM/actions/workflows/dotnet.yml/badge.svg?branch=main)](https://github.com/thalysmarciobn/FiveM/actions/workflows/dotnet.yml)
 [![CodeFactor](https://www.codefactor.io/repository/github/thalysmarciobn/FiveM/badge/main)](https://www.codefactor.io/repository/github/thalysmarciobn/FiveM/overview/main)
 
 ## 🛠️ Construído com
